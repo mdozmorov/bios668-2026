@@ -10,7 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Course Title: Statistical Methods for High-throughput Genomics Data I
+# Course Title: Statistical Methods for High-throughput Genomics Data II
 
 Instructor: Mikhail Dozmorov  
 Department: Biostatistics, VCU  
@@ -19,17 +19,17 @@ Duration: 15 weeks (2 lectures per week, 1 hour 20 minutes each)
 
 ## Course Overview
 
-<!-- This course introduces deep learning concepts using R, with hands-on exercises. The focus will be on implementing deep learning models and exploring various architectures using the "Deep Learning with R" textbook by François Chollet and J. J. Allaire. The course will cover both foundational and advanced topics in deep learning, including computer vision, natural language processing, and generative models. -->
+Welcome to BIOS 668. This course is the second part of the Genomics curriculum, aimed to introduce core principles of Data Science, Genomics, Bioinformatics and Biostatistics. This is a blended course that combines in-class learning (lectures, labs) with self-directed activities.
 
-Welcome to BIOS 658. This course is the first part of the Genomics curriculum, aimed to introduce core principles of Data Science, Genomics, Bioinformatics and Biostatistics. This is a blended course that combines in-class learning (lectures, labs) with self-directed activities.
+The study of genomics and use of next-generation sequencing are at the forefront of biomedical research. Sequencing market is constantly evolving, stimulating the development of new genomics technologies, biostatistical approaches and software tools. Therefore it may not be possible to maintain a stable analysis pipeline throughout a project because the lifetime of software often spans months and even years. To be able to effectively analyze and interpret genomic sequencing data, it is crucial to (1) understand the technologies  and statistical properties of the data they produce and (2) develop strong computational skills that will be competitive and broadly applicable.
 
-Bioinformatics is interdisciplinary computer science, requiring a knowledge base in biology, technology, and statistics. The operational definition of ‘bioinformatics’ for this course is "The application of biotechnology and statistical methods to the study of biological problems." The biological problems on which we will focus are primarily gene expression studies conducted using RNA-seq technology.
+This course is a continuation of the BIOS 658 and will introduce high-throughput genomic assays including single cell RNA-seq and spatial transcriptomics, whole genome sequencing, alignment, and genome variation analysis, miRNA-seq, metagenomics, epigenomic analysis including ChIP-seq and methylation assays, and chromatin conformation capture technologies. The course will develop applied skills for multi-omics data analysis using Unix, high-performance computing, and R environments. The course is primarily focusing on human genomics; however, knowledge and skills gained through the course are extendable on genomics of model organisms.
 
 The class will be conducted in person and include lecture and coding parts. Course material will be publicly available. The syllabus is subject to change. Observe the [VCU Honor Pledge](https://students.vcu.edu/studentconduct/vcu-honor-system/academic-misconduct-/honor-pledge/) in any class- and homework activities.
 
 ## Prerequisites
 
-BIOS 524; and BIOS 544 or BIOS 654 (see [Bulletin](https://bulletin.vcu.edu/azcourses/bios/)), or as permitted by instructor. 
+BIOS 658 (see [Bulletin](https://bulletin.vcu.edu/azcourses/bios/)), or as permitted by instructor. 
 
 <!--- Book
     - [**Deep learning with R**](https://www.manning.com/books/deep-learning-with-r-second-edition) by François Chollet (the creator of Keras) with J. J. Allaire (the founder of RStudio and the author of the R interfaces to Keras and TensorFlow) -->
@@ -55,6 +55,8 @@ BIOS 524; and BIOS 544 or BIOS 654 (see [Bulletin](https://bulletin.vcu.edu/azco
     - A laptop, Mac or Linux OSs are recommended.
 
 - Software
+    - Unix environment. Windows users - install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install), Windows Subsystem for Linux.
+    - [Git and GitHub](https://bios658-2025.netlify.app/class/02-class/) 
     - R for [**Windows**](http://cran.r-project.org/bin/windows/base/) or [**Mac**](http://cran.r-project.org/bin/macosx/). Review [**Getting Used to R, RStudio, and RMarkdown**](https://ismayc.github.io/rbasics-book/) book, if necessary
     - [**RStudio Desktop**](https://www.rstudio.com/products/rstudio/download/)
 
@@ -68,29 +70,29 @@ BIOS 524; and BIOS 544 or BIOS 654 (see [Bulletin](https://bulletin.vcu.edu/azco
 
 ### Course Objectives
 
-* Gain insight into biological principles and the RNA-seq technology, normalization, and expression summary methods
-* Learn practical Exploratory Data Analysis, visualization, and quality control
-* Critically evaluate ant interpret statistical methods used in genomics data analysis
-* Apply supervised and unsupervised methods to genomics data
-* Assess statistical significance when multiple hypothesis tests are performed, such as in the analysis of differential gene expression
-* Interpret biological findings obtained from statistical tests
+* Understand the core principles, strengths, and limitations of high-throughput technologies
+* Learn statistical models and algorithms used in sequencing data analysis
+* Gain practical experience in high-throughput Exploratory Data Analysis, visualization, and quality control using Unix and R environment
+* Critically evaluate and interpret statistical methods used in flagship tools for sequencing data analysis
+* Interpret biological findings provided by different sequencing technologies, and be able to integrate different layers of -omics data
 
-At the conclusion of the course, students will be able to collect, analyze and interpret genomics data using R programming environment
+At the conclusion of the course, students will be able to collect, analyze and interpret multi-omics data using Unix and R programming environment
 
 ### Tentative schedule 
 
-- Reproducible research using R, Rmarkdown, tidyverse, GitHub
-- Genomics overview, Biological background
-- RNA-seq technology
-- Bioconductor overview
-- Exploratory Data Analysis (EDA), Quality control
-- Normalization, Expression summarization
-- Differential expression
-- Multiple hypothesis testing
-- Clustering, dimensionaliry reduction
-- Gene Ontology, Pathway and Functional enrichment
-- Networks
-- Machine learning
+-  Unix overview
+-  Genomic technologies and Bioconductor
+-  Genome sequencing and alignment
+-  Single nucleotide polymorphism (SNP) analysis
+-  Copy Number Variant (CNV) analysis
+-  Single-cell sequencing
+-  Chromatin Immunoprecipitation (ChIP)-, DNAse-, ATAC-seq
+-  Metagenomic
+-  Methylation
+-  Epigenomics
+-  Chromatin Conformation Capture analysis
+-  Integrative analysis, TCGA
+
 
 ## Homework format
 
@@ -145,6 +147,19 @@ In addition to the criteria above, the final project will be evaluated on:
 
 # Assignment Values
 
+## Assignments Grade Overall
+
+<!-- _includes/assignment-weight.md -->
+
+Your final grade reflects your performance throughout the semester. It includes readings, participation, in-class exercises (attendance is required), and assignments, weighted as follows:
+
+|            Assignment           | Percentage Value |
+|---------------------------------|------------------|
+|      In-class participation     |        20%       |
+| Reading and homework assignment |        50%       |
+|          Final project          |        30%       |
+|              TOTAL              |       100%       |
+
 ## Grading model
 
 <!-- _includes/grading.md -->
@@ -172,19 +187,6 @@ Grading for individual assignments reflects the overall quality of the completed
 |D      | 64% to 66%    | More than unsatisfactory |
 |D-     | 61% to 63%    | More than unsatisfactory |
 |F      | 60% and below |       Unacceptable       |
-
-## Assignments Grade Overall
-
-<!-- _includes/assignment-weight.md -->
-
-Your final grade reflects your performance throughout the semester. It includes readings, participation, in-class exercises (attendance is required), and assignments, weighted as follows:
-
-|            Assignment           | Percentage Value |
-|---------------------------------|------------------|
-|      In-class participation     |        20%       |
-| Reading and homework assignment |        50%       |
-|          Final project          |        30%       |
-|              TOTAL              |       100%       |
 
 <!-- _posts/policies/0001-01-01-deadline.md -->
 

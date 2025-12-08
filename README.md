@@ -17,9 +17,11 @@ M/W 1-2:20pm
 
 https://bulletin.vcu.edu/azcourses/bios/
 
-BIOS 658. Statistical Methods for High-throughput Genomics Data I. 3 Hours.  
+BIOS 668. Statistical Methods for High-throughput Genomics Data II. 3 Hours.  
 
-Semester course; 3 lecture hours. 3 credits. Prerequisites: BIOS 524; and BIOS 544 or BIOS 654. Provides a detailed overview of all aspects pertaining to the preprocessing and analysis of data from high-throughput genomic experiments, such as normalization techniques, expression summaries, quality control assessments and data reduction methods. Presents strategies for class and identification of important molecular features. Includes hands-on experience using statistical software for processing and analyzing genomic data.
+Semester course; 3 lecture hours. 3 credits. Prerequisites: BIOS 658.
+
+This course is a continuation of the BIOS 658 and will introduce high-throughput genomic assays including single cell RNA-seq and spatial transcriptomics, whole genome sequencing, alignment, and genome variation analysis, miRNA-seq, metagenomics, epigenomic analysis including ChIP-seq and methylation assays, and chromatin conformation capture technologies. The course will develop applied skills for multi-omics data analysis using Unix, high-performance computing, and R environments. The course is primarily focusing on human genomics; however, knowledge and skills gained through the course are extendable on genomics of model organisms.
 
 ## Site template
 
@@ -56,11 +58,6 @@ Use Hugo, Markdown. Implement the front page and make menu entries for the sylla
 
 # Prerequisites
 
-BIOS 524. Biostatistical Computing. 3 Hours.
-Semester course; 3 lecture hours (delivered online or face-to-face). 3 credits. Techniques for biostatistical computing are presented by way of contemporary statistical packages. Students learn how to create and manage computer data files. Methods for data entry, preparation of data for analysis and summaritive procedures are covered. Students learn the basics of random number generation and its applications, numerical methods for statistical algorithms, and concepts of numerical accuracy and stability. Advanced topics include interactive matrix and macro languages. Emphasis is placed on computational methods and data management rather than on statistical methods and procedures.
+BIOS 658. Statistical Methods for High-throughput Genomics Data I. 3 Hours.
 
-BIOS 544. Graduate Research Methods II. 3 Hours.
-Semester course; 3 lecture hours (delivered online or face-to-face). 3 credits. Prerequisite: BIOS 543 or STAT 543 or permission of instructor. This course is intended for graduate students and researchers without formal training in the statistical and biostatistical sciences. Students enrolled in this course will study various aspects of statistical model-building, including adjusting estimates for other measurements, creating multivariate models, analyzing noncontinuous outcomes and summarizing results. Particularly, students will learn multiple linear regression, multifactor analysis of variance, analysis of covariance, random and mixed effects models, repeated measure and longitudinal data analysis, logistic and Poisson regressions, and time-to-event analysis. These topics will be covered through a variety of approaches, including traditional lecture, group discussion and in-class activities, and students will be assessed on their ability to understand statistical considerations in the model-building process, appropriately perform intermediate statistical procedures and report statistical findings using the IMRaD format. The appropriate use of data management and statistical procedures will be modeled using several commonly used software packages. Students may receive degree credit for only one of BIOS 544 or STAT 544.
-
-BIOS 654. Biostatistical Methods II. 4 Hours.
-Semester course; 4 lecture hours. 4 credits. Prerequisite: BIOS 653. Continued study of applied biostatistical concepts intended primarily for graduate students in the Department of Biostatistics. Topics include categorical data analysis, generalized linear models, generalized linear mixed models, generalized additive models, nonlinear regression and survival analysis.
+Semester course; 3 lecture hours. 3 credits. Prerequisites: BIOS 524; and BIOS 544 or BIOS 654. Provides a detailed overview of all aspects pertaining to the preprocessing and analysis of data from high-throughput genomic experiments, such as normalization techniques, expression summaries, quality control assessments and data reduction methods. Presents strategies for class and identification of important molecular features. Includes hands-on experience using statistical software for processing and analyzing genomic data.
