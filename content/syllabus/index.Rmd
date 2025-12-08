@@ -26,7 +26,7 @@ The study of genomics and use of next-generation sequencing are at the forefront
 This course is a continuation of the BIOS 658 and will introduce high-throughput genomic assays including single cell RNA-seq and spatial transcriptomics, whole genome sequencing, alignment, and genome variation analysis, miRNA-seq, metagenomics, epigenomic analysis including ChIP-seq and methylation assays, and chromatin conformation capture technologies. The course will develop applied skills for multi-omics data analysis using Unix, high-performance computing, and R environments. The course is primarily focusing on human genomics; however, knowledge and skills gained through the course are extendable on genomics of model organisms.
 
 The class will be conducted in person and include lecture and coding parts. Course material will be publicly available. The syllabus is subject to change. Observe the [VCU Honor Pledge](https://students.vcu.edu/studentconduct/vcu-honor-system/academic-misconduct-/honor-pledge/) in any class- and homework activities.
-
+ 
 ## Prerequisites
 
 BIOS 658 (see [Bulletin](https://bulletin.vcu.edu/azcourses/bios/)), or as permitted by instructor. 

@@ -1,5 +1,5 @@
 ---
-title: "BIOS658, Fall 2025"
+title: "BIOS668, Spring 2026"
 output:
   word_document: default
   html_document: default
@@ -8,22 +8,22 @@ output:
 
 
 
-<div id="course-title-statistical-methods-for-high-throughput-genomics-data-i" class="section level1">
-<h1>Course Title: Statistical Methods for High-throughput Genomics Data I</h1>
+<div id="course-title-statistical-methods-for-high-throughput-genomics-data-ii" class="section level1">
+<h1>Course Title: Statistical Methods for High-throughput Genomics Data II</h1>
 <p>Instructor: Mikhail Dozmorov<br />
 Department: Biostatistics, VCU<br />
 Credits: 3<br />
 Duration: 15 weeks (2 lectures per week, 1 hour 20 minutes each)</p>
 <div id="course-overview" class="section level2">
 <h2>Course Overview</h2>
-<!-- This course introduces deep learning concepts using R, with hands-on exercises. The focus will be on implementing deep learning models and exploring various architectures using the "Deep Learning with R" textbook by François Chollet and J. J. Allaire. The course will cover both foundational and advanced topics in deep learning, including computer vision, natural language processing, and generative models. -->
-<p>Welcome to BIOS 658. This course is the first part of the Genomics curriculum, aimed to introduce core principles of Data Science, Genomics, Bioinformatics and Biostatistics. This is a blended course that combines in-class learning (lectures, labs) with self-directed activities.</p>
-<p>Bioinformatics is interdisciplinary computer science, requiring a knowledge base in biology, technology, and statistics. The operational definition of ‘bioinformatics’ for this course is “The application of biotechnology and statistical methods to the study of biological problems.” The biological problems on which we will focus are primarily gene expression studies conducted using RNA-seq technology.</p>
+<p>Welcome to BIOS 668. This course is the second part of the Genomics curriculum, aimed to introduce core principles of Data Science, Genomics, Bioinformatics and Biostatistics. This is a blended course that combines in-class learning (lectures, labs) with self-directed activities.</p>
+<p>The study of genomics and use of next-generation sequencing are at the forefront of biomedical research. Sequencing market is constantly evolving, stimulating the development of new genomics technologies, biostatistical approaches and software tools. Therefore it may not be possible to maintain a stable analysis pipeline throughout a project because the lifetime of software often spans months and even years. To be able to effectively analyze and interpret genomic sequencing data, it is crucial to (1) understand the technologies and statistical properties of the data they produce and (2) develop strong computational skills that will be competitive and broadly applicable.</p>
+<p>This course is a continuation of the BIOS 658 and will introduce high-throughput genomic assays including single cell RNA-seq and spatial transcriptomics, whole genome sequencing, alignment, and genome variation analysis, miRNA-seq, metagenomics, epigenomic analysis including ChIP-seq and methylation assays, and chromatin conformation capture technologies. The course will develop applied skills for multi-omics data analysis using Unix, high-performance computing, and R environments. The course is primarily focusing on human genomics; however, knowledge and skills gained through the course are extendable on genomics of model organisms.</p>
 <p>The class will be conducted in person and include lecture and coding parts. Course material will be publicly available. The syllabus is subject to change. Observe the <a href="https://students.vcu.edu/studentconduct/vcu-honor-system/academic-misconduct-/honor-pledge/">VCU Honor Pledge</a> in any class- and homework activities.</p>
 </div>
 <div id="prerequisites" class="section level2">
 <h2>Prerequisites</h2>
-<p>BIOS 524; and BIOS 544 or BIOS 654 (see <a href="https://bulletin.vcu.edu/azcourses/bios/">Bulletin</a>), or as permitted by instructor.</p>
+<p>BIOS 658 (see <a href="https://bulletin.vcu.edu/azcourses/bios/">Bulletin</a>), or as permitted by instructor.</p>
 <!--- Book
     - [**Deep learning with R**](https://www.manning.com/books/deep-learning-with-r-second-edition) by François Chollet (the creator of Keras) with J. J. Allaire (the founder of RStudio and the author of the R interfaces to Keras and TensorFlow) -->
 <!--    - [The Deep Learning textbook](https://www.deeplearningbook.org/) by Ian Goodfellow, Yoshua Bengio and Aaron Courville
@@ -48,6 +48,8 @@ Duration: 15 weeks (2 lectures per week, 1 hour 20 minutes each)</p>
 </ul></li>
 <li>Software
 <ul>
+<li>Unix environment. Windows users - install <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL</a>, Windows Subsystem for Linux.</li>
+<li><a href="https://bios658-2025.netlify.app/class/02-class/">Git and GitHub</a></li>
 <li>R for <a href="http://cran.r-project.org/bin/windows/base/"><strong>Windows</strong></a> or <a href="http://cran.r-project.org/bin/macosx/"><strong>Mac</strong></a>. Review <a href="https://ismayc.github.io/rbasics-book/"><strong>Getting Used to R, RStudio, and RMarkdown</strong></a> book, if necessary</li>
 <li><a href="https://www.rstudio.com/products/rstudio/download/"><strong>RStudio Desktop</strong></a></li>
 </ul></li>
@@ -62,30 +64,29 @@ Duration: 15 weeks (2 lectures per week, 1 hour 20 minutes each)</p>
 <div id="course-objectives" class="section level3">
 <h3>Course Objectives</h3>
 <ul>
-<li>Gain insight into biological principles and the RNA-seq technology, normalization, and expression summary methods</li>
-<li>Learn practical Exploratory Data Analysis, visualization, and quality control</li>
-<li>Critically evaluate ant interpret statistical methods used in genomics data analysis</li>
-<li>Apply supervised and unsupervised methods to genomics data</li>
-<li>Assess statistical significance when multiple hypothesis tests are performed, such as in the analysis of differential gene expression</li>
-<li>Interpret biological findings obtained from statistical tests</li>
+<li>Understand the core principles, strengths, and limitations of high-throughput technologies</li>
+<li>Learn statistical models and algorithms used in sequencing data analysis</li>
+<li>Gain practical experience in high-throughput Exploratory Data Analysis, visualization, and quality control using Unix and R environment</li>
+<li>Critically evaluate and interpret statistical methods used in flagship tools for sequencing data analysis</li>
+<li>Interpret biological findings provided by different sequencing technologies, and be able to integrate different layers of -omics data</li>
 </ul>
-<p>At the conclusion of the course, students will be able to collect, analyze and interpret genomics data using R programming environment</p>
+<p>At the conclusion of the course, students will be able to collect, analyze and interpret multi-omics data using Unix and R programming environment</p>
 </div>
 <div id="tentative-schedule" class="section level3">
 <h3>Tentative schedule</h3>
 <ul>
-<li>Reproducible research using R, Rmarkdown, tidyverse, GitHub</li>
-<li>Genomics overview, Biological background</li>
-<li>RNA-seq technology</li>
-<li>Bioconductor overview</li>
-<li>Exploratory Data Analysis (EDA), Quality control</li>
-<li>Normalization, Expression summarization</li>
-<li>Differential expression</li>
-<li>Multiple hypothesis testing</li>
-<li>Clustering, dimensionaliry reduction</li>
-<li>Gene Ontology, Pathway and Functional enrichment</li>
-<li>Networks</li>
-<li>Machine learning</li>
+<li>Unix overview</li>
+<li>Genomic technologies and Bioconductor</li>
+<li>Genome sequencing and alignment</li>
+<li>Single nucleotide polymorphism (SNP) analysis</li>
+<li>Copy Number Variant (CNV) analysis</li>
+<li>Single-cell sequencing</li>
+<li>Chromatin Immunoprecipitation (ChIP)-, DNAse-, ATAC-seq</li>
+<li>Metagenomic</li>
+<li>Methylation</li>
+<li>Epigenomics</li>
+<li>Chromatin Conformation Capture analysis</li>
+<li>Integrative analysis, TCGA</li>
 </ul>
 </div>
 </div>
@@ -148,6 +149,37 @@ Duration: 15 weeks (2 lectures per week, 1 hour 20 minutes each)</p>
 </div>
 <div id="assignment-values" class="section level1">
 <h1>Assignment Values</h1>
+<div id="assignments-grade-overall" class="section level2">
+<h2>Assignments Grade Overall</h2>
+<!-- _includes/assignment-weight.md -->
+<p>Your final grade reflects your performance throughout the semester. It includes readings, participation, in-class exercises (attendance is required), and assignments, weighted as follows:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Assignment</th>
+<th>Percentage Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>In-class participation</td>
+<td>20%</td>
+</tr>
+<tr class="even">
+<td>Reading and homework assignment</td>
+<td>50%</td>
+</tr>
+<tr class="odd">
+<td>Final project</td>
+<td>30%</td>
+</tr>
+<tr class="even">
+<td>TOTAL</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="grading-model" class="section level2">
 <h2>Grading model</h2>
 <!-- _includes/grading.md -->
@@ -232,37 +264,6 @@ Duration: 15 weeks (2 lectures per week, 1 hour 20 minutes each)</p>
 <td>F</td>
 <td>60% and below</td>
 <td>Unacceptable</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="assignments-grade-overall" class="section level2">
-<h2>Assignments Grade Overall</h2>
-<!-- _includes/assignment-weight.md -->
-<p>Your final grade reflects your performance throughout the semester. It includes readings, participation, in-class exercises (attendance is required), and assignments, weighted as follows:</p>
-<table>
-<thead>
-<tr class="header">
-<th>Assignment</th>
-<th>Percentage Value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>In-class participation</td>
-<td>20%</td>
-</tr>
-<tr class="even">
-<td>Reading and homework assignment</td>
-<td>50%</td>
-</tr>
-<tr class="odd">
-<td>Final project</td>
-<td>30%</td>
-</tr>
-<tr class="even">
-<td>TOTAL</td>
-<td>100%</td>
 </tr>
 </tbody>
 </table>
