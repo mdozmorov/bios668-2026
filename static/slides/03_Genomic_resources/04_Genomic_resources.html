@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Public Genomic Resources</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2025-12-09" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Public Genomic Resources
+]
+.subtitle[
+## Hypothesis Testing &amp; Gene Discovery in Oncology
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Biostatistics
+]
+.date[
+### 2025-12-09
+]
+
+---
+
+
+&lt;!-- https://claude.ai/chat/38d486b0-ebfc-4186-96db-b9b69051b66c --&gt;
+
+# Key Resource Categories
+
+1. **Cancer Genomics** - TCGA, cBioPortal, COSMIC, ICGC/PCAWG
+
+2. **Variant Interpretation** - ClinVar, COSMIC
+
+3. **Gene &amp; Genome Browsers** - UCSC, Ensembl, NCBI Gene
+
+4. **Bulk Expression Data** - GTEx, GEO, ArrayExpress
+
+5. **Single-Cell Expression** - CELLxGENE, Human Cell Atlas, Tumor Atlas
+
+6. **Functional Genomics** - DepMap, ENCODE, Roadmap
+
+7. **Protein &amp; Pathways** - Human Protein Atlas, STRING, Reactome
+
+---
+
+# TCGA: The Cancer Genome Atlas
+
+.pull-left[
+## What It Is
+- **33 cancer types**, &gt;11,000 patients
+- Multi-omic data: genomics, transcriptomics, epigenomics, proteomics
+- Gold standard for cancer genomics research
+
+## Access Points
+- **GDC Data Portal**: https://portal.gdc.cancer.gov
+- **Broad Firehose**: https://gdac.broadinstitute.org
+- R/Bioconductor packages (TCGAbiolinks)
+]
+
+.pull-right[
+## Clinical Applications
+- Identify driver mutations in specific cancers
+- Compare tumor vs normal expression profiles
+- Discover prognostic biomarkers
+- Validate therapeutic targets
+
+## Example Use Case
+*"Is TP53 mutation associated with worse outcomes in ovarian cancer?"*
+]
+
+---
+
+# cBioPortal
+
+.pull-left[
+## What It Is
+- User-friendly **web interface** for cancer genomics
+- Integrates TCGA + 300+ other studies
+- No coding required
+
+## Used for
+- **OncoPrint** visualizations
+- Survival analysis 
+- Mutation mapping on protein structures
+- Pathway enrichment analysis
+- Co-expression &amp; correlation tools
+]
+
+.pull-right[
+## How to Use
+**URL:** https://www.cbioportal.org
+
+**Typical Workflow:**
+1. Select cancer study
+2. Enter gene(s) of interest
+3. Visualize alterations across samples
+4. Compare clinical outcomes
+5. Explore co-occurring mutations
+
+## Quick Tip
+Use the **Group Comparison** feature to compare molecular subtypes
+]
+
+---
+
+# COSMIC: Catalogue of Somatic Mutations
+
+.pull-left[
+## What It Is
+- World's largest database of **somatic mutations**
+- Curated from literature + systematic screens
+- \&gt;1,000 cancer genomes
+
+## Key Sections
+- **Cancer Gene Census** - curated cancer drivers
+- **Mutation signatures** - mutational processes
+- **Resistance mutations** - therapy resistance
+- **Structural variants**
+- **Fusion genes** - gene fusions in cancer
+]
+
+.pull-right[
+## Practical Uses
+
+**For specific genes:**
+- Mutation hotspots &amp; frequency
+- Functional impact predictions
+- Pathogenicity evidence
+
+**For specific cancers:**
+- Most frequently mutated genes
+- Actionable alterations
+
+**Access:** https://cancer.sanger.ac.uk/cosmic
+*(Free for academic; registration required)*
+]
+
+&lt;!---
+
+# ICGC &amp; PCAWG
+
+.pull-left[
+## ICGC: International Cancer Genome Consortium
+- Complements TCGA with **international datasets**
+- &gt;20,000 cancer genomes across projects
+- Includes underrepresented populations
+- **Access:** https://dcc.icgc.org
+
+## PCAWG: Pan-Cancer Analysis of Whole Genomes
+- **2,658 whole genomes** across 38 cancer types
+- Deepest characterization of cancer genomes
+- Focus on **non-coding variants** &amp; structural variation
+]
+
+.pull-right[
+## Why PCAWG Matters
+
+**Unique insights:**
+- Driver mutations in non-coding regions
+- Chromothripsis &amp; complex rearrangements
+- Timing of mutations during cancer evolution
+- Mobile element insertions
+
+**Clinical relevance:**
+- Regulatory mutations affecting gene expression
+- Structural variants missed by exome sequencing
+- Mutational signatures &amp; etiology
+
+**Access:** https://dcc.icgc.org/pcawg
+]
+--&gt;
+
+---
+
+# ClinVar: Clinical Variant Interpretation
+
+.pull-left[
+## What It Is
+- **Germline variant** clinical significance database
+- Aggregates interpretations from clinical labs
+- Links variants to diseases &amp; phenotypes
+- Operated by NCBI
+
+## Classification Levels
+- Pathogenic / Likely pathogenic
+- Uncertain significance (VUS)
+- Likely benign / Benign
+- Conflicting interpretations flagged
+]
+
+.pull-right[
+## Clinical Applications
+
+**Germline cancer predisposition:**
+- Interpret BRCA1/2, TP53, Lynch syndrome variants
+- Check known pathogenic variants
+- Assess VUS reclassifications over time
+
+**Key Feature:**
+- Review evidence &amp; submitter consensus
+- Links to publications &amp; functional studies
+- **Star rating** for assertion strength
+
+**Access:** https://www.ncbi.nlm.nih.gov/clinvar
+
+&lt;!-- **Note:** For somatic mutations, use COSMIC --&gt;
+]
+
+---
+
+# Genome Browsers: UCSC, Ensembl
+
+.pull-left[
+## UCSC Genome Browser
+**https://genome.ucsc.edu**
+
+- **Visual genome exploration**
+- Hundreds of annotation tracks
+- Custom track upload
+- Conservation, regulation, variation
+- Cancer-specific tracks available
+
+## Used For
+- Visualizing genomic context
+- Regulatory elements near genes
+- SNP &amp; variant annotation
+- Multi-species alignments
+]
+
+.pull-right[
+## Ensembl
+**https://www.ensembl.org**
+
+- Gene annotations &amp; transcripts
+- Variant effect predictor (VEP)
+- Comparative genomics
+- Regulation &amp; epigenomics data
+
+## Used for
+- Detailed **gene structure** &amp; isoforms
+- Variant consequence prediction
+- Comparative genomics across species
+- Automated programmatic access (API)
+]
+
+---
+
+# Gene browser: NCBI
+
+## NCBI Gene
+**https://www.ncbi.nlm.nih.gov/gene**
+
+- Gene-centric information
+- RefSeq transcripts
+- Expression data links
+- Bibliography &amp; interactions
+- Links to ClinVar &amp; GTEx
+
+## Used for
+- Quick gene summary &amp; basic information
+- Link out to other NCBI databases
+- PubMed literature for specific gene
+- Clinical variant associations (via ClinVar)
+
+---
+
+# GTEx: Genotype-Tissue Expression
+
+.pull-left[
+## What It Is
+- Gene expression in **54 normal tissues**
+- \&gt;17,000 samples from ~1,000 donors
+- Establishes **baseline normal expression**
+- **Bulk RNA-seq** data
+
+## Used for
+- Distinguish tumor-specific from tissue-specific expression
+- Identify truly aberrant gene expression
+- Understand normal gene function
+- Expression quantitative trait loci (eQTLs)
+
+**https://gtexportal.org**
+]
+
+.pull-right[
+## Clinical Use Cases
+
+**Example 1:** Target Validation
+- Is your target overexpressed in tumors vs normal tissue?
+- Is it expressed in critical organs (toxicity risk)?
+
+**Example 2:** Biomarker Context
+- Is elevated expression cancer-specific or tissue-typical?
+
+**Example 3:** Drug Development
+- Which normal tissues express your target?
+
+**Example 4:** Variant Interpretation
+- Do eQTLs explain germline risk variants?
+]
+
+---
+
+# GEO, SRA &amp; ArrayExpress
+
+.pull-left[
+## GEO: Gene Expression Omnibus
+**https://www.ncbi.nlm.nih.gov/geo**
+
+- **3+ million samples** from diverse studies
+- Microarray &amp; RNA-seq data
+- Experiment metadata &amp; processed data
+- Download &amp; reanalysis possible
+
+## SRA: Sequence Read Archive
+**https://www.ncbi.nlm.nih.gov/sra**
+
+- Raw sequencing reads
+- RNA-seq, WGS, ChIP-seq, etc.
+- Complements processed data in GEO
+]
+
+.pull-right[
+&lt;!--
+## ArrayExpress
+**https://www.ebi.ac.uk/biostudies/arrayexpress**
+
+- European equivalent of GEO
+- Curated &amp; high-quality annotations
+- Some unique European datasets
+--&gt;
+
+## When to Use These
+
+**Finding published datasets:**
+- Validate findings in independent cohorts
+- Meta-analysis of gene expression
+- Rare cancer types with small studies
+
+**Reanalysis:**
+- Apply new methods to old data
+- Test hypotheses on existing data
+]
+
+---
+
+# Single-Cell RNA-seq Resources
+
+.pull-left[
+## Limitations of Bulk RNA-seq
+- Averages signal across all cells
+- Masks **cellular heterogeneity**
+- Cannot identify rare cell populations
+- Misses cell-type specific effects
+
+## Single-Cell Advantages
+- **Cell-type resolution**
+- Identify rare cell populations (e.g., cancer stem cells)
+- Tumor microenvironment composition
+- Cell state transitions
+- Clonal evolution tracking
+]
+
+.pull-right[
+## Clinical Applications
+
+**Tumor heterogeneity:**
+- Identify resistant subclones
+- Characterize cancer stem cells
+- Track clonal evolution
+
+**Microenvironment:**
+- Immune cell infiltration
+- Stromal cell states
+- Cell-cell communication
+
+**Biomarkers:**
+- Cell-type specific markers
+- Therapy response signatures
+- Minimal residual disease detection
+]
+
+---
+
+# CELLxGENE Discover
+
+.pull-left[
+## What It Is
+**https://cellxgene.cziscience.com**
+
+- Largest single-cell data repository
+- \&gt;60 million cells from 1,000+ datasets
+- Curated &amp; standardized metadata
+- Interactive browser (no code needed)
+- Developed by Chan Zuckerberg Initiative
+
+## Used for
+- Query gene expression in any cell type
+- Compare across tissues/conditions
+- Download processed data
+- Cell type annotations
+- Disease vs healthy comparisons
+]
+
+.pull-right[
+## How to Use
+
+**For a gene of interest:**
+1. Search gene name
+2. See expression across cell types
+3. Filter by tissue or disease
+4. Compare tumor vs normal
+
+**For cancer research:**
+- Explore tumor scRNA-seq datasets
+- Identify cell types in TME
+- Compare cancer subtypes
+- Download data for custom analysis
+
+**Integration:**
+- Links to original publications
+- Standardized cell type ontologies
+]
+
+---
+
+# Human Cell Atlas
+
+.pull-left[
+## What It Is
+**https://www.humancellatlas.org**
+
+- International effort to map **all human cell types**
+- Focus on healthy tissues as reference
+- Multiple organs &amp; developmental stages
+- Standardized protocols &amp; analysis
+
+## Data Portal
+**https://data.humancellatlas.org**
+
+- Browse &amp; download gene expression matrices
+- Cell type annotations
+- Spatial transcriptomics (some)
+]
+
+.pull-right[
+## Why Use It for Oncology
+
+**Establish normal baselines:**
+- What cell types exist in healthy tissue?
+- Normal cell state signatures
+- Developmental programs
+
+**Identify cancer-specific changes:**
+- Which normal programs are reactivated?
+- Aberrant cell states in tumors
+- Lineage tracing &amp; cell-of-origin
+
+**Applications:**
+- Compare tumor to tissue-matched normal
+- Understand differentiation blocks
+- Identify cell-of-origin for cancers
+]
+
+---
+
+# Cancer-Specific Single-Cell Atlases
+
+.pull-left[
+## Single Cell Portal (Broad)
+**https://singlecell.broadinstitute.org**
+
+- Curated cancer scRNA-seq studies
+- Interactive visualization
+- Custom analyses available
+- \&gt;400 studies including many cancers
+
+## Tumor Immune Single-cell Hub
+**http://tisch.comp-genomics.org**
+
+- Focus on **tumor microenvironment**
+- \&gt;2 million cells from cancer patients
+- Cell type annotations for TME
+- Gene expression in immune/stromal cells
+]
+
+.pull-right[
+## CancerSEA
+**http://biocc.hrbmu.edu.cn/CancerSEA**
+
+- Cancer cell **functional states**
+- 14 functional states (e.g., EMT, stemness, hypoxia)
+- Gene signatures for each state
+- Compare across cancer types
+
+## Key Applications
+- Characterize immune infiltration
+- Identify immunosuppressive cells
+- CAR-T target expression in TME
+- Resistance mechanisms
+- Tumor-immune interactions
+]
+
+&lt;!-----
+
+# Single-Cell Analysis Workflow
+
+## Research Question:
+*"Why do some patients not respond to checkpoint inhibitors?"*
+
+**Step 1:** CELLxGENE or TISCH
+- Find scRNA-seq from responders vs non-responders
+- Identify immune cell composition differences
+
+**Step 2:** Compare to Human Cell Atlas
+- Are immune cells in normal functional states?
+- Evidence of exhaustion or dysfunction?
+
+**Step 3:** CancerSEA
+- Check cancer cell functional states
+- Is EMT or stemness enriched in non-responders?
+
+**Step 4:** Integrate with bulk data
+- Validate findings in TCGA cohorts
+- Check if signatures predict response
+--&gt;
+
+---
+
+# DepMap: Cancer Dependency Map
+
+.pull-left[
+**https://depmap.org/portal**
+## What It Is
+- **CRISPR screens** in &gt;1,000 cancer cell lines
+- Identifies genes essential for cancer survival
+- Pairs genetic data with drug sensitivity
+
+## Data Types
+- Gene essentiality scores
+- Drug response data (PRISM, CTD²)
+- Multi-omic characterization
+- CRISPR &amp; RNAi screens
+]
+
+.pull-right[
+## Clinical Applications
+
+**Find vulnerabilities:**
+- Which genes are essential in KRAS cancers?
+- Context-specific dependencies
+
+**Predict drug response:**
+- Which cell lines respond to targeted therapy?
+- Biomarkers of sensitivity/resistance
+
+**Combination therapy:**
+- Synthetic lethal interactions
+
+**Integration with scRNA-seq:**
+- Are dependencies cell-type specific?
+- Which cells express essential genes?
+]
+
+---
+
+# ENCODE &amp; Roadmap Epigenomics
+
+.pull-left[
+## ENCODE Project
+**https://www.encodeproject.org**
+
+- Encyclopedia of **DNA elements**
+- Regulatory regions, TFBSs, chromatin state
+- \&gt;10,000 experiments across cell types
+- Includes cancer cell lines
+
+## Key Data Types
+- ChIP-seq (histone marks, TFs)
+- DNase-seq / ATAC-seq
+- RNA-seq (incl. long non-coding RNAs)
+- 3D genome organization (Hi-C)
+]
+
+.pull-right[
+## Roadmap Epigenomics
+**http://www.roadmapepigenomics.org**
+
+- **127 epigenomes** from primary tissues
+- Chromatin states across genome
+- Normal tissue baseline epigenetics
+
+## Clinical Applications
+
+**Understand non-coding variants:**
+&lt;!-- - Is a variant in an enhancer? --&gt;
+&lt;!-- - Does it disrupt TF binding? --&gt;
+
+**Gene regulation:**
+&lt;!-- - Which TFs regulate your gene? --&gt;
+&lt;!-- - Tissue-specific regulatory elements --&gt;
+
+**Biomarker discovery:**
+&lt;!-- - Epigenetic alterations in cancer --&gt;
+]
+
+---
+
+# Human Protein Atlas
+
+.pull-left[
+## What It Is
+**https://www.proteinatlas.org**
+
+- **Protein expression** in normal &amp; cancer tissues
+- Immunohistochemistry images
+- Single-cell RNA-seq data
+- Pathology-based annotations
+
+## Sections
+- **Tissue Atlas** - normal tissues
+- **Pathology Atlas** - 17 major cancers
+- **Cell Atlas** - single-cell expression
+- **Blood Atlas** - protein in blood
+- **Brain Atlas** - brain-specific
+]
+
+.pull-right[
+## Used for
+
+**Validate at protein level:**
+- RNA doesn't always predict protein
+- Subcellular localization
+- Cell-type specific expression
+
+**Clinical context:**
+- Prognostic markers (survival data)
+- IHC-based classifications
+- Visual confirmation of expression
+
+**Drug targets:**
+- Membrane proteins for antibodies
+- Secreted proteins for biomarkers
+]
+
+---
+
+# STRING: Protein-Protein Interactions
+
+.pull-left[
+## What It Is
+**https://string-db.org**
+
+- **Protein interaction networks**
+- Known &amp; predicted interactions
+- \&gt;14,000 organisms, focus on human
+- Evidence from experiments, databases, text-mining
+
+## Interaction Evidence
+- Experimental validation
+- Co-expression patterns
+- Database annotations
+- Text mining from literature
+- Homology from other species
+]
+
+.pull-right[
+## Clinical Applications
+
+**Understand gene function:**
+- What does this gene interact with?
+- What pathways is it involved in?
+
+**Expand gene signatures:**
+- Find functionally related genes
+- Network-based biomarker discovery
+
+**Drug target identification:**
+- Proteins in same complex/pathway
+- Predict off-target effects
+
+&lt;!-- **Key Feature:** --&gt;
+&lt;!-- - Confidence scores for interactions --&gt;
+&lt;!-- - Network enrichment analysis --&gt;
+]
+
+---
+
+# Reactome: Pathway Database
+
+.pull-left[
+## What It Is
+**https://reactome.org**
+
+- Curated **pathway database**
+- 2,600+ human pathways
+- Peer-reviewed annotations
+- Hierarchical pathway organization
+
+## What Makes It Unique
+- Detailed reaction-level data
+- Cross-referenced to other databases
+- Manual curation by experts
+- Computational tools included
+]
+
+.pull-right[
+## Clinical Applications
+
+**Pathway analysis:**
+- What pathways are altered in my dataset?
+- Enrichment analysis of gene lists
+
+**Mechanism understanding:**
+- How do mutations affect pathways?
+- Downstream effects of alterations
+
+**Biomarker context:**
+- Functional significance of gene sets
+- Connect genes to biological processes
+
+**Tools:**
+- PathwayBrowser (visualization)
+- Analysis tools (over-representation)
+- Tissue-specific pathway activity
+]
+
+&lt;!---
+
+# Integrating Protein &amp; Pathway Resources
+
+## Workflow Example
+*"I found ERBB2 amplification in my patient's tumor. What are the implications?"*
+
+**Step 1:** Human Protein Atlas
+- Confirm HER2 protein overexpression
+- Check subcellular localization (membrane)
+- Assess expression in normal tissues
+
+**Step 2:** STRING
+- Identify interaction partners (EGFR, ERBB3, etc.)
+- Find signaling network components
+- Check for co-amplified/co-expressed genes
+
+**Step 3:** Reactome
+- Map to ErbB signaling pathway
+- Identify downstream effectors (PI3K/AKT, MAPK)
+- Understand therapeutic intervention points
+--&gt;
+
+---
+
+# Specialized Resources
+.pull-left[
+## UCSC Xena
+- Visual browser for TCGA/GTEx data
+**https://xenabrowser.net**
+&lt;!-- - Compare cohorts side-by-side --&gt;
+
+## CIViC
+- Clinical interpretations of variants
+**https://civicdb.org**
+&lt;!-- - Therapeutic/prognostic/diagnostic evidence --&gt;
+
+## OncoKB
+- Precision oncology knowledge base
+**https://www.oncokb.org**
+&lt;!-- - Mutation actionability &amp; FDA approvals --&gt;
+]
+
+.pull-right[
+## AACR GENIE
+**https://www.aacr.org/professionals/research/aacr-project-genie**
+- Real-world genomic data from clinics
+- \&gt;100,000 sequenced tumors
+- Access via cBioPortal
+
+## 10x Genomics Datasets
+**https://www.10xgenomics.com/datasets**
+- High-quality reference scRNA-seq
+- Technical benchmarking datasets
+- Includes cancer samples
+]
+
+&lt;!---
+
+# Comprehensive Workflow Example
+
+## Research Question:
+*"Is a novel BRCA1 variant in my patient pathogenic, and what are the treatment implications?"*
+
+**Step 1:** ClinVar - Check if variant is previously classified
+
+**Step 2:** COSMIC - Look for somatic occurrence in tumors
+
+**Step 3:** UCSC/Ensembl - Examine genomic context, conservation, predict functional impact
+
+**Step 4:** cBioPortal (TCGA) - Analyze outcomes of BRCA1-mutant breast cancers
+
+**Step 5:** DepMap - Check PARP1 dependency in BRCA1-mutant cells
+
+**Step 6:** GEO/PubMed - Search for functional studies of similar variants
+
+**Step 7:** Reactome - Understand BRCA1's role in DNA repair pathways
+
+**Step 8:** CELLxGENE - Check BRCA1 expression in normal breast epithelial cells
+
+
+
+# Resource Selection Guide
+
+## By Research Question Type
+
+**"Is this variant pathogenic?"**
+→ ClinVar, COSMIC, UCSC, Ensembl VEP
+
+**"What is this gene's function?"**
+→ NCBI Gene, STRING, Reactome, Human Protein Atlas
+
+**"Is this gene altered in cancer?"**
+→ TCGA, cBioPortal, COSMIC, ICGC
+
+**"Is this a good drug target?"**
+→ DepMap, Human Protein Atlas, GTEx, STRING
+
+**"Why is this gene upregulated?"**
+→ ENCODE, Roadmap, UCSC Browser
+
+**"Can I validate this in other datasets?"**
+→ GEO, ArrayExpress, SRA
+
+**"Which cell types express this gene?"**
+→ CELLxGENE, Human Cell Atlas, Human Protein Atlas
+--&gt;
+
+&lt;!---
+
+# Data Types &amp; Appropriate Resources
+
+| Question | Best Resources |
+|----------|----------------|
+| Genomic variants | TCGA, COSMIC, ICGC/PCAWG, ClinVar |
+| Bulk gene expression | GTEx, GEO, TCGA, ArrayExpress |
+| Single-cell expression | CELLxGENE, Human Cell Atlas, TISCH, CancerSEA |
+| Protein expression | Human Protein Atlas |
+| Epigenetics | ENCODE, Roadmap, TCGA |
+| Gene function | NCBI Gene, STRING, Reactome |
+| Drug response | DepMap, GDSC, cBioPortal |
+| Genome context | UCSC, Ensembl, NCBI |
+| Pathways | Reactome, KEGG, STRING |
+| Tumor microenvironment | TISCH, CELLxGENE, Single Cell Portal |
+--&gt;
+&lt;!---
+
+# Practical Tips
+
+## Getting Started
+- Most portals have **tutorials &amp; documentation**
+- Start with **well-known genes** to learn the interface
+- Use **example queries** provided on each site
+
+## Best Practices
+- Cross-validate findings across multiple resources
+- Consider **sample size &amp; statistical power**
+- Check **data processing methods** (different pipelines)
+- Be aware of **batch effects** when combining datasets
+- Note **germline vs somatic** distinction
+- For scRNA-seq, check cell type annotations
+
+## Staying Updated
+- Resources update regularly with new data
+- Follow publications &amp; release notes
+- Many have **mailing lists** for updates
+
+
+
+# Data Analysis Considerations
+
+.pull-left[
+## Strengths of Public Data
+- Large sample sizes
+- Standardized processing
+- Multiple data types
+- Reproducible analyses
+- No IRB required for access
+- Free for academic use
+- Growing single-cell resources
+]
+
+.pull-right[
+## Limitations
+- **Selection bias** in cohorts
+- May not match your patient population
+- Limited clinical annotation
+- **Pre-treatment samples** (mostly)
+- Batch effects between studies
+- Data access restrictions (some)
+- scRNA-seq: technical artifacts possible
+]
+
+
+
+## Bottom Line
+Public resources are powerful for **hypothesis generation** and **target validation**, but findings should be validated in independent cohorts when possible.
+
+
+
+# Resources Summary: Cancer Genomics
+
+| Resource | Primary Use | URL |
+|----------|-------------|-----|
+| **TCGA** | Cancer multi-omics | https://portal.gdc.cancer.gov |
+| **cBioPortal** | Interactive cancer analysis | https://www.cbioportal.org |
+| **COSMIC** | Somatic mutations | https://cancer.sanger.ac.uk/cosmic |
+| **ICGC/PCAWG** | International cancer genomes | https://dcc.icgc.org |
+| **AACR GENIE** | Real-world clinical sequencing | https://www.aacr.org/genie |
+
+
+
+# Resources Summary: Variants &amp; Genomes
+
+| Resource | Primary Use | URL |
+|----------|-------------|-----|
+| **ClinVar** | Germline variant interpretation | https://www.ncbi.nlm.nih.gov/clinvar |
+| **UCSC Browser** | Genome visualization | https://genome.ucsc.edu |
+| **Ensembl** | Gene annotation &amp; VEP | https://www.ensembl.org |
+| **NCBI Gene** | Gene information | https://www.ncbi.nlm.nih.gov/gene |
+
+
+
+# Resources Summary: Expression Data
+
+| Resource | Primary Use | URL |
+|----------|-------------|-----|
+| **GTEx** | Normal tissue bulk expression | https://gtexportal.org |
+| **GEO** | Expression datasets | https://www.ncbi.nlm.nih.gov/geo |
+| **ArrayExpress** | European expression data | https://www.ebi.ac.uk/biostudies/arrayexpress |
+| **CELLxGENE** | Single-cell data browser | https://cellxgene.cziscience.com |
+| **Human Cell Atlas** | Normal cell type reference | https://www.humancellatlas.org |
+| **TISCH** | Tumor microenvironment scRNA | http://tisch.comp-genomics.org |
+| **CancerSEA** | Cancer cell functional states | http://biocc.hrbmu.edu.cn/CancerSEA |
+| **Single Cell Portal** | Curated scRNA-seq studies | https://singlecell.broadinstitute.org |
+
+
+
+# Resources Summary: Function &amp; Pathways
+
+| Resource | Primary Use | URL |
+|----------|-------------|-----|
+| **DepMap** | Gene essentiality | https://depmap.org |
+| **ENCODE** | Regulatory elements | https://www.encodeproject.org |
+| **Roadmap** | Epigenomics | http://www.roadmapepigenomics.org |
+| **Protein Atlas** | Protein expression &amp; IHC | https://www.proteinatlas.org |
+| **STRING** | Protein interactions | https://string-db.org |
+| **Reactome** | Pathways | https://reactome.org |
+
+
+
+# Resources Summary: Clinical Interpretation
+
+| Resource | Primary Use | URL |
+|----------|-------------|-----|
+| **CIViC** | Clinical variant interpretation | https://civicdb.org |
+| **OncoKB** | Precision oncology KB | https://www.oncokb.org |
+| **UCSC Xena** | Multi-cohort visualization | https://xenabrowser.net |
+--&gt;
+
+---
+
+class: center, middle
+
+# Questions?
+
+&lt;!-- ## Additional Resources --&gt;
+&lt;!-- - **NCI Genomic Data Commons**: https://gdc.cancer.gov --&gt;
+&lt;!-- - **NCBI dbGaP**: https://www.ncbi.nlm.nih.gov/gap --&gt;
+&lt;!-- - **EBI ArrayExpress**: https://www.ebi.ac.uk/biostudies/arrayexpress --&gt;
+&lt;!-- - **CIViC**: https://civicdb.org --&gt;
+&lt;!-- - **OncoKB**: https://www.oncokb.org --&gt;
+&lt;!-- - **Single Cell Portal**: https://singlecell.broadinstitute.org --&gt;
+
+### Contact: mdozmorov@vcu.edu
+
+# Thank You!
+
+&lt;!--
+## Key Takeaways
+
+✓ **Multiple complementary resources** exist across the genomics analysis pipeline
+
+✓ **Use the right tool for the question**: variant interpretation, expression, function, pathways
+
+✓ **Single-cell data** provides critical insights into heterogeneity and microenvironment
+
+✓ **Cross-validate** findings across multiple databases and data types
+
+✓ **Integrate multiple levels**: genomics → bulk expression → single-cell → proteomics → pathways
+
+✓ **Distinguish germline vs somatic**, normal vs tumor, bulk vs single-cell, coding vs non-coding
+
+### Start exploring today!
+*Pick one resource, enter a gene you care about, and see what you discover.*
+--&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
