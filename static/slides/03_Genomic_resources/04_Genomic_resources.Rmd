@@ -971,7 +971,10 @@ class: center, middle
 <!-- - **Single Cell Portal**: https://singlecell.broadinstitute.org -->
 
 ### Contact: mdozmorov@vcu.edu
-
+### More resources: https://github.com/mdozmorov/Cancer_notes
+```{r, out.width = "160px", fig.align='center', echo=FALSE}
+knitr::include_graphics("img/Qpca1rIwlEch95v.png")
+```
 # Thank You!
 
 <!--
