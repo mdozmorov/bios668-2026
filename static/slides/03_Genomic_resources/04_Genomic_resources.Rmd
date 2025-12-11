@@ -259,10 +259,9 @@ Use the **Group Comparison** feature to compare molecular subtypes
 
 .pull-left[
 ## What It Is
-- Gene expression in **54 normal tissues**
+- Gene expression in **54 normal tissues** (Bulk RNA-seq)
 - \>17,000 samples from ~1,000 donors
 - Establishes **baseline normal expression**
-- **Bulk RNA-seq** data
 
 ## Used for
 - Distinguish tumor-specific from tissue-specific expression
@@ -301,7 +300,7 @@ Use the **Group Comparison** feature to compare molecular subtypes
 - **3+ million samples** from diverse studies
 - Microarray & RNA-seq data
 - Experiment metadata & processed data
-- Download & reanalysis possible
+<!-- - Download & reanalysis possible -->
 
 ## SRA: Sequence Read Archive
 **https://www.ncbi.nlm.nih.gov/sra**
@@ -349,7 +348,7 @@ Use the **Group Comparison** feature to compare molecular subtypes
 - Identify rare cell populations (e.g., cancer stem cells)
 - Tumor microenvironment composition
 - Cell state transitions
-- Clonal evolution tracking
+- Track clonal evolution
 ]
 
 .pull-right[
@@ -461,10 +460,9 @@ Use the **Group Comparison** feature to compare molecular subtypes
 ## Single Cell Portal (Broad)
 **https://singlecell.broadinstitute.org**
 
-- Curated cancer scRNA-seq studies
+- \>400 studies including many cancers
 - Interactive visualization
 - Custom analyses available
-- \>400 studies including many cancers
 
 ## Tumor Immune Single-cell Hub
 **http://tisch.comp-genomics.org**
@@ -480,7 +478,7 @@ Use the **Group Comparison** feature to compare molecular subtypes
 **http://biocc.hrbmu.edu.cn/CancerSEA**
 
 - Cancer cell **functional states**
-- 14 functional states (e.g., EMT, stemness, hypoxia)
+- 14 functional states (e.g., EMT, stemness)<!--hypoxia-->
 - Gene signatures for each state
 - Compare across cancer types
 
@@ -583,15 +581,15 @@ Use the **Group Comparison** feature to compare molecular subtypes
 
 ## Clinical Applications
 
-**Understand non-coding variants:**
+**Understand non-coding variants**
 <!-- - Is a variant in an enhancer? -->
 <!-- - Does it disrupt TF binding? -->
 
-**Gene regulation:**
+**Gene regulation**
 <!-- - Which TFs regulate your gene? -->
 <!-- - Tissue-specific regulatory elements -->
 
-**Biomarker discovery:**
+**Biomarker discovery**
 <!-- - Epigenetic alterations in cancer -->
 ]
 
@@ -647,12 +645,12 @@ Use the **Group Comparison** feature to compare molecular subtypes
 - \>14,000 organisms, focus on human
 - Evidence from experiments, databases, text-mining
 
-## Interaction Evidence
-- Experimental validation
-- Co-expression patterns
-- Database annotations
-- Text mining from literature
-- Homology from other species
+<!-- ## Interaction Evidence -->
+<!-- - Experimental validation -->
+<!-- - Co-expression patterns -->
+<!-- - Database annotations -->
+<!-- - Text mining from literature -->
+<!-- - Homology from other species -->
 ]
 
 .pull-right[
@@ -688,11 +686,15 @@ Use the **Group Comparison** feature to compare molecular subtypes
 - Peer-reviewed annotations
 - Hierarchical pathway organization
 
-## What Makes It Unique
-- Detailed reaction-level data
-- Cross-referenced to other databases
-- Manual curation by experts
-- Computational tools included
+## Tools
+- PathwayBrowser (visualization)
+- Analysis tools (over-representation)
+- Tissue-specific pathway activity
+<!-- ## What Makes It Unique -->
+<!-- - Detailed reaction-level data -->
+<!-- - Cross-referenced to other databases -->
+<!-- - Manual curation by experts -->
+<!-- - Computational tools included -->
 ]
 
 .pull-right[
@@ -709,11 +711,6 @@ Use the **Group Comparison** feature to compare molecular subtypes
 **Biomarker context:**
 - Functional significance of gene sets
 - Connect genes to biological processes
-
-**Tools:**
-- PathwayBrowser (visualization)
-- Analysis tools (over-representation)
-- Tissue-specific pathway activity
 ]
 
 <!---
