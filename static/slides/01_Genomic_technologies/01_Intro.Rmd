@@ -1,0 +1,170 @@
+---
+title: "Introduction"
+# subtitle: "Statistical Models and Inference"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", #firebrick4, "deepskyblue1"
+  text_font_size = "28px"
+)
+library(dplyr)
+library(ggplot2)
+```
+
+<!-- HTML style block -->
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+<!--
+Take the pasted presentation and reformat it into Xaringan presentation (no need for header) by changing image insertions like that:
+\begin{center}
+\includegraphics[height=110px]{img/retrotransposons.png}
+\end{center}
+
+Into R code chunks like that
+{r, out.width = "400px", fig.align='center', echo=FALSE}
+knitr::include_graphics("img/sanger.png")
+
+Also, instead of \tiny, use .small[ <text> ] formatting. For two-column, use .pull-left[] and .pull-right[]. Keep all text, links, and image names intact. Keep HTML comments. Only if necessary, correct grammar. Analyze the whole content and add any slide that you feel is missing from the overall narrative, and add "(added)" suffix to the slide header. Return results in one Markdown code block.
+-->
+
+
+## Welcome!
+
+The primary goal of the course is to provide theory and practice of computational genomics, and empower to conduct independent genomic analyses.
+
+- We will study the leading computational and quantitative approaches for comparing and analyzing genomes starting from raw sequencing data.
+
+--
+
+- The course will focus on human genomics and human medical applications, but the techniques will be broadly applicable across the tree of life.
+
+--
+
+- The topics will include genome sequencing and assembly, single-cell sequencing, variant identification and analysis, copy number variant analysis, miRNA expression, methylation and epigenomic analysis, metagenomics, 3D genomics, and cancer genomics.
+
+---
+## Logistics
+
+- Course Webpage: https://bios668-2026.netlify.app/
+    - Lecture notes in HTLM, exercises R code, references will be posted there
+
+- Course Discussions: https://learningsystems.vcu.edu/canvas/
+    - Announcements, assignments, homework submission and grading
+- Class Hours: Monday/Wednesday, 1:00PM to 2:20PM
+
+- Office Hours: Monday/Wednesday 2:30PM to 4:00PM at Biostatistics Office 709.
+    - Any other time - by appointment
+
+---
+## Prerequisites
+
+- BIOS 658 (Statistical Methods for High-throughput Genomic Data I), https://bios658-2025.netlify.app/
+
+- Access to an Mac or Linux machine, or, for Windows machines, install the Windows Subsystem for Linux (WSL).
+
+- Familiarity with R programming environment
+
+- Knowledge of Git and GitHub for homework submission
+
+---
+## Grading Policies
+
+|            Assignment           | Percentage Value |
+|---------------------------------|------------------|
+|      In-class participation     |        20%       |
+| Reading and homework assignment |        50%       |
+|          Final project          |        30%       |
+
+- Pre-proposal due in the middle of the semester, the final project due at the end
+
+- Deadlines are mandatory
+
+- Discuss homework with your peers, work together, but provide your own solution
+
+- Paper reading is important. Paper notes will be graded
+
+---
+## Expectations: What you should expect
+
+- Your learning is a priority  
+
+- There are no stupid questions — ask anything and expect answers or a follow-up from me 
+
+- You will have feedback on your homeworks  
+
+- You are professional partners, colleagues in learning
+
+---
+## Expectations: What you are expected to do
+
+- You make attending class a priority  
+
+- You submit your best work for homework: your own work, on time  
+
+- You engage in classroom discussion  
+
+- You learn from the class; you learn to teach yourself analytical skills  
+
+- You demonstrate your best professional working ethics (including beyond the class)
+
+---
+## Resources 
+
+- Primary Texts: We will be studying primary research papers 
+
+- Lecture notes will contain many footnotes with links. Make a good use of them, explore the references on your own!
+
+- Other Resources: Google, SEQanswers, Biostars, StackOverflow
+
+
+---
+## Generative AI (Large Language Models, LLMs)
+
+- **Allowed and encouraged** — use it to clarify terms, generate examples, organize your code and help to solve errors.
+
+- Remember: you must know **how to ask good questions** and **how to verify answers** — this course focuses on building that skill.
+
+- Examples of LLMs: **ChatGPT**, **Claude**, **Gemini**, **NotebookLM**.  
+
+- VCU also provides access to **Microsoft Copilot**.
+
+.small[https://chatgpt.com  
+https://claude.ai  
+https://gemini.google.com  
+https://notebooklm.google.com  
+https://go.vcu.edu/copilot  
+https://aiguidebook.vcu.edu/tools/]
+
+---
+## Course Evaluation
+
+* At the end of the course, you will be asked to **evaluate it**.
+
+* Reflect on and **assess what you have learned** during the course.
+
+* Take notes on **what you liked**, as well as **what could be improved**.
+
+* Your evaluation will be **anonymous**.
+
