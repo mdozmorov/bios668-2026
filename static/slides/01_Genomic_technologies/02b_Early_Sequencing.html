@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Early Sequencing Technologies</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-01-12" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Early Sequencing Technologies
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-01-12
+]
+
+---
+
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Why sequence a reference genome?
+
+- Determine the "complete" sequence of a human haploid genome.
+
+- Identify the sequence and location of every protein coding gene.
+
+- Use as a "map" with which to track the location and frequency of genetic variation in the human genome.
+
+- Unravel the genetic architecture of inherited and somatic human diseases.
+
+- Understand genome and species evolution.
+
+---
+## DNA sequencing: Maxam-Gilbert, Sanger
+
+.pull-left[
+1) Sequencing by synthesis (not degradation)
+
+2) Radioactive primers hybridize to DNA
+
+3) Polymerase + dNTPs (normal dNTPs) + ddNTP (dideoxynucleotides terminators) at low concentration
+
+4) 1 lane per base, visually interpret ladder 
+
+.small[https://en.wikipedia.org/wiki/Maxam%E2%80%93Gilbert_sequencing]
+.small[https://www.youtube.com/watch?v=bEFLBf5WEtc]
+]
+
+.pull-right[
+&lt;img src="img/sanger_sequencing1.jpg" width="200px" style="display: block; margin: auto;" /&gt;
+]
+
+&lt;!--Sanger's 'chain-termination' sequencing. Radio- or fluorescently-labelled ddNTP nucleotides of a given type - which once incorporated, prevent further extension - are included in DNA polymerisation reactions at low concentrations (primed off a 5′ sequence, not shown). Therefore in each of the four reactions, sequence fragments are generated with 3′ truncations as a ddNTP is randomly incorporated at a particular instance of that base (underlined 3′ terminal characters).
+Dideoxynucleotides (ddNTPs) lack the 3′ hydroxyl group that is required for extension of DNA chains, and therefore cannot form a bond with the 5′ phosphate of the next dNTP
+--&gt;
+
+---
+## Shotgun genome sequencing milestones
+
+- **1977**: Bacteriophage `\(\Phi X 174\)` (5.4 kb) - first DNA genome sequenced
+
+- **1995**: _H. influenzae_ (1.8 Mb) - first free-living organism
+
+- **1996**: _S. cerevisiae_ (yeast, 12 Mb) - first eukaryote
+
+- **1998**: _C. elegans_ (worm, 97 Mb) - first multicellular animal
+
+- **2000**: _Drosophila melanogaster_ (fruit fly, 165 Mb)
+
+- **2000**: _Arabidopsis thaliana_ (mustard plant, 125 Mb) - first plant
+
+- **2001**: _Homo sapiens_ (human, 3 Gb) - draft sequence
+
+- **2004**: Human genome - "finished" sequence (92% complete)
+
+- **2022**: Human genome - truly complete (T2T-CHM13, all gaps closed)
+
+&lt;!-- .small[https://en.wikipedia.org/wiki/Phi_X_174] --&gt;
+.small[Sergey Nurk et al. ,The complete sequence of a human genome. Science (2022) https://doi.org/10.1126/science.abj6987 ]
+
+---
+class: middle,center
+
+# Sequencing on a scale
+
+---
+## Sequencing in a nutshell
+
+- Cut the long DNA into smaller segments (several hundreds to several thousand bases).
+
+- Sequence each segment: start from one end and sequence along the chain, base by base.
+
+- The process stops after a while because the noise level is too high.
+
+- Results from sequencing are many sequence pieces. The lengths vary, usually a few thousands from Sanger, and several hundreds from NGS.
+
+- The sequence pieces are called "reads" for NGS data.
+
+---
+## Shotgun genome sequencing (Sanger, 1979)
+
+.pull-left[
+1) Fragment the genome
+
+2) Clone 2-10kb fragments into plasmids (Bacterial artificial chromosome (BAC) clones); pick lots of colonies; purify DNA from each
+
+3) Use a primer to plasmid to sequence into genomic DNA
+
+4) Assemble the genome from overlapping "reads"
+]
+.pull-right[
+&lt;img src="img/shotgun.png" width="800px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+## How to sequence a human genome: Lee Hood
+
+.pull-left[
+- Lee Hood and colleagues developed the first automated DNA sequencer (1986-1987)
+- Replaced radioactive labels with four fluorescent dyes (one per base)
+- Automated capillary electrophoresis replaced manual gel reading
+- Computer-based base calling eliminated human interpretation ]
+.pull-right[
+&lt;img src="img/lee_hood_sequencing.png" width="400px" style="display: block; margin: auto;" /&gt;
+- Increased throughput from ~700 bases/day to thousands of bases/day per machine
+- Made the Human Genome Project feasible ]
+
+.small[ Hood LE, Hunkapiller MW, Smith LM. Automated DNA sequencing and analysis of the human genome. Genomics. 1987 https://doi.org/10.1016/0888-7543(87)90046-2 ]
+&lt;!-- **Impact:** Without automation, sequencing the human genome would have taken &gt;100 years with manual methods. Hood's invention reduced this to ~13 years for the first genome. --&gt;
+
+
+---
+## Massively Parallel DNA sequencing instruments
+
+- All MPS platforms require a library obtained either by amplification or ligation with custom linkers (adapters)
+
+- Each library fragment is amplified on a solid surface (either bead or flat _Si_-derived surface) with covalently attached adapters that hybridize the library adapters
+
+- Direct step-by-step detection of the nucleotide base incorporated by each amplified library fragment set
+
+- Hundreds of thousands to hundreds of millions of reactions detected per instrument run = "massively parallel sequencing"
+
+- A "digital" read type that enables direct quantitative comparisons
+
+- Shorter read lengths than capillary sequencers
+
+---
+## Library Construction for MPS
+
+.pull-left[
+- Shear high molecular weight DNA with sonication
+
+- Enzymatic treatments to blunt ends
+
+- Ligate synthetic DNA adapters (each with a DNA barcode), PCR amplify 
+
+- Quantitate library
+
+- Proceed to WGS, or do exome or specific gene hybrid capture
+]
+.pull-right[
+&lt;img src="img/library.png" width="400px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+## PCR-related Problems in MPS
+
+- PCR is an effective vehicle for amplifying DNA, however...
+
+- In MPS library construction, PCR can introduce preferential amplification ("jackpotting") of certain fragments
+
+- Duplicate reads with exact start/stop alignments
+
+- Need to "de-duplicate" after alignment and keep only one pair
+
+- Low input DNA amounts favor jackpotting due to lack of complexity in the fragment population
+
+---
+## PCR-related Problems in MPS
+
+- PCR also introduces false positive artifacts due to substitution errors by the polymerase
+
+- If substitution occurs in early PCR cycles, error appears as a true variant
+
+- If substitution occurs in later cycles, error typically is drowned out by correctly copied fragments in the cluster
+
+- Cluster formation is a type of PCR ("bridge amplification")
+
+- Introduces bias in amplifying high and low G+C fragments
+
+- Reduced coverage at these loci is a result
+
+---
+## Hybrid Capture
+
+- Selectively enrich specific genomic regions from a whole genome library
+
+- Biotinylated DNA/RNA probes hybridize to target sequences
+
+- Streptavidin magnetic beads capture probe-bound fragments
+
+- Wash away non-target DNA, elute enriched library for sequencing
+
+---
+## Hybrid Capture
+
+- **Exome sequencing**: Probes target ~1-2% of genome containing all annotated exons
+    - "Exome" = all exons of protein-coding genes in the reference genome
+    - Captures ~98% of disease-causing mutations at fraction of WGS cost
+
+--
+
+- **Custom panels**: Probes designed for specific clinical targets
+    - Cancer gene panels, cardiovascular panels, etc.
+    - Enables deeper coverage of clinically relevant loci
+
+--
+
+**Advantages:** Reduces sequencing cost while increasing coverage depth in regions of interest
+
+**Disadvantages:** Capture efficiency is typically 50-70%; not all target regions are captured equally
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

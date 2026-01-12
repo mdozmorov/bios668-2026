@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Genomic technologies</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-01-11" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Genomic technologies
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-01-11
+]
+
+---
+
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Age of OMICS
+
+&lt;img src="img/omics.jpg" width="800px" style="display: block; margin: auto;" /&gt;
+
+.small[Deshmukh, Rupesh, et al. "Integrating omic approaches for abiotic stress tolerance in soybean." Frontiers in Plant science (2014) https://doi.org/10.3389/fpls.2014.00244]
+
+---
+class: middle, center
+
+# Genome in a nutshell
+
+---
+## Genome arithmetics
+
+- Haploid (one copy) human genome has 23 chromosomes, autosomes (chromosome 1-22) and one sex chromosome (X, Y)
+
+- Human genome is _diploid_ - comprised of a paternal and a maternal "haplotype". Together, they form our "genotype" of 46 chromosomes
+
+&lt;img src="img/diploid.png" width="800px" style="display: block; margin: auto;" /&gt;
+
+---
+## Genome arithmetics
+
+- One genome per cell, located in the nucleus - most of the time (Red blood cells lack chromosomes)  
+
+- Mitochondria (cell powerhouses) have their own genomes - many mitochondrial genomes (Liver cells have 1000-2000 mito)
+
+- A typical human is comprised of roughly 40 trillion human cells (excluding trillions of bacterial cells in our gut)
+
+- If stretched out, each haploid genome would be roughly 2 meters - each cell has 4 meters of DNA (1 m = 3.28 ft)
+  - 40 trillion * 4 meters = 160 trillion meters
+  - 160 trillion meters / 1609.34 = 99,750,623,441 miles
+  - 99,750,623,441 / 92,960,000 = 1,073.05 trips to the sun
+
+---
+## Genome arithmetics
+
+- ~3,235 billion base pairs (haploid)
+
+- ~20,000 protein coding genes
+
+- ~200,000 coding transcripts (isoforms of a gene that each encode a distinct protein product)
+
+&lt;img src="img/chromosomes.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://www.ensembl.org/Homo_sapiens/Location/Genome ]
+
+---
+## The human genome from a micro to macro scale 
+
+&lt;img src="img/genome_scale1.png" width="550px" style="display: block; margin: auto;" /&gt;
+
+---
+##  The basic structure of a chromosome
+
+.pull-left[
+- **Size**. This is the easiest way to tell chromosomes apart.
+
+- **Banding pattern**. The size and location of Giemsa bands make each chromosome unique.
+
+- **Centromere position**. Centromeres appear as a constriction. They have a role in the separation of chromosomes into daughter cells during cell division (mitosis and meiosis).
+]
+.pull-right[
+&lt;img src="img/chromosome_structure.png" width="400px" style="display: block; margin: auto;" /&gt;
+]
+.small[http://learn.genetics.utah.edu/content/basics/readchromosomes/]
+
+---
+##  Chromosome Giemsa banding (G-banding)
+
+&lt;img src="img/giemsa.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+- Heterochromatic regions, which tend to be rich with adenine and thymine (AT-rich) DNA and relatively gene-poor, stain more darkly with Giemsa and result in G-banding  
+
+- Less condensed ("open") chromatin, which tends to be (GC-rich) and more transcriptionally active, incorporates less Giemsa stain, resulting in light bands in G-banding. 
+
+---
+##  Chromosome Giemsa banding (G-banding)
+
+&lt;img src="img/giemsa.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+- Cytogenetic bands are labeled p1, p2, p3,   q1, q2, q3, etc., counting from the centromere out toward 
+the telomeres. At higher resolutions, sub-bands can be seen within the bands. 
+
+- For example, the locus for the CFTR (cystic fibrosis) gene is 7q31.2, which indicates it is on chromosome 7, q arm, band 3, sub-band 1, and sub-sub-band 2. (Say 7,q,3,1 dot 2)
+
+.small[https://ghr.nlm.nih.gov/chromosome/1#ideogram]
+
+---
+##  The role of the centromere
+
+&lt;img src="img/chromosome_division.png" width="500px" style="display: block; margin: auto;" /&gt;
+
+- Centromeres are required for chromosome separation during cell division.
+- The centromeres are attachment points for microtubules, which are protein fibers that pull duplicate chromosomes toward opposite ends of the cell before it divides. 
+- This separation ensures that each daughter cell will have a full set of chromosomes.  
+- Each chromosome has only one centromere.
+
+.small[http://learn.genetics.utah.edu/content/basics/readchromosomes/]
+
+---
+## Centromere positions
+
+&lt;img src="img/chromosome_centromere.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+The position of the centromere relative to the ends helps scientists tell chromosomes apart. Centromere position can be described as:
+
+- **Metacentric** - the centromere lies near the center of the chromosome.
+- **Submetacentric** - the centromere that is off-center, so that one chromosome arm is longer than the other. The short arm is designated "p" (for petite), and the long arm is designated "q" (because it follows the letter "p").
+- **Acrocentric** - the centromere is very near one end.
+
+.small[http://learn.genetics.utah.edu/content/basics/readchromosomes/]
+
+---
+## Telomeres: The Genomic "End-Caps"
+
+Telomeres are specialized nucleoprotein structures found at the ends of linear chromosomes. They act like the plastic tips on shoelaces (aglets), preventing chromosomes from fraying, sticking to each other, or being recognized as "broken" DNA by the cell's repair machinery.
+
+--
+* **Sequence:** In humans and all vertebrates, telomeres consist of thousands of tandem repeats of the hexanucleotide sequence **TTAGGG**.
+
+--
+* **Structure:** They terminate in a single-stranded 3' overhang that tucks back into the double-stranded DNA to form a protective **T-loop**, stabilized by the **Shelterin** protein complex.
+
+--
+* **The "End Replication Problem":** DNA polymerase cannot replicate the very tip of a linear chromosome. Consequently, telomeres shorten with every cell division, eventually triggering cellular senescence (the Hayflick limit).
+
+---
+## Telomeres in Humans vs. Mice
+
+While the repetitive sequence ( is identical, there are profound biological differences between the two species:
+
+| Feature | Humans | Mice (*Mus musculus*) |
+| --- | --- | --- |
+| **Telomere Length** | Relatively short (**5–15 kb**) | Extremely long (**20–50 kb**) |
+| **Telomerase Activity** | Restricted primarily to germ, stem, and cancer cells | Active in many adult somatic tissues |
+| **Replicative Aging** | Telomere shortening is a primary driver of aging | Aging is less dependent on telomere length |
+| **Cancer Risk** | Short telomeres act as a tumor-suppressive barrier | Long telomeres and active telomerase make mice more prone to certain tumors |
+
+---
+## Genes and Transcripts
+
+**Gene:** A region of DNA that encodes a functional product
+- Includes regulatory elements (promoter, enhancers) + transcribed sequence
+&lt;!-- - Human genome: ~19,400 protein-coding genes, ~36,000 non-coding RNA genes --&gt;
+
+**Transcript (or RNA):** The specific variant of an RNA molecule produced by transcription of a gene
+- One gene can produce multiple different transcripts (isoforms) through:
+    - **Alternative splicing**: Different exon combinations
+    - **Alternative transcription start sites**: Different 5' ends
+    - **Alternative polyadenylation**: Different 3' ends
+
+&lt;!--**Isoforms:**
+- Different transcript variants from the same gene
+- Can encode different protein products or have different regulatory properties
+- Average human gene produces ~3-4 isoforms; some genes produce &gt;100--&gt;
+
+**Example:** The human DSCAM gene produces &gt;38,000 potential isoforms through alternative splicing
+
+&lt;!-- **Key point:** Genes are genomic features (DNA); transcripts are the expressed RNA products. The relationship is one-to-many: 1 gene → multiple transcripts → potentially multiple proteins. --&gt;
+
+---
+## Gene content
+
+- "There appear to be about `\(30,000 \pm 40,000\)` protein-coding genes in the human genome -- only about twice as many as in worm or fly. However, the genes are more complex, with more alternative splicing generating a larger number of protein products."  
+- Over time this has evolved to an estimate of approximately 20,000 protein coding genes, which reflects roughly the number of genes in fly and worm
+
+&lt;img src="img/gene_content.png" width="500px" style="display: block; margin: auto;" /&gt;
+
+.small[ International Human Genome Sequencing Consortium. Initial sequencing and analysis of the human genome. Nature 409, 860–921 (2001). https://doi.org/10.1038/35057062 ]
+
+---
+## Genes are unevenly distributed across chromosomes
+
+Highly expressed genes positively correlated with
+
+- Very short indels
+- High gene density
+- High GC content
+- High density of Short interspersed nuclear elements (SINE) repeats
+- Low density of Long interspersed nuclear elements (LINE) repeats
+- Both housekeeping and tissue-specific expression
+
+The opposite is true for lowly expressed genes
+
+.small[Versteeg, Rogier, et al. "The human transcriptome map reveals extremes in gene density, intron length, GC content, and repeat pattern for domains of highly and weakly expressed genes." Genome research (2003) https://doi.org/10.1101/gr.1649303 ]
+
+---
+## Genes are unevenly distributed across chromosomes
+
+- **Chromosome 19**: Most gene-dense (~23 genes/Mb) - 1,332 genes in only 59 Mb
+
+- **Chromosome 17**: Second most gene-dense (~14 genes/Mb) - 1,111 genes
+
+- **Chromosome 11**: Third most gene-dense (~9 genes/Mb) - 1,236 genes
+
+- Gene-rich chromosomes (19, 17, 11) tend to be located toward the nuclear center
+
+.small[ Grimwood, J., Gordon, L., Olsen, A. et al. The DNA sequence and biology of human chromosome 19. Nature 428, 529–535 (2004). https://doi.org/10.1038/nature02399]
+.small[ Nusbaum, C., Zody, M., Borowsky, M. et al. Correction: Corrigendum: DNA sequence and analysis of human chromosome 18. Nature 438, 696 (2005). https://doi.org/10.1038/nature04363 ]
+
+---
+## Genes are unevenly distributed across chromosomes
+
+- **Chromosome 18**: Least gene-dense (~3.4 genes/Mb) - only 257 genes in 78 Mb
+
+- **Chromosome 13**: Second least gene-dense (~3.2 genes/Mb) - 305 genes
+
+- **Chromosome Y**: Lowest overall (~2.5 genes/Mb) - only 65 genes in 59 Mb
+
+- Gene-poor chromosomes (18, 13, Y) tend to be located at the nuclear periphery
+
+- Only three autosomal trisomies are survivable to term: chromosomes 13 (Patau), 18 (Edwards), and 21 (Down syndrome)
+&lt;!-- - Despite low gene density, chromosome 18 has similar levels of conserved non-coding sequences as the genome average --&gt;
+&lt;!--
+&lt;img src="img/chromosome_genes.png" width="800px" style="display: block; margin: auto;" /&gt;
+--&gt;
+
+---
+## GENCODE – Annotation Gene Features (Release 49, 2024)
+
+- **~19,433 protein coding genes**
+    - ~211,446 protein-coding transcripts
+    - ~186,646 full-length protein-coding transcripts
+    - ~24,800 partial-length protein-coding transcripts
+    - ~129,801 distinct translation products
+    
+- **~35,899 long non-coding RNA (lncRNA) genes**
+    - ~191,079 lncRNA transcripts
+    - Dramatic expansion from earlier releases
+    
+---
+## GENCODE – Annotation Gene Features (Release 49, 2024)
+
+- **~14,701 pseudogenes**
+    - ~10,638 processed pseudogenes
+    - ~3,536 unprocessed pseudogenes
+    - ~1,149 transcribed processed pseudogenes
+    
+- **~7,563 small non-coding RNA genes**
+    - miRNA, snoRNA, snRNA, rRNA, and others
+
+.small[https://www.gencodegenes.org/human/stats.html - GENCODE Release 49, 2024]
+
+&lt;!---
+## GENCODE – Annotation Gene Features
+
+- ~12,000 pseudogenes – results of duplications
+    - 876 are transcribed – can have regulatory function by serving as decoys
+    - Infrequently spliced
+- ~10,000 lncRNA = noncoding RNAs &gt;200bp
+    - 92% are not translated
+    - Many show tissue-specific expression – more so than protein coding genes
+    - 33% are primate specific but few are human specific – most new genes are in this category
+    - Poorly spliced – most are two exon transcripts
+- ~9000 small RNAs - many of the lncRNA transcripts are processed into stable small RNAs
+    - tRNA, miRNA, siRNA, snRNA, snoRNA
+--&gt;
+
+---
+## GENCODE – Annotation Gene Features
+
+- Most (62%) of the genome is transcribed – the genome is pervasively transcribed
+    - &lt;5% can be identified as exons
+
+- ~82,000 – 128,000 transcription start sites - depending on detection method
+    - ~44% are near annotated transcripts
+
+---
+## GENCODE – Annotation Gene Features
+
+**Millions of RNA editing sites** detected genome-wide (estimates range from ~2.5 million to &gt;100 million sites)
+
+**A-to-I editing** (Adenosine to Inosine): Catalyzed by ADAR enzymes, inosine is read as guanosine
+
+- \&gt;95% occur in Alu repetitive elements forming double-stranded RNA structures
+
+- Mostly in introns, UTRs, and non-coding regions
+
+- &lt;5% in protein coding sequences
+
+---
+## GENCODE – Annotation Gene Features
+
+**Millions of RNA editing sites** detected genome-wide (estimates range from ~2.5 million to &gt;100 million sites)
+
+**C-to-U editing** (Cytidine to Uridine): Catalyzed by APOBEC family enzymes, uridine is read as thymine
+
+- APOBEC1 edits apolipoprotein B mRNA; APOBEC3A edits in monocytes/macrophages
+
+- Also predominantly in non-coding regions
+
+---
+## Half of the human genome is low complexity
+
+.pull-left[
+Retrotransposons - fossil records of evolution
+
+- McClintock's "jumping genes" in maize
+- Retrotransposons use a "copy/paste" mechanism - transcribed to RNA and then reverse transcribed into DNA and insert
+- DNA transposons use a "cut/paste" mechanism - excise themselves and insert to another place
+]
+.pull-right[
+&lt;img src="img/retrotransposons.png" width="400px" style="display: block; margin: auto;" /&gt;
+.small[Cordaux, R., Batzer, M. The impact of retrotransposons on human genome evolution. Nat Rev Genet 10, 691–703 (2009). https://doi.org/10.1038/nrg2640]
+]
+
+---
+## Transposable Elements (TEs) in the Human Genome
+
+\~45-50% of the human genome is derived from transposable elements
+
+.pull-left[
+- **LINE-1 (L1)**: \~17% of genome, \~6 kb long, autonomous retrotransposon. Only ~80-100 remain active in humans
+    
+- **Alu elements (SINEs)**: \~11% of genome, \~300 bp long. \&gt;1 million copies, non-autonomous (uses L1 machinery). Most successful transposon in primates
+]
+.pull-right[
+- **SVA elements**: \~0.15% of genome, 0.7-4 kb long. Hominid-specific, composite structure (SINE-VNTR-Alu)
+    
+- **HERVs (LTR retrotransposons)**: ~8% of genome. Human endogenous retroviruses, now inactive
+]
+    
+.small[International Human Genome Sequencing Consortium. Initial sequencing and analysis of the human genome. Nature 409, 860–921 (2001). https://doi.org/10.1038/35057062]
+
+---
+## Repeats - Tandem Repetitive DNA
+
+Repetitive DNA not driven by retrotransposition (e.g., ATATATATATATATAT...)
+
+**CpG islands:**
+- Clusters of CG dinucleotides (~20 sites/kbp in gene-rich regions)
+- "p" = phosphodiester bond (distinguishes from Watson-Crick C-G pairing)
+- ~60% of human promoters contain CpG islands
+
+&lt;img src="img/cpg_stats.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[International Human Genome Sequencing Consortium. Initial sequencing and analysis of the human genome. Nature 409, 860–921 (2001). https://doi.org/10.1038/35057062]
+
+---
+## Repeats - Tandem Repetitive DNA
+
+**Microsatellites (STRs)**: 1-6 bp repeat units
+
+- \~3% of genome (50,000-100,000 dinucleotide repeats)
+
+- Example: (CA)n, (AT)n, (GATA)n
+
+- Used in DNA profiling and paternity testing
+
+--
+
+**Minisatellites (VNTRs)**: 10-60 bp repeat units  
+
+- \&gt;1,000 loci in human genome
+
+- Highly polymorphic between individuals
+
+- Used in DNA fingerprinting
+    
+---
+## Repeats - Tandem Repetitive DNA
+
+**Satellite DNA**: 100s-1000s bp repeat units
+
+- \~3% of genome, located at centromeres and telomeres
+
+- Alpha-satellite repeats span 0.2-10 Mb at centromeres
+    
+**Telomeres**: TTAGGG repeats
+
+- 5-15 kb of repeats protect chromosome ends
+
+---
+## Genome variability
+
+A typical genome differs from the reference genome at 4.1 to 5.0 million sites - Single Nucleotide Polymorphisms (SNPs)
+
+- Over 99.9% are SNPs or short indels
+- Only 1-4% are rare (frequency &lt;0.5% in the population)
+- Contains 2,100 – 2,500 structural variants, which affect more bases (~20 million bases)
+- ~1,000 large deletions
+- ~1,094 Alu, L1, SINE (short interspersed nuclear element), VNTR (variable number tandem repeat) insertions
+- ~160 CNVs
+- ~10 inversions
+- ~ 4 NUMTs (nuclear mitochondrial DNA variations)
+
+---
+## Genome variability
+
+- 149-182 protein truncating variants
+
+- ~2,000 variants associated with complex traits
+
+- 24-30 variants associated with rare disease
+
+- On average 74 _de novo_ SNVs per individual 
+
+.small[the 1000 Genomes Project. Variation in genome-wide mutation rates within and between human families. Nat Genet 43, 712–714 (2011). https://doi.org/10.1038/ng.862]
+
+---
+class: middle,center
+
+# Genome sequencing
+
+---
+## Why sequence a reference genome?
+
+- Determine the "complete" sequence of a human haploid genome.
+
+- Identify the sequence and location of every protein coding gene.
+
+- Use as a "map" with which to track the location and frequency of genetic variation in the human genome.
+
+- Unravel the genetic architecture of inherited and somatic human diseases.
+
+- Understand genome and species evolution.
+
+---
+## DNA sequencing: Maxam-Gilbert, Sanger
+
+.pull-left[
+1) Sequencing by synthesis (not degradation)
+
+2) Radioactive primers hybridize to DNA
+
+3) Polymerase + dNTPs (normal dNTPs) + ddNTP (dideoxynucleotides terminators) at low concentration
+
+4) 1 lane per base, visually interpret ladder 
+
+.small[https://en.wikipedia.org/wiki/Maxam%E2%80%93Gilbert_sequencing]
+.small[https://www.youtube.com/watch?v=bEFLBf5WEtc]
+]
+
+.pull-right[
+&lt;img src="img/sanger_sequencing1.jpg" width="200px" style="display: block; margin: auto;" /&gt;
+]
+
+&lt;!--Sanger's 'chain-termination' sequencing. Radio- or fluorescently-labelled ddNTP nucleotides of a given type - which once incorporated, prevent further extension - are included in DNA polymerisation reactions at low concentrations (primed off a 5′ sequence, not shown). Therefore in each of the four reactions, sequence fragments are generated with 3′ truncations as a ddNTP is randomly incorporated at a particular instance of that base (underlined 3′ terminal characters).
+Dideoxynucleotides (ddNTPs) lack the 3′ hydroxyl group that is required for extension of DNA chains, and therefore cannot form a bond with the 5′ phosphate of the next dNTP
+--&gt;
+
+---
+## Shotgun genome sequencing milestones
+
+- **1977**: Bacteriophage `\(\Phi X 174\)` (5.4 kb) - first DNA genome sequenced
+
+- **1995**: _H. influenzae_ (1.8 Mb) - first free-living organism
+
+- **1996**: _S. cerevisiae_ (yeast, 12 Mb) - first eukaryote
+
+- **1998**: _C. elegans_ (worm, 97 Mb) - first multicellular animal
+
+- **2000**: _Drosophila melanogaster_ (fruit fly, 165 Mb)
+
+- **2000**: _Arabidopsis thaliana_ (mustard plant, 125 Mb) - first plant
+
+- **2001**: _Homo sapiens_ (human, 3 Gb) - draft sequence
+
+- **2004**: Human genome - "finished" sequence (92% complete)
+
+- **2022**: Human genome - truly complete (T2T-CHM13, all gaps closed)
+
+&lt;!-- .small[https://en.wikipedia.org/wiki/Phi_X_174] --&gt;
+.small[Sergey Nurk et al. ,The complete sequence of a human genome. Science (2022) https://doi.org/10.1126/science.abj6987 ]
+
+---
+class: middle,center
+
+# Sequencing on a scale
+
+---
+## Sequencing in a nutshell
+
+- Cut the long DNA into smaller segments (several hundreds to several thousand bases).
+
+- Sequence each segment: start from one end and sequence along the chain, base by base.
+
+- The process stops after a while because the noise level is too high.
+
+- Results from sequencing are many sequence pieces. The lengths vary, usually a few thousands from Sanger, and several hundreds from NGS.
+
+- The sequence pieces are called "reads" for NGS data.
+
+---
+## Shotgun genome sequencing (Sanger, 1979)
+
+.pull-left[
+1) Fragment the genome
+
+2) Clone 2-10kb fragments into plasmids (Bacterial artificial chromosome (BAC) clones); pick lots of colonies; purify DNA from each
+
+3) Use a primer to plasmid to sequence into genomic DNA
+
+4) Assemble the genome from overlapping "reads"
+]
+.pull-right[
+&lt;img src="img/shotgun.png" width="800px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+## How to sequence a human genome: Lee Hood
+
+.pull-left[
+- Lee Hood and colleagues developed the first automated DNA sequencer (1986-1987)
+- Replaced radioactive labels with four fluorescent dyes (one per base)
+- Automated capillary electrophoresis replaced manual gel reading
+- Computer-based base calling eliminated human interpretation ]
+.pull-right[
+&lt;img src="img/lee_hood_sequencing.png" width="400px" style="display: block; margin: auto;" /&gt;
+- Increased throughput from ~700 bases/day to thousands of bases/day per machine
+- Made the Human Genome Project feasible ]
+
+.small[ Hood LE, Hunkapiller MW, Smith LM. Automated DNA sequencing and analysis of the human genome. Genomics. 1987 https://doi.org/10.1016/0888-7543(87)90046-2 ]
+&lt;!-- **Impact:** Without automation, sequencing the human genome would have taken &gt;100 years with manual methods. Hood's invention reduced this to ~13 years for the first genome. --&gt;
+
+
+---
+## Massively Parallel DNA sequencing instruments
+
+- All MPS platforms require a library obtained either by amplification or ligation with custom linkers (adapters)
+
+- Each library fragment is amplified on a solid surface (either bead or flat _Si_-derived surface) with covalently attached adapters that hybridize the library adapters
+
+- Direct step-by-step detection of the nucleotide base incorporated by each amplified library fragment set
+
+- Hundreds of thousands to hundreds of millions of reactions detected per instrument run = "massively parallel sequencing"
+
+- A "digital" read type that enables direct quantitative comparisons
+
+- Shorter read lengths than capillary sequencers
+
+---
+## Library Construction for MPS
+
+.pull-left[
+- Shear high molecular weight DNA with sonication
+
+- Enzymatic treatments to blunt ends
+
+- Ligate synthetic DNA adapters (each with a DNA barcode), PCR amplify 
+
+- Quantitate library
+
+- Proceed to WGS, or do exome or specific gene hybrid capture
+]
+.pull-right[
+&lt;img src="img/library.png" width="400px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+## PCR-related Problems in MPS
+
+- PCR is an effective vehicle for amplifying DNA, however...
+
+- In MPS library construction, PCR can introduce preferential amplification ("jackpotting") of certain fragments
+
+- Duplicate reads with exact start/stop alignments
+
+- Need to "de-duplicate" after alignment and keep only one pair
+
+- Low input DNA amounts favor jackpotting due to lack of complexity in the fragment population
+
+---
+## PCR-related Problems in MPS
+
+- PCR also introduces false positive artifacts due to substitution errors by the polymerase
+
+- If substitution occurs in early PCR cycles, error appears as a true variant
+
+- If substitution occurs in later cycles, error typically is drowned out by correctly copied fragments in the cluster
+
+- Cluster formation is a type of PCR ("bridge amplification")
+
+- Introduces bias in amplifying high and low G+C fragments
+
+- Reduced coverage at these loci is a result
+
+---
+## Hybrid Capture
+
+- Selectively enrich specific genomic regions from a whole genome library
+
+- Biotinylated DNA/RNA probes hybridize to target sequences
+
+- Streptavidin magnetic beads capture probe-bound fragments
+
+- Wash away non-target DNA, elute enriched library for sequencing
+
+---
+## Hybrid Capture
+
+- **Exome sequencing**: Probes target ~1-2% of genome containing all annotated exons
+    - "Exome" = all exons of protein-coding genes in the reference genome
+    - Captures ~98% of disease-causing mutations at fraction of WGS cost
+
+--
+
+- **Custom panels**: Probes designed for specific clinical targets
+    - Cancer gene panels, cardiovascular panels, etc.
+    - Enables deeper coverage of clinically relevant loci
+
+--
+
+**Advantages:** Reduces sequencing cost while increasing coverage depth in regions of interest
+
+**Disadvantages:** Capture efficiency is typically 50-70%; not all target regions are captured equally
+
+---
+class: middle,center
+
+# The Human Genome project
+
+---
+## The Human Genome roadmap
+
+**A 13-year scientific odyssey (1990-2003)**
+
+- The Human Genome Project officially began in October 1990 with an ambitious 15-year timeline and a projected cost of $3 billion. 
+
+- The project was a coordinated international effort led by the NIH and DOE, with James Watson as the first director (1990-1992), followed by Francis Collins (1993-2003).
+
+&lt;img src="img/early_sequencing.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+---
+## The Human Genome milestones
+
+- **1990**: Project officially launches; ELSI (Ethical, Legal, and Social Implications) program established (3-5% of NHGRI's budget)
+
+- **1994**: Genetic linkage map completed (one year ahead of schedule)
+
+- **1998**: Revised timeline announced - completion moved up to 2003
+
+- **2000**: Working draft sequence (June 26) - Clinton &amp; Blair joint announcement
+
+- **2001**: Draft sequence published in Nature (February 15)
+
+- **2003**: Finished sequence completed (April 14) - 2 years ahead of schedule, coinciding with 50th anniversary of Watson &amp; Crick's DNA structure
+
+&lt;!-- .small[ The project exceeded its goals, completing ahead of schedule and under budget, while establishing data sharing standards and addressing ethical implications. ] --&gt;
+
+---
+## The Human Genome roadmap
+
+&lt;img src="img/Timeline.jpg" width="1100px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://www.genome.gov/news/news-release/the-Human-Genome-Project-turns-the-big-3-0 ]
+
+---
+## Human genome is sequenced!
+
+&lt;img src="img/human_genome_project.jpg" width="800px" style="display: block; margin: auto;" /&gt;
+
+---
+## Two shotgun-sequencing strategies
+
+.pull-left[
+**Clone-by-clone approach:**
+
+- Create physical map of overlapping BAC clones spanning each chromosome
+
+- Sequence individual BACs separately (~150 kb each)
+
+- Assemble BAC sequences into chromosomes using map
+
+- Slower but more systematic; easier assembly
+
+]
+.pull-right[
+&lt;!--
+&lt;img src="img/shotgun_strategies.png" width="400px" style="display: block; margin: auto;" /&gt;
+--&gt;
+&lt;img src="img/sequencing_race.png" width="600px" style="display: block; margin: auto;" /&gt;
+.small[Green, E. Strategies for the systematic sequencing of complex genomes. Nat Rev Genet 2, 573–583 (2001). https://doi.org/10.1038/35084503]
+]
+
+---
+## Two shotgun-sequencing strategies
+
+.pull-left[
+**Whole-genome shotgun approach:**
+
+- Fragment entire genome randomly and sequence everything
+
+- Use computational assembly to piece together from overlaps alone
+
+- Faster and cheaper, but computationally challenging
+
+- Championed by Celera Genomics (Craig Venter)
+
+]
+.pull-right[
+&lt;!--
+&lt;img src="img/shotgun_strategies.png" width="400px" style="display: block; margin: auto;" /&gt;
+--&gt;
+&lt;img src="img/sequencing_race.png" width="500px" style="display: block; margin: auto;" /&gt;
+**Outcome:** Public project used clone-by-clone approach; Celera used whole-genome shotgun. Both published draft sequences in 2001. Modern sequencing uses whole-genome shotgun exclusively.
+]
+
+&lt;!--a | Schematic overview of clone-by-clone shotgun sequencing. A representation of a genome is made by analogy to an encyclopaedia set, with each volume corresponding to an individual chromosome. The construction of clone-based physical maps produces overlapping series of clones (that is, contigs), each of which spans a large, contiguous region of the source genome. Each clone (for example, a bacterial artificial chromosome (BAC)) can be thought of as containing the DNA represented by one page of a volume. For shotgun sequencing, individual mapped clones are subcloned into smaller-insert libraries, from which sequence reads are randomly derived. In the case of BACs, this typically requires the generation of several thousand sequence reads per clone. The resulting sequence data set is then used to assemble the complete sequence of that clone (see Figs 3,4). b | Schematic overview of whole-genome shotgun sequencing. In this case, the mapping phase is skipped and shotgun sequencing proceeds using subclone libraries prepared from the entire genome. Typically, tens of millions of sequence reads are generated and these in turn are subjected to computer-based assembly to generate contiguous sequences of various sizes.--&gt;
+
+---
+## A first map of the human genome
+
+.pull-left[
+**February 15, 2001: The draft sequence is published**
+
+After intense competition and collaboration, both the public Human Genome Project and Celera Genomics published their draft sequences simultaneously:
+
+- **Nature**: International Human Genome Sequencing Consortium 
+- **Science**: Celera Genomics - Craig Venter's whole-genome shotgun approach
+]
+.pull-right[
+&lt;img src="img/nature_genome.png" width="500px" style="display: block; margin: auto;" /&gt;
+.small[ The draft covered ~90% of the euchromatic genome with gaps remaining in repetitive and heterochromatic regions. This landmark publication revealed surprising findings: only ~20,000-25,000 protein-coding genes (far fewer than expected), and extensive repetitive elements comprising nearly half the genome.
+
+International Human Genome Sequencing Consortium. Initial sequencing and analysis of the human genome. Nature 409, 860–921 (2001). https://doi.org/10.1038/35057062]
+]
+
+&lt;!--
+## Sanger sequencing: technological advances
+
+- 1977: Fred Sanger
+    - 1 hardworking technician = 700 bases per day = 118,000 years to sequence the human genome
+- 1985: ABI 370 (first automated sequencer)
+    - 5000 bases per day= 16,000 years
+- 1995: ABI 377 (Bigger gels, better chemistry &amp; optics, more sensitive dyes, faster computers)
+    - 19,000 bases per day = 4,400 years
+- 1999: ABI 3700 (96 capillaries, 96 well plates, fluid handling robots)
+    - 400,000 bases per day = 205 years
+--&gt;
+
+---
+class: middle,center
+
+# Evolution of post-Sanger sequencing technologies
+
+---
+## Sanger sequencing: technological advances
+
+**The automation revolution that enabled the Human Genome Project:**
+
+- **1977: Fred Sanger's method**
+    - Manual gel reading: ~700 bases per technician per day
+    - Time to sequence human genome: ~118,000 years
+    
+- **1986-1987: ABI 370 (first automated sequencer)**
+    - Four-color fluorescent dyes replace radioactivity
+    - Automated base calling: ~5,000 bases per day
+    - Time to sequence human genome: ~16,000 years
+    
+---
+## Sanger sequencing: technological advances
+
+- **1995: ABI 377 (scaled-up automation)**
+    - Bigger gels, improved chemistry &amp; optics, faster computers
+    - Throughput: ~19,000 bases per day
+    - Time to sequence human genome: ~4,400 years
+    
+- **1999: ABI 3700 (capillary electrophoresis)**
+    - 96 capillaries, robotic liquid handling, no manual gel pouring
+    - Throughput: ~400,000 bases per day per machine
+    - Time to sequence human genome: ~205 years **per machine**
+
+**Reality check:** The HGP used hundreds of ABI 3700 sequencers running 24/7, enabling completion in 13 years (1990-2003). Each machine cost ~$300,000; sequencing cost ~$0.50-$1.00 per base in the late 1990s.
+
+---
+## Terminology for post-Sanger sequencing technologies
+
+- **"Next generation" sequencing (NGS)**: Most common term
+    - Originally referred to technologies after Sanger (454, Illumina, SOLiD)
+    - Now generally includes all modern platforms
+
+--
+
+- **"Second generation" sequencing**: 
+    - Short-read technologies (Illumina, Ion Torrent, 454, SOLiD)
+    - Distinguished from "third generation" long-read technologies (PacBio, Nanopore)
+
+--
+
+- **"Massively parallel" sequencing (MPS)**:
+    - Emphasizes simultaneous sequencing of millions of DNA fragments
+    - Technical descriptor of the core innovation
+    
+---
+## Terminology for post-Sanger sequencing technologies
+
+- **"High-throughput" sequencing (HTS)**:
+    - Emphasizes data output capacity
+    - Generates gigabases to terabases per run
+    
+- **"Ultra high-throughput" sequencing**:
+    - Reserved for latest platforms with highest output (e.g., NovaSeq, NextSeq)
+
+**Note:** These terms are often used interchangeably in the literature. The field has moved beyond "next generation" - we're now in the era of "third generation" (long-read) and emerging "fourth generation" (real-time, nanopore) technologies.
+
+---
+## Evolution of sequencing technologies
+
+- **2005**: 454 (Roche) - first NGS platform, pyrosequencing
+- **2006**: Solexa (Illumina) - later became Illumina Genome Analyzer
+- **2007**: SOLiD (Applied Biosystems/Life Technologies) - sequencing by ligation
+- **2010**: Complete Genomics - nanoball sequencing
+- **2010**: Ion Torrent (Life Technologies) - semiconductor sequencing
+- **2011**: Pacific Biosciences (PacBio) - SMRT, single-molecule real-time
+- **2012**: Oxford Nanopore Technologies (MinION) - nanopore sequencing
+- **2014**: Illumina HiSeq X Ten - first sub-$1,000 genome
+- **2017**: Illumina NovaSeq - ultra-high throughput platform
+
+**Note**: 454 was discontinued in 2016; SOLiD discontinued in 2016. Illumina dominates the market today with &gt;80% share.
+
+---
+## 454 pyrosequencing
+
+.pull-left[
+**Sequencing by synthesis - light detection:**
+
+1) Hybridize sequencing primer to template DNA
+
+2) Add enzyme cocktail: DNA polymerase, ATP sulfurylase, luciferase, apyrase, plus substrates (APS and luciferin)
+
+3) Nucleotide incorporation triggers enzymatic cascade producing light
+]
+.pull-right[
+
+&lt;img src="img/pyrosequencing.png" width="500px" style="display: block; margin: auto;" /&gt;
+4) Sequential base addition: add dATP → image → wash → add dTTP → image → wash → add dGTP → image → wash → add dCTP → image → wash. Repeat ~500 cycles
+]
+
+.small[Rothberg, J., Leamon, J. The development and impact of 454 sequencing. Nat Biotechnol 26, 1117–1124 (2008). https://doi.org/10.1038/nbt1485]
+
+---
+## 454 pyrosequencing
+
+.pull-left[
+**Library preparation and sequencing workflow:**
+
+1) Fragment genomic DNA
+
+2) Ligate adapters, bind fragments to beads (1 fragment per bead)
+
+3) Emulsion PCR amplification to create clonal bead populations
+
+4) Break emulsion, deposit beads into picotiter plate wells
+
+5) Perform pyrosequencing reaction, capture light signals
+]
+.pull-right[
+
+&lt;img src="img/454.png" width="500px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+## 454 sequencing: summary
+
+**Advantages:**
+- First commercially successful post-Sanger platform (2005)
+- Longer reads than early Illumina (~400-500 bp, later up to 700 bp)
+- Used to sequence Jim Watson's genome ($2M, 2007) and many microbial genomes
+
+--
+
+**Disadvantages:**
+- Homopolymer errors (difficulty distinguishing AAAA vs. AAAAA)
+- Much lower throughput than Illumina (~1 million reads vs. billions)
+- Higher per-base cost
+
+**Legacy:** Rapidly surpassed by Illumina technology. Roche discontinued 454 platform in 2016. Now obsolete.
+
+---
+## Solexa (Illumina) sequencing (2006)
+
+**1. Bridge amplification:**
+- DNA fragments bind to oligonucleotides on glass flow cell surface
+- "Bridge PCR" creates millions of clonal clusters (~1,000 copies each)
+
+--
+
+**2. Reversible terminator chemistry:**
+- All four fluorescent-labeled nucleotides added simultaneously
+- 3' blocking group prevents multiple incorporations per cycle
+- After imaging, cleave fluorophore and blocker, then repeat
+
+--
+
+**3. Massively parallel sequencing:**
+- Billions of clusters sequenced simultaneously
+- High accuracy, scalable throughput
+
+.small[http://www.youtube.com/watch?v=77r5p8IBwJk (1.5m), https://www.youtube.com/watch?v=fCd6B5HRaZ8 (5m)]
+
+---
+## Solexa (Illumina) sequencing (2006)
+
+&lt;img src="img/Cluster_Generation.png" width="500px" style="display: block; margin: auto;" /&gt;
+Dominant NGS platform (&gt;80% market share), enabled $1,000 genome.
+
+.small[
+Elaine R. Mardis "Next-Generation DNA Sequencing Methods" Annual Review of Genomics and Human Genetics (2008) https://doi.org/10.1146/annurev.genom.9.081307.164359
+]
+
+---
+##  Cluster amplification by "bridge" PCR
+
+.pull-left[
+**Generating clonal DNA clusters on the flow cell:**
+
+- Single-stranded DNA fragments with adapters bind to complementary oligonucleotides on flow cell surface
+- Fragment arches over ("bridge") and hybridizes to adjacent oligo
+- DNA polymerase extends, creating double-stranded bridge
+- Denaturation releases strands; process repeats
+]
+.pull-right[
+&lt;img src="img/illumina_bridge_pcr.png" width="500px" style="display: block; margin: auto;" /&gt;
+- After ~35 cycles, creates cluster of ~1,000 identical copies
+- Ensures sufficient signal for detection during sequencing
+]
+
+---
+## Clonal amplification
+
+.pull-left[
+- Each DNA fragment generates a spatially distinct cluster
+
+- ~1,000 identical copies per cluster provide sufficient fluorescent signal
+
+&lt;!-- - Millions of clusters across the flow cell enable massively parallel sequencing --&gt;
+- Cluster density: ~200,000-300,000 sequences per mm²
+
+- Optimal spacing prevents signal overlap between adjacent clusters
+]
+.pull-right[
+&lt;img src="img/illumina_cluster_amplification.png" width="450px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+## Base calling
+
+- 6 cycles with base-calling
+
+&lt;img src="img/illumina_base_calling.png" width="800px" style="display: block; margin: auto;" /&gt;
+.small[https://www.youtube.com/watch?v=IzXQVwWYFv4]  
+.small[https://www.youtube.com/watch?time_continue=65&amp;v=tuD-ST5B3QA]
+
+---
+## Illumina sequencers
+
+.pull-left[
+- **NovaSeq 6000**: Up to 3 Tb per run (S4 flow cell), ~200 human genomes at 30X
+
+- **NovaSeq X Plus** (launched 2023): Up to 16 Tb per run (dual 25B flow cells), 2.5× faster than NovaSeq 6000
+    - **$200 per genome** at scale (25B flow cell)
+    - Up to 128 human genomes per run at 30X coverage
+    - DRAGEN onboard for real-time analysis
+]
+.pull-right[
+&lt;img src="img/HiSeq_X_Five_Sequencing_System.jpg" width="400px" style="display: block; margin: auto;" /&gt;
+
+- **NovaSeq X** (single flow cell, launched 2024): Up to 8 Tb per run, lower entry cost
+
+- **NextSeq 1000/2000**: Mid-throughput, 100-360 Gb per run
+
+.small[https://www.illumina.com/systems/sequencing-platforms.html]
+]
+
+&lt;!-- - **Illumina HiSeq**: ~3 billion paired 100bp reads, ~600Gb, $10K, 8 days (or "rapid run" ~90Gb in 1-2 days) --&gt;
+&lt;!-- - **Illumina X Ten**: ~6 billion paired 150bp reads, 1.8Tb, &lt;3 days, ~$1000 / genome, (or "rapid run" ~90Gb in 1-2 days) --&gt;
+&lt;!-- - **Illumina NextSeq**: One human genome in &lt;30 hours --&gt;
+
+&lt;!--
+## Illumina sequencers
+
+&lt;img src="img/Illumina_NovaSeq6000.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+- Massive improvement of the cluster density - higher output
+- Less expensive than the previous sequencers
+- Faster runs
+
+.small[https://blog.genohub.com/2017/01/10/illumina-unveils-novaseq-5000-and-6000/]
+
+.small[http://www.mrdnalab.com/illumina-novaseq.html]--&gt;
+
+---
+## Illumina sequencing: Advantages
+
+- Dominant platform with &gt;80% global market share
+
+- Highest throughput: up to 16 Tb per NovaSeq X Plus run
+
+- Best cost-effectiveness: **$200 per human genome** at 30X coverage
+
+- High accuracy: &gt;99.9% (Q30+) with latest XLEAP-SBS chemistry
+
+- Mature ecosystem: extensive bioinformatics tools and protocols
+
+- Read lengths now up to 2×300 bp (NovaSeq X, MiSeq)
+
+
+---
+## Illumina sequencing: Disadvantages
+
+- Short reads limit structural variant detection and de novo assembly
+
+- GC bias in high/low GC-content regions
+
+- PCR duplicates reduce effective coverage
+
+- Cannot directly detect base modifications (methylation)
+
+- Index hopping can occur on patterned flow cells
+
+**Competition:** PacBio HiFi and Oxford Nanopore now offer long reads (10-100+ kb) with improving accuracy, challenging Illumina's dominance for certain applications.
+
+---
+class: middle,center
+
+# Single-end vs. paired-end sequencing
+
+---
+## Single-end vs. paired-end sequencing
+
+.pull-left[
+**Single-end sequencing:**
+
+- Sequence one end of the DNA fragment only
+
+- Generate one read per template molecule
+
+- Faster and less expensive
+
+- Sufficient for gene expression quantification (RNA-seq)
+]
+.pull-right[
+**Paired-end sequencing:**
+
+- Sequence both ends of the same DNA fragment
+
+- Generate two reads per template separated by known distance (insert size)
+
+- Higher accuracy, better alignment in complex/repetitive regions
+
+- Can detect insertions, deletions, inversions, and structural variants
+]
+
+&lt;!--**Mate-pair sequencing** (specialized paired-end):
+- Long insert sizes: 2-5 kb (or longer)
+- Reads are in **RF orientation** (Reverse-Forward, outward-facing)
+- Requires circularization during library prep
+- Used for de novo assembly and large structural variant detection
+- Note: Illumina discontinued Nextera Mate Pair kit --&gt;
+
+---
+## Paired-end sequencing - a workaround to sequence longer fragments
+
+.pull-left[
+- Fragment DNA to desired size
+
+- Ligate sequencing adapters to both ends
+
+- Sequence first end (Read 1, forward direction)
+
+- Regenerate template, sequence second end (Read 2, reverse direction)
+
+- Two reads per fragment separated by known insert size
+]
+.pull-right[
+&lt;img src="img/illumina_paired_end.png" width="500px" style="display: block; margin: auto;" /&gt;
+
+**Typical configurations:**
+- Insert size: 300-500 bp (standard), up to 800 bp (extended)
+- Length of sequencing pairs: 2×75 bp, 2×100 bp, 2×150 bp
+]
+
+---
+## Templates and segments
+
+&lt;img src="img/template-segment.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+- **Template**: The original DNA/RNA molecule subjected to sequencing
+    - Also called "insert" or "fragment"
+    
+- **Insert size**: The length of the template molecule
+    - Includes sequenced segments plus unsequenced middle portion
+    - Typical ranges: 300-500 bp (paired-end), 2-5 kb (mate-pair)
+    
+---
+## Templates and segments
+
+&lt;img src="img/template-segment.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+- **Segment** (or "Read"): The portion of the template that was sequenced
+    - Represented by sequencing reads in FASTQ files
+    - Read 1 (R1): Forward read from 5' end
+    - Read 2 (R2): Reverse read from 3' end
+    - Read length: 50, 75, 100, 150, 250, 300 bp
+
+**Important:** Insert size ≠ total read length. For 2×150 bp reads with 400 bp insert, the middle ~100 bp is not sequenced.
+
+---
+## Advantages of paired-end sequencing
+
+**1. Improved mapping accuracy:**
+- Two anchor points per fragment reduce ambiguous alignments
+
+- Particularly valuable in repetitive or low-complexity regions
+
+- Correct orientation (FR) and insert size validate proper alignment
+
+**2. Structural variant detection:**
+- **Deletions**: Insert size larger than expected
+- **Insertions**: Insert size smaller than expected
+- **Inversions**: Incorrect read orientation (FF or RR instead of FR)
+- **Translocations**: Read pairs map to different chromosomes
+- **Copy number variations**: Abnormal read pair density
+
+---
+## Advantages of paired-end sequencing
+
+**3. De novo assembly:**
+- Link contigs separated by sequencing gaps
+
+- Scaffold assembly based on paired-read distance information
+
+- Resolve ambiguities in assembly graphs
+
+**4. Phasing and haplotyping:**
+- Read pairs from same chromosome reveal allelic linkage
+
+- Important for resolving heterozygous variants
+
+---
+class: middle,center
+
+# Third Generation Sequencing Technologies
+
+---
+## ION Torrent-pH Sensing of Base Incorporation
+
+&lt;img src="img/iontorrent.png" width="600px" style="display: block; margin: auto;" /&gt;
+
+- Low substitution error rate, in/dels problematic, no paired end reads
+
+- Inexpensive and fast turn-around for data production
+
+- Improved computational workflows for analysis
+
+---
+## Semiconductor sequencing - detecting chemistry without optics (2010)
+
+Ion Torrent introduced a fundamentally different approach: directly detecting the hydrogen ions (H⁺) released during DNA synthesis, eliminating the need for expensive cameras and fluorescent labels.
+
+.pull-left[
+- DNA polymerase incorporates natural (unlabeled) nucleotides
+- Each incorporation releases a hydrogen ion (H⁺)
+- Ion-sensitive field-effect transistor (ISFET) detects pH change
+- Sequential base addition (dATP → wash → dTTP → wash → dGTP → wash → dCTP → wash)
+]
+.pull-right[
+&lt;img src="img/iontorrent.png" width="500px" style="display: block; margin: auto;" /&gt;
+Signal intensity indicates number of bases incorporated (homopolymer length)
+]
+
+---
+## Platforms: Ion Torrent (2024-2025)
+
+.pull-left[
+- **Ion Genexus System** (2019-present): Fully automated specimen-to-report workflow
+    - Genexus Integrated Sequencer + Genexus Purification System
+    - Complete automation: 5 min hands-on time, results in 1 day
+    - GX5 chip: 4 lanes, up to 32 samples multiplexed
+    - 50 Mb - 2 Gb per run, 200-600 bp reads
+]
+.pull-right[
+&lt;img src="img/ion_platforms.jpg" width="500px" style="display: block; margin: auto;" /&gt;
+- **Ion GeneStudio S5 Series**: Scalable benchtop system for research
+    - S5 Plus: up to 15 Gb per run (550 chip)
+    - S5 Prime: up to 50 Gb per run (550 chip)
+    - Requires Ion Chef for automation
+]
+
+---
+## ION Torrent-pH Sensing of Base Incorporation
+
+**Advantages:**
+- Fast turnaround: runs complete in 2-4 hours
+- Low cost per run (~$100-1,000 depending on chip)
+- Simple, compact instrumentation (no optical components)
+- Low substitution error rate (&lt;1%)
+
+**Disadvantages:**
+- Homopolymer indel errors problematic (difficulty distinguishing AAAA vs. AAAAA)
+&lt;!-- - No native paired-end reads (requires mate-pair library construction) --&gt;
+- Lower throughput than Illumina (400 Mb - 15 Gb per run)
+- Read length limited to ~200-400 bp
+
+**Current status:** Still used in targeted sequencing panels and microbial sequencing, but largely displaced by Illumina for most applications.
+
+---
+##  Pacific Biosciences - Single Molecule, Real-Time (SMRT) Sequencing
+
+.pull-left[
+- DNA polymerase attached to bottom of zero-mode waveguide (ZMW) well
+
+- Single DNA molecule (SMRTbell template) loaded per ZMW
+
+- Four fluorescently-labeled nucleotides diffuse into well
+
+- Polymerase incorporates bases, light flashes detected in real-time
+]
+.pull-right[
+&lt;img src="img/pacbio.jpg" width="400px" style="display: block; margin: auto;" /&gt;
+- Circular consensus sequencing (CCS): polymerase reads same molecule multiple times
+
+- Multiple passes correct random errors → HiFi reads (&gt;99.9% accuracy, Q30+)
+]
+
+---
+##  Pacific Biosciences: Applications
+
+- De novo genome assembly
+
+- Structural variant discovery
+
+- Full-length transcript sequencing (Iso-Seq)
+
+- Direct methylation detection (5mC, 6mA)
+
+---
+## Pacific Biosciences: Advantages
+
+- **HiFi reads**: &gt;99.9% accuracy (Q30+) with 15-25 kb average read length
+
+- **High throughput**: Up to 360 Gb per SMRT Cell (4 cells/run = 1.44 Tb/day)
+
+- **Affordable**: ~$500-1,000 per human genome at 20-30X coverage
+
+- **Direct methylation detection**: 5mC and 6mA without bisulfite treatment
+
+- **No GC bias**: Uniform coverage across genome
+
+- **No amplification**: Libraries preserve native DNA modifications
+
+- **Long reads** resolve complex regions: repeats, centromeres, structural variants
+
+---
+## Pacific Biosciences: Disadvantages
+
+- **High DNA input required**: 3-5 μg high molecular weight (HMW) DNA for WGS
+
+- **DNA quality critical**: Nicks or contaminants terminate reads prematurely
+
+- **Higher cost per base** than Illumina (~$7-10/Gb vs. ~$1-2/Gb)
+
+- **Lower throughput** than NovaSeq X (1.44 Tb/day vs. 16 Tb/day)
+
+- **Longer run times**: 12-30 hours per run
+
+---
+## Nanopore sequencing - Real-time, single-molecule sequencing
+
+.pull-left[
+- DNA/RNA molecule passes through protein nanopore embedded in membrane
+
+- Applied voltage drives nucleic acid through pore
+
+- Each base disrupts ionic current in characteristic way
+
+- Current signal measured in real-time (450 bases/second)
+]
+.pull-right[
+&lt;img src="img/nanopore_x616[1].jpg" width="400px" style="display: block; margin: auto;" /&gt;
+]
+
+&lt;!--**Evolution of accuracy:**
+- **R9.4 chemistry** (2016-2021): ~95% accuracy
+- **R10.4.1 chemistry** (2022-present): **&gt;99% single-read accuracy (Q20+)**
+- **Duplex reads**: &gt;99.9% accuracy (Q30+) by sequencing both DNA strands
+- **Super accuracy reads (SAR)**: Q28 with latest Kit 14 and E8.2.1+ motor--&gt;
+
+---
+## Nanopore technology - Signal processing
+
+**From ionic current to DNA sequence:**
+
+- Nanopore sequencing yields raw signals reflecting modulation of ionic current as DNA passes through the pore
+- Time-series of translocation 'events' are base-called by neural network algorithms
+
+&lt;img src="img/nanopore_squiggle_plot.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+&lt;!-- **Basecalling evolution:**
+    - Early: Nanonet, Albacore (hidden Markov models)
+    - Current: **Dorado** (transformer neural networks, integrated into MinKNOW)
+    - Models: HAC (high accuracy), SUP (super accuracy)
+
+
+**Data format:** FAST5 files (HDF5 format) contain raw signal data and metadata
+
+.small[https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/btu555] --&gt;
+
+---
+## Nanopore sequencing - Current platforms
+
+**Key advantages:** Portability, real-time sequencing, ultra-long reads (&gt;4 Mb), direct modification detection
+
+**Portable devices:**
+
+- **MinION Mk1D** (launched Q4 2024): Pocket-sized, ~50 Gb per flow cell
+    - First major update since 2015, robust Q20+ accuracy in field
+
+- **Flongle**: Adapter for MinION, lower-cost option for small experiments
+
+&lt;img src="img/nanoporex2760.jpg" width="300px" style="display: block; margin: auto;" /&gt;
+
+.small[https://www.technologyreview.com/s/600887/with-patent-suit-illumina-looks-to-tame-emerging-british-rival-oxford-nanopore/]
+
+---
+## Nanopore sequencing - Current platforms (2024-2025)
+
+**Benchtop high-throughput:**
+
+- **GridION Mk1**: Runs up to 5 MinION flow cells simultaneously
+
+- **PromethION 2 (P2)**: Compact, benchtop sequencer (launched 2023-2024)
+    - **P2 Solo** (P2S): Two flow cells, uses external compute, **$10,455 starter pack**
+    - **P2 Integrated** (P2i): Two flow cells with integrated GPU and screen
+    - Output: **100-290 Gb per flow cell** (580 Gb total with both flow cells)
+    - \&gt;1,350 P2 devices now deployed globally
+
+&lt;!-- **Legacy high-throughput:**
+- **PromethION 24/48**: Up to 24 or 48 flow cells (being superseded by P2)--&gt;
+
+---
+## Nanopore sequencing - Portability and field applications
+
+- **Space sequencing**: First DNA sequencing in microgravity (ISS, 2016)
+- **Outbreak surveillance**: Real-time pathogen identification (Zika, Ebola, COVID-19)
+- **Remote fieldwork**: Biodiversity surveys, environmental monitoring
+- **Point-of-care diagnostics**: Rapid infectious disease detection (&lt;6 hours)
+- **Antarctica research**: Microbiome studies in extreme environments
+
+&lt;img src="img/nasasdnasequ.jpg" width="300px" style="display: block; margin: auto;" /&gt;
+
+.small[https://phys.org/news/2016-08-nasa-dna-sequencing-space-success.html]
+
+---
+## Nanopore for human genome sequencing
+
+- **2018**: First nanopore-only human genome assembly with ultra-long reads (&gt;100 kb)
+    - Closed 12 gaps in GRCh38 reference
+    - Phased entire MHC region (most gene-dense, variable region)
+
+- **2022**: Telomere-to-telomere (T2T) human genome completion
+    - Nanopore ultra-long reads essential for closing remaining gaps
+    - Resolved centromeres, segmental duplications, ribosomal DNA arrays
+
+.small[Jain, M., Koren, S., Miga, K. et al. Nanopore sequencing and assembly of a human genome with ultra-long reads. Nat Biotechnol 36, 338–345 (2018). https://doi.org/10.1038/nbt.4060]
+
+&lt;!--
+&lt;img src="img/nanopore_human_genome.png" width="400px" style="display: block; margin: auto;" /&gt;
+--&gt;
+
+---
+## Nanopore for human genome sequencing
+
+- **2024**: Routine human WGS at Q20+ accuracy
+    - 30-40X coverage for SNV/indel detection comparable to Illumina
+    - Cost: ~$500-1,000 per genome (P2 platform)
+    - Detects structural variants and methylation simultaneously
+
+**Current capability:** Single PromethION flow cell can sequence 1-2 human genomes at 30X coverage with &gt;99% accuracy
+
+.small[https://www.genengnews.com/gen-exclusives/first-nanopore-sequencing-of-human-genome/77901044]
+
+&lt;!---
+## Nanopore base callers - Accuracy improvements
+
+**Evolution of basecalling accuracy through machine learning:**
+
+&lt;img src="img/nanobasecallers_total_yield.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+**Current basecalling models (2024-2025):**
+- **Dorado v5.2**: Latest transformer-based basecaller
+    - HAC (High Accuracy): &gt;99% modal accuracy, real-time on GPU
+    - SUP (Super Accuracy): &gt;99.5% modal accuracy, ~2× slower
+    - Duplex: &gt;99.9% accuracy by reading both DNA strands
+
+**Key innovations:**
+- Real-time HAC basecalling during 72-hour runs (NVIDIA A100 GPU)
+- Direct modification calling (5mC, 6mA) integrated into basecalling
+- Continuous improvements through software updates (no hardware changes needed)
+
+--&gt;
+
+---
+## Nanopore analysis tools
+
+**Data formats:**
+
+- **FAST5**: Raw signal data (HDF5 format) with metadata
+
+- **BAM/FASTQ**: Basecalled sequences with quality scores
+
+- **POD5**: New compressed format for raw signal data (replacing FAST5)
+
+.small[https://github.com/rrwick/Basecalling-comparison]
+
+---
+## Nanopore analysis tools
+
+- **poretools** - Early toolkit for analyzing nanopore sequence data from FAST5 files
+
+- **MinKNOW** - Operating software for running sequencers, now includes Dorado basecalling
+
+- **EPI2ME** - Cloud-based or local analysis platform with push-button workflows
+    - Human variation, metagenomics, single-cell analysis
+
+- **Dorado** - State-of-the-art basecaller (transformer neural networks)
+
+- **VolTRAX** - Automated library preparation device
+
+&lt;!--```{r, out.width = "400px", fig.align='center', echo=FALSE}
+knitr::include_graphics("img/poretools.png")
+```--&gt;
+
+.small[https://github.com/arq5x/poretools]
+
+.small[https://academic.oup.com/bioinformatics/article-lookup/doi/10.1093/bioinformatics/btu555]
+
+---
+## PacBio vs. Oxford Nanopore sequencing
+
+
+
+| Feature | PacBio (Revio) | Oxford Nanopore (P2) |
+|---------|----------------|----------------------|
+| **Accuracy** | &gt;99.9% (HiFi, Q30+) | &gt;99% (Q20+), &gt;99.9% (duplex, Q30+) |
+| **Read length** | 15-25 kb (HiFi) | 20 bp to &gt;4 Mb (ultra-long) |
+| **Throughput** | 360 Gb/cell, 1.44 Tb/run | 100-290 Gb/cell, 580 Gb/run |
+| **Cost/genome** | ~$500-1,000 (30X) | ~$500-1,000 (30X) |
+| **Run time** | 12-30 hours | 24-72 hours (flexible) |
+| **Real-time** | No | Yes |
+| **Portability** | No (benchtop only) | Yes (MinION pocket-sized) |
+| **Methylation** | Yes (5mC, 6mA) | Yes (5mC, 6mA, 5hmC) |
+| **DNA input** | 3-5 μg HMW DNA | 1-5 μg (50 ng for RNA) |
+
+&lt;!--
+**Use cases:**
+- **PacBio**: High-accuracy applications, clinical diagnostics, difficult samples
+- **Nanopore**: Ultra-long reads, real-time applications, field sequencing, lower entry cost
+--&gt;
+
+.small[https://blog.genohub.com/2017/06/16/pacbio-vs-oxford-nanopore-sequencing/]
+
+---
+class: middle,center
+
+# Sequencing applications
+
+---
+## Applications: DNA Sequencing
+
+- **Whole genome sequencing (WGS)**: Complete genome coverage
+
+- **Whole exome sequencing (WES)**: All protein-coding regions (~1-2% of genome)
+
+- **Targeted gene panels**: Specific genes for clinical diagnostics
+
+- **Metagenomics**: Microbial community profiling
+
+---
+## Applications: RNA Sequencing
+
+- **Bulk RNA-seq**: Gene expression profiling
+
+- **Single-cell RNA-seq (scRNA-seq)**: Cell-type-specific expression, rare cell populations
+
+- **Spatial transcriptomics**: Gene expression with tissue location preserved
+
+- **Long-read RNA-seq (Iso-Seq)**: Full-length transcript isoforms
+
+---
+## Applications: Epigenomics
+
+- **ChIP-seq**: Protein-DNA interactions, histone modifications
+
+- **ATAC-seq**: Chromatin accessibility, regulatory elements
+
+- **Bisulfite-seq**: DNA methylation profiling
+
+- **scATAC-seq**: Single-cell chromatin accessibility
+
+---
+## Applications: Immunology
+
+- **Immune repertoire sequencing (IRS)**: T-cell and B-cell receptor diversity
+
+---
+## DNA-seq (Whole-Genome sequencing)
+
+&lt;!-- **Workflow:**
+- Extract high-quality DNA from cells/tissues
+- Fragment DNA into sequenceable pieces (300-500 bp for short-read, &gt;10 kb for long-read)
+- Prepare sequencing libraries with adapters
+- Sequence and align to reference genome --&gt;
+
+- **Variant detection**: Compare with reference genome to identify:
+    - Single nucleotide polymorphisms (SNPs): ~4-5 million per individual
+    - Insertions/deletions (indels): 100s of thousands per individual
+    - Copy number variations (CNVs): duplications or deletions &gt;1 kb
+    - Structural variations (SVs): inversions, translocations, large indels
+
+- **De novo assembly**: Build new genome without reference
+
+- **Clinical applications**: Rare disease diagnosis, cancer genomics, pharmacogenomics
+
+**Typical coverage:**
+- Human genome discovery: 30-50X coverage
+- Clinical diagnostics: 30-40X coverage  
+- Population studies: 10-15X coverage sufficient for common variants
+
+---
+## Variations of DNA-seq
+
+**Exome sequencing (WES):**
+
+- Capture and sequence only protein-coding regions (~1-2% of genome)
+
+- ~20,000 genes, ~180,000 exons, ~40-50 Mb total
+
+- **Advantages**: 10-20× cheaper than WGS, higher coverage depth possible
+
+- **Use cases**: Mendelian disease gene discovery, cancer mutation profiling
+
+- **Limitation**: Misses regulatory, intronic, and structural variants
+
+---
+## Variations of DNA-seq
+
+**Targeted gene panels:**
+
+- Focus on specific genes of clinical interest (10-500 genes)
+
+- **Ultra-deep coverage** (&gt;500X) for sensitive variant detection
+
+- **Examples**: Cancer panels (BRCA1/2, TP53, etc.), cardiac panels, neurodevelopmental panels
+
+- **Advantages**: Lowest cost, fastest turnaround, highest accuracy
+
+---
+## Variations of DNA-seq
+
+**Metagenomic sequencing:**
+
+- Sequence DNA from complex mixtures of organisms (microbiomes, environmental samples)
+
+- **Goals**: Identify species present, determine relative abundances, assemble genomes
+
+- **Challenges**: Unknown number of species, varying abundances, de novo assembly required
+
+- **Applications**: Gut microbiome studies, pathogen detection, environmental monitoring
+
+- **Markers**: 16S rRNA (bacteria), 18S rRNA (eukaryotes), ITS (fungi)
+
+---
+## RNA-seq
+
+- **Gene expression quantification**: Digital gene expression counting
+
+- **Transcript discovery**: Identify novel transcripts, isoforms, fusion genes
+
+- **Alternative splicing analysis**: Detect differential exon usage
+
+- **Allele-specific expression**: Distinguish maternal vs. paternal alleles
+
+- **Non-coding RNA profiling**: lncRNA, miRNA, circRNA characterization
+
+---
+## Standard bulk RNA-seq workflow
+
+- Extract total RNA from cells/tissues
+
+- Optional: Deplete ribosomal RNA (rRNA) or enrich for poly(A)+ mRNA
+
+- Reverse transcribe RNA to cDNA
+
+- Fragment and prepare sequencing libraries
+
+- Sequence and quantify transcript abundance
+
+**Typical depth**: 20-30 million reads for human differential expression
+
+---
+## Single-cell RNA-seq (scRNA-seq)
+
+**Why single-cell?**
+- **Cellular heterogeneity**: Bulk RNA-seq averages across millions of cells, masking rare populations
+- **Cell type identification**: Discover and characterize cell types and states
+- **Developmental trajectories**: Track cell fate decisions and differentiation
+- **Rare cell detection**: Identify circulating tumor cells, stem cells, immune cell subsets
+
+**Applications:**
+- Tumor microenvironment profiling
+- Immune cell repertoire analysis
+- Brain cell atlas construction
+- Embryonic development studies
+
+---
+## Single-cell RNA-seq (scRNA-seq)
+
+**Major platforms (2024-2025):**
+- **10x Genomics Chromium**: 500-20,000 cells per sample, droplet-based
+    - 3' or 5' gene expression, immune profiling (V(D)J), CITE-seq (surface proteins)
+    - **Flex**: Up to 1 million cells multiplexed, compatible with FFPE tissues
+    - **Multiome**: Simultaneous scRNA-seq + scATAC-seq on same cells
+
+- **Parse Biosciences**: Combinatorial barcoding, no specialized equipment
+
+- **BD Rhapsody**: 200-20,000 cells, microchamber-based
+
+**Typical depth**: &gt;20,000 reads per cell for discovery, &gt;50,000 for rare transcripts
+
+---
+## ChIP-seq - Chromatin Immunoprecipitation followed by sequencing
+
+**Workflow:**
+
+1. **Crosslink** proteins to DNA (formaldehyde)
+
+2. **Fragment** chromatin by sonication (~200-500 bp)
+
+3. **Immunoprecipitate** with antibody against target protein
+
+4. **Reverse crosslinks**, purify DNA
+
+5. **Sequence** and map enriched regions
+
+---
+## ChIP-seq Applications
+
+**Transcription factor binding:**
+- Map genome-wide binding sites of TFs
+- Identify regulatory elements (enhancers, promoters)
+- Understand gene regulatory networks
+
+--
+
+**Histone modifications:**
+- **H3K4me3**: Active promoters; **H3K27ac**: Active enhancers; **H3K27me3**: Polycomb repression; **H3K9me3**: Heterochromatin, gene silencing; **H3K36me3**: Actively transcribed gene bodies
+
+--
+
+**Other DNA-binding proteins:**
+- RNA polymerase II (Pol II): Active transcription;  CTCF: Chromatin loops and TAD boundaries; Cohesin: Sister chromatid cohesion and looping
+
+**Typical depth**: 20-40 million reads for mammalian ChIP-seq
+
+---
+## ATAC-seq
+
+**Assay for Transposase-Accessible Chromatin using sequencing:**
+
+**Principle:**
+- Map genome-wide chromatin accessibility
+- Faster and simpler alternative to DNase-seq and FAIRE-seq
+
+**Applications:**
+- Identify active regulatory elements (promoters, enhancers, silencers)
+- Transcription factor footprinting (infer TF binding from protected regions)
+- Nucleosome positioning
+- Compare chromatin states across cell types, development, disease
+
+---
+## Spatial transcriptomics
+
+**Preserving spatial context in tissue gene expression profiling:**
+
+**Why spatial matters:**
+- Tissues are organized: cell-cell interactions, gradients, niches
+- Bulk RNA-seq loses spatial information
+- Traditional scRNA-seq requires tissue dissociation
+
+--
+
+**Applications:**
+- Tumor microenvironment mapping (cancer-immune interactions)
+- Developmental biology (spatial patterning during embryogenesis)
+- Neuroscience (brain region-specific gene expression)
+- Identify spatially-restricted cell types and states
+
+---
+## Spatial Technologies
+
+**Spatial barcoding (next-generation sequencing-based):**
+- **10x Genomics Visium**: Captures mRNA from 55 μm spots (~10 cells/spot)
+    - Whole transcriptome profiling on tissue sections
+    - 6.5 × 6.5 mm capture area, ~5,000 spots
+- **10x Genomics Xenium**: In situ imaging of up to 5,000 genes
+    - Single-cell resolution with subcellular localization
+- **Slide-seq/Slide-seqV2**: Higher resolution (~10 μm beads)
+
+--
+
+**Imaging-based:**
+- **MERFISH** (Multiplexed Error-Robust FISH): 10,000+ genes, subcellular resolution
+- **seqFISH+**: Sequential FISH for high-throughput spatial profiling
+- **CosMx SMI** (Nanostring): 1,000+ genes, single-cell resolution
+
+
+---
+## What matters is what you feed into the sequencer
+
+&lt;img src="img/seq_pachter.png" width="1100px" style="display: block; margin: auto;" /&gt;
+
+&lt;!--
+**Library preparation determines the biological question you can answer:**
+
+- **RNA-seq variants**: poly(A)+ selection, rRNA depletion, strand-specific, small RNA
+- **Enrichment strategies**: Exome capture, targeted panels, ChIP, ATAC
+- **Fragmentation methods**: Enzymatic, sonication, tagmentation (ATAC)
+- **Single-cell barcoding**: Droplet-based, plate-based, combinatorial indexing
+- **Long-read libraries**: No amplification (Nanopore), circular consensus (PacBio)
+- **Spatial barcoding**: Position-specific capture on slides
+- **Methylation**: Bisulfite conversion, enzymatic conversion, direct detection
+
+**The sequencer is just the readout - the biology is in the library prep!**
+--&gt;
+
+.small[https://liorpachter.wordpress.com/seq/]
+
+&lt;!---
+## Evolution of sequencing technologies
+
+&lt;img src="img/seq_technologies.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+**From Sanger to modern platforms - a revolution in scale:**
+
+- **1977-2005**: Sanger sequencing dominates (Human Genome Project era)
+- **2005-2010**: Second-generation short-read platforms emerge (454, Illumina, SOLiD)
+- **2010-2015**: Illumina dominates, costs plummet (~$1,000 genome achieved)
+- **2011-present**: Third-generation long-read platforms (PacBio, Nanopore)
+- **2015-present**: Single-cell technologies explode (10x Genomics, Drop-seq)
+- **2020-present**: Spatial transcriptomics, multiomics integration
+- **2024-present**: Real-time analysis, AI-driven basecalling, portable sequencing
+
+**Key trends:**
+- Throughput: 10^9-fold increase since 2005
+- Cost: $100M/genome (2001) → $200/genome (2024)
+- Speed: Years → hours
+- Applications: Discovery → clinical diagnostics
+--&gt;
+
+---
+## Multi-omics integration
+
+**Simultaneous measurement of multiple molecular layers in the same sample**
+
+- Biological systems are complex - no single data type tells the whole story
+
+- Integration reveals causal relationships between genotype, regulation, and phenotype
+
+- Single-cell multiomics connects molecular layers in individual cells
+
+**Bulk tissue multiomics:**
+- **Genomics + Transcriptomics + Proteomics + Metabolomics**
+- Example: Cancer studies combine WGS, RNA-seq, proteomics, drug response
+
+---
+## Major multi-omics approaches
+
+**Single-cell multiomics:**
+- **10x Multiome**: scRNA-seq + scATAC-seq on same cells
+    - Links gene expression to chromatin accessibility
+- **CITE-seq**: scRNA-seq + surface protein detection (antibody-derived tags)
+- **REAP-seq**: scRNA-seq + epitope profiling
+- **TEA-seq**: Transcriptome + Epigenome + Antigens simultaneously
+
+**Spatial multiomics:**
+- **Visium HD + protein**: Spatial transcriptomics + immunofluorescence
+- **CosMx + protein**: RNA + up to 64 proteins with spatial resolution
+
+&lt;!--
+## Sequencing milestones
+
+- **2001**: First human genome draft - $100 million, 13 years
+- **2007**: First NGS human genome (Jim Watson) - $2 million, months
+- **2014**: Illumina HiSeq X Ten - first $1,000 genome
+- **2022**: Complete telomere-to-telomere (T2T) human genome
+- **2024**: NovaSeq X Plus - $200 genome at scale, routine clinical use
+--&gt;
+
+---
+## Developments in next generation sequencing
+
+.pull-left[
+- **Illumina**: Dominant short-read platform, &gt;80% market share
+- **PacBio**: High-accuracy long reads (HiFi), clinical adoption growing
+- **Oxford Nanopore**: Ultra-long reads, portable, real-time, field deployment
+- **Single-cell**: Routine profiling of millions of cells
+- **Spatial**: Tissue architecture preserved in transcriptomics
+]
+.pull-right[
+&lt;img src="img/developments_in_high_throughput_sequencing.jpg" width="500px" style="display: block; margin: auto;" /&gt;
+]
+- **Multiomics**: Simultaneous measurement of genome, epigenome, transcriptome
+.small[https://github.com/lexnederbragt/developments-in-next-generation-sequencing]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

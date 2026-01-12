@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Sequencing applications</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-01-12" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Sequencing applications
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-01-12
+]
+
+---
+
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Applications: DNA Sequencing
+
+- **Whole genome sequencing (WGS)**: Complete genome coverage
+
+- **Whole exome sequencing (WES)**: All protein-coding regions (~1-2% of genome)
+
+- **Targeted gene panels**: Specific genes for clinical diagnostics
+
+- **Metagenomics**: Microbial community profiling
+
+---
+## Applications: RNA Sequencing
+
+- **Bulk RNA-seq**: Gene expression profiling
+
+- **Single-cell RNA-seq (scRNA-seq)**: Cell-type-specific expression, rare cell populations
+
+- **Spatial transcriptomics**: Gene expression with tissue location preserved
+
+- **Long-read RNA-seq (Iso-Seq)**: Full-length transcript isoforms
+
+---
+## Applications: Epigenomics
+
+- **ChIP-seq**: Protein-DNA interactions, histone modifications
+
+- **ATAC-seq**: Chromatin accessibility, regulatory elements
+
+- **Bisulfite-seq**: DNA methylation profiling
+
+- **scATAC-seq**: Single-cell chromatin accessibility
+
+---
+## Applications: Immunology
+
+- **Immune repertoire sequencing (IRS)**: T-cell and B-cell receptor diversity
+
+---
+## DNA-seq (Whole-Genome sequencing)
+
+&lt;!-- **Workflow:**
+- Extract high-quality DNA from cells/tissues
+- Fragment DNA into sequenceable pieces (300-500 bp for short-read, &gt;10 kb for long-read)
+- Prepare sequencing libraries with adapters
+- Sequence and align to reference genome --&gt;
+
+- **Variant detection**: Compare with reference genome to identify:
+    - Single nucleotide polymorphisms (SNPs): ~4-5 million per individual
+    - Insertions/deletions (indels): 100s of thousands per individual
+    - Copy number variations (CNVs): duplications or deletions &gt;1 kb
+    - Structural variations (SVs): inversions, translocations, large indels
+
+- **De novo assembly**: Build new genome without reference
+
+- **Clinical applications**: Rare disease diagnosis, cancer genomics, pharmacogenomics
+
+**Typical coverage:**
+- Human genome discovery: 30-50X coverage
+- Clinical diagnostics: 30-40X coverage  
+- Population studies: 10-15X coverage sufficient for common variants
+
+---
+## Variations of DNA-seq
+
+**Exome sequencing (WES):**
+
+- Capture and sequence only protein-coding regions (~1-2% of genome)
+
+- ~20,000 genes, ~180,000 exons, ~40-50 Mb total
+
+- **Advantages**: 10-20× cheaper than WGS, higher coverage depth possible
+
+- **Use cases**: Mendelian disease gene discovery, cancer mutation profiling
+
+- **Limitation**: Misses regulatory, intronic, and structural variants
+
+---
+## Variations of DNA-seq
+
+**Targeted gene panels:**
+
+- Focus on specific genes of clinical interest (10-500 genes)
+
+- **Ultra-deep coverage** (&gt;500X) for sensitive variant detection
+
+- **Examples**: Cancer panels (BRCA1/2, TP53, etc.), cardiac panels, neurodevelopmental panels
+
+- **Advantages**: Lowest cost, fastest turnaround, highest accuracy
+
+---
+## Variations of DNA-seq
+
+**Metagenomic sequencing:**
+
+- Sequence DNA from complex mixtures of organisms (microbiomes, environmental samples)
+
+- **Goals**: Identify species present, determine relative abundances, assemble genomes
+
+- **Challenges**: Unknown number of species, varying abundances, de novo assembly required
+
+- **Applications**: Gut microbiome studies, pathogen detection, environmental monitoring
+
+- **Markers**: 16S rRNA (bacteria), 18S rRNA (eukaryotes), ITS (fungi)
+
+---
+## RNA-seq
+
+- **Gene expression quantification**: Digital gene expression counting
+
+- **Transcript discovery**: Identify novel transcripts, isoforms, fusion genes
+
+- **Alternative splicing analysis**: Detect differential exon usage
+
+- **Allele-specific expression**: Distinguish maternal vs. paternal alleles
+
+- **Non-coding RNA profiling**: lncRNA, miRNA, circRNA characterization
+
+---
+## Standard bulk RNA-seq workflow
+
+- Extract total RNA from cells/tissues
+
+- Optional: Deplete ribosomal RNA (rRNA) or enrich for poly(A)+ mRNA
+
+- Reverse transcribe RNA to cDNA
+
+- Fragment and prepare sequencing libraries
+
+- Sequence and quantify transcript abundance
+
+**Typical depth**: 20-30 million reads for human differential expression
+
+---
+## Single-cell RNA-seq (scRNA-seq)
+
+**Why single-cell?**
+- **Cellular heterogeneity**: Bulk RNA-seq averages across millions of cells, masking rare populations
+- **Cell type identification**: Discover and characterize cell types and states
+- **Developmental trajectories**: Track cell fate decisions and differentiation
+- **Rare cell detection**: Identify circulating tumor cells, stem cells, immune cell subsets
+
+**Applications:**
+- Tumor microenvironment profiling
+- Immune cell repertoire analysis
+- Brain cell atlas construction
+- Embryonic development studies
+
+---
+## Single-cell RNA-seq (scRNA-seq)
+
+**Major platforms (2024-2025):**
+- **10x Genomics Chromium**: 500-20,000 cells per sample, droplet-based
+    - 3' or 5' gene expression, immune profiling (V(D)J), CITE-seq (surface proteins)
+    - **Flex**: Up to 1 million cells multiplexed, compatible with FFPE tissues
+    - **Multiome**: Simultaneous scRNA-seq + scATAC-seq on same cells
+
+- **Parse Biosciences**: Combinatorial barcoding, no specialized equipment
+
+- **BD Rhapsody**: 200-20,000 cells, microchamber-based
+
+**Typical depth**: &gt;20,000 reads per cell for discovery, &gt;50,000 for rare transcripts
+
+---
+## ChIP-seq - Chromatin Immunoprecipitation followed by sequencing
+
+**Workflow:**
+
+1. **Crosslink** proteins to DNA (formaldehyde)
+
+2. **Fragment** chromatin by sonication (~200-500 bp)
+
+3. **Immunoprecipitate** with antibody against target protein
+
+4. **Reverse crosslinks**, purify DNA
+
+5. **Sequence** and map enriched regions
+
+---
+## ChIP-seq Applications
+
+**Transcription factor binding:**
+- Map genome-wide binding sites of TFs
+- Identify regulatory elements (enhancers, promoters)
+- Understand gene regulatory networks
+
+--
+
+**Histone modifications:**
+- **H3K4me3**: Active promoters; **H3K27ac**: Active enhancers; **H3K27me3**: Polycomb repression; **H3K9me3**: Heterochromatin, gene silencing; **H3K36me3**: Actively transcribed gene bodies
+
+--
+
+**Other DNA-binding proteins:**
+- RNA polymerase II (Pol II): Active transcription;  CTCF: Chromatin loops and TAD boundaries; Cohesin: Sister chromatid cohesion and looping
+
+**Typical depth**: 20-40 million reads for mammalian ChIP-seq
+
+---
+## ATAC-seq
+
+**Assay for Transposase-Accessible Chromatin using sequencing:**
+
+**Principle:**
+- Map genome-wide chromatin accessibility
+- Faster and simpler alternative to DNase-seq and FAIRE-seq
+
+**Applications:**
+- Identify active regulatory elements (promoters, enhancers, silencers)
+- Transcription factor footprinting (infer TF binding from protected regions)
+- Nucleosome positioning
+- Compare chromatin states across cell types, development, disease
+
+---
+## Spatial transcriptomics
+
+**Preserving spatial context in tissue gene expression profiling:**
+
+**Why spatial matters:**
+- Tissues are organized: cell-cell interactions, gradients, niches
+- Bulk RNA-seq loses spatial information
+- Traditional scRNA-seq requires tissue dissociation
+
+--
+
+**Applications:**
+- Tumor microenvironment mapping (cancer-immune interactions)
+- Developmental biology (spatial patterning during embryogenesis)
+- Neuroscience (brain region-specific gene expression)
+- Identify spatially-restricted cell types and states
+
+---
+## Spatial Technologies
+
+**Spatial barcoding (next-generation sequencing-based):**
+- **10x Genomics Visium**: Captures mRNA from 55 μm spots (~10 cells/spot)
+    - Whole transcriptome profiling on tissue sections
+    - 6.5 × 6.5 mm capture area, ~5,000 spots
+- **10x Genomics Xenium**: In situ imaging of up to 5,000 genes
+    - Single-cell resolution with subcellular localization
+- **Slide-seq/Slide-seqV2**: Higher resolution (~10 μm beads)
+
+--
+
+**Imaging-based:**
+- **MERFISH** (Multiplexed Error-Robust FISH): 10,000+ genes, subcellular resolution
+- **seqFISH+**: Sequential FISH for high-throughput spatial profiling
+- **CosMx SMI** (Nanostring): 1,000+ genes, single-cell resolution
+
+
+---
+## What matters is what you feed into the sequencer
+
+&lt;img src="img/seq_pachter.png" width="1100px" style="display: block; margin: auto;" /&gt;
+
+&lt;!--
+**Library preparation determines the biological question you can answer:**
+
+- **RNA-seq variants**: poly(A)+ selection, rRNA depletion, strand-specific, small RNA
+- **Enrichment strategies**: Exome capture, targeted panels, ChIP, ATAC
+- **Fragmentation methods**: Enzymatic, sonication, tagmentation (ATAC)
+- **Single-cell barcoding**: Droplet-based, plate-based, combinatorial indexing
+- **Long-read libraries**: No amplification (Nanopore), circular consensus (PacBio)
+- **Spatial barcoding**: Position-specific capture on slides
+- **Methylation**: Bisulfite conversion, enzymatic conversion, direct detection
+
+**The sequencer is just the readout - the biology is in the library prep!**
+--&gt;
+
+.small[https://liorpachter.wordpress.com/seq/]
+
+&lt;!---
+## Evolution of sequencing technologies
+
+&lt;img src="img/seq_technologies.png" width="400px" style="display: block; margin: auto;" /&gt;
+
+**From Sanger to modern platforms - a revolution in scale:**
+
+- **1977-2005**: Sanger sequencing dominates (Human Genome Project era)
+- **2005-2010**: Second-generation short-read platforms emerge (454, Illumina, SOLiD)
+- **2010-2015**: Illumina dominates, costs plummet (~$1,000 genome achieved)
+- **2011-present**: Third-generation long-read platforms (PacBio, Nanopore)
+- **2015-present**: Single-cell technologies explode (10x Genomics, Drop-seq)
+- **2020-present**: Spatial transcriptomics, multiomics integration
+- **2024-present**: Real-time analysis, AI-driven basecalling, portable sequencing
+
+**Key trends:**
+- Throughput: 10^9-fold increase since 2005
+- Cost: $100M/genome (2001) → $200/genome (2024)
+- Speed: Years → hours
+- Applications: Discovery → clinical diagnostics
+--&gt;
+
+---
+## Multi-omics integration
+
+**Simultaneous measurement of multiple molecular layers in the same sample**
+
+- Biological systems are complex - no single data type tells the whole story
+
+- Integration reveals causal relationships between genotype, regulation, and phenotype
+
+- Single-cell multiomics connects molecular layers in individual cells
+
+**Bulk tissue multiomics:**
+- **Genomics + Transcriptomics + Proteomics + Metabolomics**
+- Example: Cancer studies combine WGS, RNA-seq, proteomics, drug response
+
+---
+## Major multi-omics approaches
+
+**Single-cell multiomics:**
+- **10x Multiome**: scRNA-seq + scATAC-seq on same cells
+    - Links gene expression to chromatin accessibility
+- **CITE-seq**: scRNA-seq + surface protein detection (antibody-derived tags)
+- **REAP-seq**: scRNA-seq + epitope profiling
+- **TEA-seq**: Transcriptome + Epigenome + Antigens simultaneously
+
+**Spatial multiomics:**
+- **Visium HD + protein**: Spatial transcriptomics + immunofluorescence
+- **CosMx + protein**: RNA + up to 64 proteins with spatial resolution
+
+&lt;!--
+## Sequencing milestones
+
+- **2001**: First human genome draft - $100 million, 13 years
+- **2007**: First NGS human genome (Jim Watson) - $2 million, months
+- **2014**: Illumina HiSeq X Ten - first $1,000 genome
+- **2022**: Complete telomere-to-telomere (T2T) human genome
+- **2024**: NovaSeq X Plus - $200 genome at scale, routine clinical use
+--&gt;
+
+---
+## Developments in next generation sequencing
+
+.pull-left[
+- **Illumina**: Dominant short-read platform, &gt;80% market share
+- **PacBio**: High-accuracy long reads (HiFi), clinical adoption growing
+- **Oxford Nanopore**: Ultra-long reads, portable, real-time, field deployment
+- **Single-cell**: Routine profiling of millions of cells
+- **Spatial**: Tissue architecture preserved in transcriptomics
+]
+.pull-right[
+&lt;img src="img/developments_in_high_throughput_sequencing.jpg" width="500px" style="display: block; margin: auto;" /&gt;
+]
+- **Multiomics**: Simultaneous measurement of genome, epigenome, transcriptome
+.small[https://github.com/lexnederbragt/developments-in-next-generation-sequencing]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
