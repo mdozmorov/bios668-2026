@@ -1,5 +1,5 @@
 ---
-title: "Introduction"
+title: "Genomics Technologies"
 # linktitle: "1. Introduction to RStudio and Images"
 date: "2026-01-12"
 class_date: "2026-01-12"
@@ -33,4 +33,34 @@ knitr::include_url('../../slides/01_Genomic_technologies/01_Intro.html#1')
 
 ```{r echo=FALSE}
 knitr::include_url('../../slides/01_Genomic_technologies/02a_Genome.html#1')
+```
+
+a href="../../slides/01_Genomic_technologies/02b_Early_Sequencing.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/01_Genomic_technologies/02b_Early_Sequencing.html#1')
+```
+
+a href="../../slides/01_Genomic_technologies/02c_Human_Genome.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/01_Genomic_technologies/02c_Human_Genome.html#1')
+```
+
+a href="../../slides/01_Genomic_technologies/02d_Modern_Sequencing.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/01_Genomic_technologies/02d_Modern_Sequencing.html#1')
+```
+
+a href="../../slides/01_Genomic_technologies/02e_Third_Generation.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/01_Genomic_technologies/02e_Third_Generation.html#1')
+```
+
+a href="../../slides/01_Genomic_technologies/02f_Applications.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/01_Genomic_technologies/02f_Applications.html#1')
 ```
