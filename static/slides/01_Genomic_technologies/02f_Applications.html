@@ -4,7 +4,7 @@
     <title>Sequencing applications</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mikhail Dozmorov" />
-    <meta name="date" content="2026-01-14" />
+    <meta name="date" content="2026-01-21" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ### Virginia Commonwealth University
 ]
 .date[
-### 2026-01-14
+### 2026-01-21
 ]
 
 ---
@@ -38,51 +38,10 @@ class: center, middle, inverse, title-slide
 .tiny { font-size: 40%; }
 &lt;/style&gt;
 
-## Applications: DNA Sequencing
 
-- **Whole genome sequencing (WGS)**: Complete genome coverage
-
-- **Whole exome sequencing (WES)**: All protein-coding regions (~1-2% of genome)
-
-- **Targeted gene panels**: Specific genes for clinical diagnostics
-
-- **Metagenomics**: Microbial community profiling
-
----
-## Applications: RNA Sequencing
-
-- **Bulk RNA-seq**: Gene expression profiling
-
-- **Single-cell RNA-seq (scRNA-seq)**: Cell-type-specific expression, rare cell populations
-
-- **Spatial transcriptomics**: Gene expression with tissue location preserved
-
-- **Long-read RNA-seq (Iso-Seq)**: Full-length transcript isoforms
-
----
-## Applications: Epigenomics
-
-- **ChIP-seq**: Protein-DNA interactions, histone modifications
-
-- **ATAC-seq**: Chromatin accessibility, regulatory elements
-
-- **Bisulfite-seq**: DNA methylation profiling
-
-- **scATAC-seq**: Single-cell chromatin accessibility
-
----
-## Applications: Immunology
-
-- **Immune repertoire sequencing (IRS)**: T-cell and B-cell receptor diversity
-
----
 ## DNA-seq (Whole-Genome sequencing)
 
-&lt;!-- **Workflow:**
-- Extract high-quality DNA from cells/tissues
-- Fragment DNA into sequenceable pieces (300-500 bp for short-read, &gt;10 kb for long-read)
-- Prepare sequencing libraries with adapters
-- Sequence and align to reference genome --&gt;
+
 
 - **Variant detection**: Compare with reference genome to identify:
     - Single nucleotide polymorphisms (SNPs): ~4-5 million per individual
@@ -143,7 +102,7 @@ class: center, middle, inverse, title-slide
 - **Markers**: 16S rRNA (bacteria), 18S rRNA (eukaryotes), ITS (fungi)
 
 ---
-## RNA-seq
+## RNA-seq Applications
 
 - **Gene expression quantification**: Digital gene expression counting
 
@@ -179,6 +138,8 @@ class: center, middle, inverse, title-slide
 - **Developmental trajectories**: Track cell fate decisions and differentiation
 - **Rare cell detection**: Identify circulating tumor cells, stem cells, immune cell subsets
 
+--
+
 **Applications:**
 - Tumor microenvironment profiling
 - Immune cell repertoire analysis
@@ -203,17 +164,16 @@ class: center, middle, inverse, title-slide
 ---
 ## ChIP-seq - Chromatin Immunoprecipitation followed by sequencing
 
-**Workflow:**
-
+.small[
 1. **Crosslink** proteins to DNA (formaldehyde)
-
 2. **Fragment** chromatin by sonication (~200-500 bp)
-
 3. **Immunoprecipitate** with antibody against target protein
-
 4. **Reverse crosslinks**, purify DNA
-
 5. **Sequence** and map enriched regions
+]
+&lt;img src="img/chip_atac.png" alt="" width="700px" style="display: block; margin: auto;" /&gt;
+
+&lt;!-- 10.1007/s11914-023-00808-4 --&gt;
 
 ---
 ## ChIP-seq Applications
@@ -236,18 +196,26 @@ class: center, middle, inverse, title-slide
 **Typical depth**: 20-40 million reads for mammalian ChIP-seq
 
 ---
-## ATAC-seq
+## ATAC-seq - Assay for Transposase-Accessible Chromatin using sequencing
 
-**Assay for Transposase-Accessible Chromatin using sequencing:**
-
-**Principle:**
 - Map genome-wide chromatin accessibility
 - Faster and simpler alternative to DNase-seq and FAIRE-seq
 
+&lt;img src="img/chip_atac.png" alt="" width="700px" style="display: block; margin: auto;" /&gt;
+
+&lt;!-- 10.1007/s11914-023-00808-4 --&gt;
+
+---
+## ATAC-seq Applications
+
 **Applications:**
+
 - Identify active regulatory elements (promoters, enhancers, silencers)
+
 - Transcription factor footprinting (infer TF binding from protected regions)
+
 - Nucleosome positioning
+
 - Compare chromatin states across cell types, development, disease
 
 ---
@@ -286,11 +254,26 @@ class: center, middle, inverse, title-slide
 - **seqFISH+**: Sequential FISH for high-throughput spatial profiling
 - **CosMx SMI** (Nanostring): 1,000+ genes, single-cell resolution
 
+---
+## Epigenomics
+
+- **Bisulfite-seq**: DNA methylation profiling
+
+&lt;img src="img/bisulfite.png" alt="" width="500px" style="display: block; margin: auto;" /&gt;
+
+---
+## Immunology
+
+- **Immune repertoire sequencing (IRS)**: T-cell and B-cell receptor diversity
+
+&lt;img src="img/WJG-27-3790-g002.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+&lt;!-- Zhan Q, Xu JH, Yu YY, Lo KK E, Felicianna, El-Nezami H, Zeng Z. Human immune repertoire in hepatitis B virus infection. World J Gastroenterol 2021; 27(25): 3790-3801 [PMID: 34321844 DOI: 10.3748/wjg.v27.i25.3790] --&gt;
 
 ---
 ## What matters is what you feed into the sequencer
 
-&lt;img src="img/seq_pachter.png" width="1100px" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/seq_pachter.png" alt="" width="1100px" style="display: block; margin: auto;" /&gt;
 
 &lt;!--
 **Library preparation determines the biological question you can answer:**
@@ -311,7 +294,7 @@ class: center, middle, inverse, title-slide
 &lt;!---
 ## Evolution of sequencing technologies
 
-&lt;img src="img/seq_technologies.png" width="400px" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/seq_technologies.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
 
 **From Sanger to modern platforms - a revolution in scale:**
 
@@ -380,7 +363,7 @@ class: center, middle, inverse, title-slide
 - **Spatial**: Tissue architecture preserved in transcriptomics
 ]
 .pull-right[
-&lt;img src="img/developments_in_high_throughput_sequencing.jpg" width="500px" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/developments_in_high_throughput_sequencing.jpg" alt="" width="500px" style="display: block; margin: auto;" /&gt;
 ]
 - **Multiomics**: Simultaneous measurement of genome, epigenome, transcriptome
 .small[https://github.com/lexnederbragt/developments-in-next-generation-sequencing]
