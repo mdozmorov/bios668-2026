@@ -752,7 +752,7 @@ Sometimes you only want a command to run if the previous one succeeded.
 
 - VCU Biostatistics cluster information, https://it.somhelp.vcu.edu/kb/articles/high-performance-computing
 
-- Contact Helen Wang (huwang at vcu.edu) to establish an account
+- Contact Helen Wang (wangh25 at vcu.edu and huan.wang at vcuhealth.org) to establish an account
 
 - Google if you run into problems using Unix!
 
