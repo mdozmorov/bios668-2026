@@ -64,3 +64,39 @@ knitr::include_url('../../slides/01_Genomic_technologies/02e_Third_Generation.ht
 ```{r echo=FALSE}
 knitr::include_url('../../slides/01_Genomic_technologies/02f_Applications.html#1')
 ```
+
+# References
+
+## General
+
+Claussnitzer, Melina, Judy H. Cho, Rory Collins, Nancy J. Cox, Emmanouil T. Dermitzakis, Matthew E. Hurles, Sekar Kathiresan, et al. **"A Brief History of Human Disease Genetics."** *Nature* 577, no. 7789 (January 2020): 179–89. https://doi.org/10.1038/s41586-019-1879-7. - Timeline and milestones in genomics development focusing on disease genetics.
+
+Cordaux, Richard, and Mark A. Batzer. **"The Impact of Retrotransposons on Human Genome Evolution."** *Nature Reviews Genetics* 10, no. 10 (October 2009): 691–703. https://doi.org/10.1038/nrg2640.
+
+Goodwin, Sara, John D. McPherson, and W. Richard McCombie. **"Coming of Age: Ten Years of Next-Generation Sequencing Technologies."** *Nature Reviews Genetics* 17, no. 6 (2016): 333–51. https://doi.org/10.1038/nrg.2016.49. - From microarrays to long read sequencing, single-cell sequencing. Technology review. Table with all technologies and costs. Figures.
+
+Green, Eric D., Mark S. Guyer, Teri A. Manolio, and Jane L. Peterson. **"Charting a Course for Genomic Medicine from Base Pairs to Bedside."** *Nature* 470, no. 7333 (February 10, 2011): 204–13. https://doi.org/10.1038/nature09764. - Perspective on genomics development, technologies. Figure 1 - pictorial roadmap.
+
+Hagen, J. B. **"The Origins of Bioinformatics."** *Nature Reviews Genetics* 1, no. 3 (2000): 231–36. https://doi.org/10.1038/35042090.
+
+Heather, James M., and Benjamin Chain. **"The Sequence of Sequencers: The History of Sequencing DNA."** *Genomics* 107, no. 1 (January 2016): 1–8. https://doi.org/10.1016/j.ygeno.2015.11.003. - Review of sequencing technologies, from pre-Sanger to current PacBio, Oxford Nanopore, Ion Torrent.
+
+Lander, E. S., L. M. Linton, B. Birren, C. Nusbaum, M. C. Zody, J. Baldwin, K. Devon, et al. **"Initial Sequencing and Analysis of the Human Genome."** *Nature* 409, no. 6822 (February 15, 2001): 860–921. https://doi.org/10.1038/35057062. - Genome sequencing landmark paper.
+
+Mardis, Elaine R. **"Next-Generation DNA Sequencing Methods."** *Annual Review of Genomics and Human Genetics* 9 (2008): 387–402. https://doi.org/10.1146/annurev.genom.9.081307.164359. - Sequencing technologies review. DNA-/RNA-/ChIP-seq. Figures.
+
+Mardis, Elaine R. **"DNA Sequencing Technologies: 2006-2016."** *Nature Protocols* 12, no. 2 (February 2017): 213–18. https://doi.org/10.1038/nprot.2016.182. - DNA sequencing technologies introduction, references.
+
+Rothberg, Jonathan M., and John H. Leamon. **"The Development and Impact of 454 Sequencing."** *Nature Biotechnology* 26, no. 10 (October 2008): 1117–24. https://doi.org/10.1038/nbt1485. - 454 sequencing, history of sequencing development, pyrosequencing. Other technologies - Box 1, Table 2.
+
+## Genomics Resources
+
+Biostar Handbook: Bioinformatics Survival Guide. "A Practical Overview for the Data Analysis Methods of Bioinformatics." https://www.biostarhandbook.com/index.html. GitHub repository: https://github.com/ialbert/biostar-handbook-web.
+
+Biotools. "A Massive Collection of References on the Topics of Bioinformatics, Sequencing Technologies, Programming, Machine Learning, and More." GitHub repository. https://github.com/jdidion/biotools.
+
+Akalin, Altuna. *Computational Genomics with R*. https://compgenomr.github.io/book/. GitHub repository: https://github.com/compgenomr/book.
+
+Getting Started with Genomics Tools and Resources. "Links and References to Many Resources." GitHub repository. https://github.com/crazyhottommy/getting-started-with-genomics-tools-and-resources.
+
+SequencEnG. "An Interactive Learning Resource for Next-Generation Sequencing (NGS) Techniques. Each Technology Had the Corresponding Reference and Infographics." http://education.knoweng.org/sequenceng/index.html. - An interactive learning resource for next-generation sequencing (NGS) techniques. Each technology had the corresponding reference and infographics.
