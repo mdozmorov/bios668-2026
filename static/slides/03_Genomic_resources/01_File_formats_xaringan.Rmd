@@ -36,9 +36,6 @@ library(ggplot2)
 .tiny { font-size: 40%; }
 </style>
 
-# Sequencing data ecosystem
-
----
 ## The reference genome as a coordinate system
 
 The reference genome serves as a universal **linear map**, allowing us to pinpoint any biological feature by its exact address. Just as a GPS uses latitude and longitude, bioinformatics uses **Genomic Coordinates** to define specific locations.
