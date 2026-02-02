@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Network, SSH</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-02-02" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Network, SSH
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-02-02
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+
+## What is SSH?
+
+- **SSH (Secure Shell)** is a cryptographic network protocol for secure remote login and other network services over an insecure network (RFC 4251).
+
+- Establishes a **secure, encrypted channel** between a client and a server over TCP/IP.
+    - Provides **confidentiality** (encryption of data in transit).
+    - Provides **integrity** (protection against data tampering).
+    - Provides **authentication** (verification of server identity and, optionally, user identity).
+
+.small[ https://en.wikipedia.org/wiki/Secure_Shell ]
+
+---
+## What is SSH?
+
+- **SSH (Secure Shell)** is a cryptographic network protocol for secure remote login and other network services over an insecure network (RFC 4251).
+
+- Commonly used for:
+    - Remote shell access and command execution.
+    - Secure file transfer (e.g., `scp`, `sftp`).
+    - Port forwarding and tunneling of other network protocols.
+    - Automation and remote system administration.
+
+---
+## SSH implementations
+
+**OpenSSH**
+
+- The most widely used SSH implementation on UNIX/Linux and macOS.
+
+- Open-source and actively maintained.
+
+- Fully supports the modern **SSH-2 protocol** (SSH-1 is obsolete and insecure).
+
+- Provides both client and server tools (`ssh`, `sshd`, `scp`, `sftp`, `ssh-keygen`).
+
+.small[https://www.openssh.com/]
+
+---
+## SSH implementations
+
+**PuTTY**
+
+- Popular **SSH client** originally developed for Windows.
+
+- Lightweight and easy to use; supports SSH, Telnet, and serial connections.
+
+- Modern versions support SSH-2, key-based authentication, and agent forwarding.
+
+- Includes related tools such as `plink`, `pscp`, and `pageant`.
+
+.small[ https://www.chiark.greenend.org.uk/~sgtatham/putty/ ]
+
+---
+## SSH implementations
+
+**MobaXterm**
+
+- Feature-rich terminal environment for Windows.
+
+- Includes a **tabbed SSH client**, integrated X11 server, and file transfer (SCP/SFTP).
+
+- Bundles many UNIX command-line tools and networking utilities.
+
+- Commonly used for HPC and remote Linux system access from Windows.
+
+.small[ https://mobaxterm.mobatek.net/  ]
+
+---
+## Layering of SSH Protocols
+
+- **Transport Layer Protocol**
+    - Establishes a secure communication channel over TCP.
+    - Provides **server authentication**, **confidentiality** (encryption), and **data integrity**.
+    - Performs key exchange and negotiates cryptographic algorithms.
+
+- **User Authentication Protocol**
+    - Authenticates the **client-side user** to the server.
+    - Supports multiple authentication methods (e.g., public key, password, multi-factor).
+    - Runs on top of the established transport layer.
+
+---
+## Layering of SSH Protocols
+
+- **Connection Protocol**
+    - Multiplexes the encrypted tunnel into multiple **logical channels**.
+    - Supports interactive shells, remote command execution, port forwarding, and file transfer.
+    - Manages channel lifecycle and flow control.
+
+- **Extensibility**
+    - The SSH architecture is modular.
+    - New protocols and channel types can be added while remaining compatible with existing implementations.
+
+---
+## Basic use
+
+```bash
+ssh &lt;ssh_server_name&gt;
+ssh -l &lt;username&gt; &lt;ssh_server_name&gt;
+ssh &lt;ssh_server_name&gt; &lt;command_to_run&gt;
+```
+
+* **`ssh &lt;ssh_server_name&gt;`**
+
+  * Connects to a remote SSH server using the current local username.
+  * Starts an interactive remote shell session after successful authentication.
+
+* **`ssh -l &lt;username&gt; &lt;ssh_server_name&gt;`**
+
+  * Connects to the specified SSH server as a given user.
+  * Equivalent to `ssh &lt;username&gt;@&lt;ssh_server_name&gt;`.
+
+---
+## Basic use
+
+```bash
+ssh &lt;ssh_server_name&gt;
+ssh -l &lt;username&gt; &lt;ssh_server_name&gt;
+ssh &lt;ssh_server_name&gt; &lt;command_to_run&gt;
+```
+
+* **`ssh &lt;ssh_server_name&gt; &lt;command_to_run&gt;`**
+
+  * Executes a single command on the remote host without starting an interactive shell.
+  * Commonly used in scripts, automation, and remote job submission.
+
+* **Notes**
+
+  * `&lt;ssh_server_name&gt;` may be a hostname or an IP address.
+  * Authentication can use passwords or public key–based methods.
+  * The connection is encrypted end-to-end.
+
+---
+## User Configuration Files (OpenSSH)
+
+- **`~/.ssh/`**
+    - User-specific SSH configuration and key storage directory.
+
+- **`id_*`**
+    - Private authentication keys (e.g., `id_rsa`).
+    - Must be kept secret; readable only by the user.
+
+- **`id_*.pub`**
+    - Corresponding public keys.
+    - Shared with remote systems for key-based authentication.
+
+---
+## User Configuration Files (OpenSSH)
+
+- **`known_hosts`**
+    - Stores public host keys of previously contacted servers.
+    - Used to verify server identity and prevent man-in-the-middle attacks.
+
+- **`authorized_keys`**
+    - Lists public keys allowed to log in to this account.
+    - Controls which users or systems may authenticate via SSH keys.
+
+---
+## Encryption concepts
+
+**Public and private keys**
+
+* Both public and private keys are generated by one individual – they are yours
+* A public key is a “lock” that can be opened with the corresponding private key
+* Public key can be placed on any other computer you want to connect to
+* Private key stays private on any machine you’ll be connecting from
+* Only your private key can “open” your public key
+
+&lt;img src="img/ssh1.png" alt="" width="500px" style="display: block; margin: auto;" /&gt;
+
+---
+## Getting public and private keys
+
+Generate your public and private keys
+
+* First, check if you already have them, `ls -al ~/.ssh`
+
+* If not, generate, `ssh-keygen -t rsa -b 4096 -C your_email@example.com`
+
+&lt;img src="img/ssh2.png" alt="" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## Add public key to any machine
+
+* Copy your public key `~/.ssh/id_dsa.pub` to a remote machine
+
+* Add the content of your public key to `~/.ssh/authorized_keys` on the remote machine
+
+* Make sure the `~/.ssh/authorized_keys` has the right permissions (`read` + `write` for user, `nothing` for group and all)
+
+`cat ~/.ssh/id_dsa.pub | ssh user@remote.machine.com 'mkdir -p .ssh; cat &gt;&gt; .ssh/authorized_keys; chmod 600 authorized_keys'`
+
+.small[ https://askubuntu.com/questions/46424/how-do-i-add-ssh-keys-to-authorized-keys-file ]
+
+---
+
+## Password-less login
+
+* When you ssh to a remote machine that has your public key, you may skip login if your private key is visible to your terminal session. Need to start `ssh-agent`
+
+* Remembers your private key(s)
+
+* Other applications can ask `ssh-agent` to authenticate you automatically
+
+* Unattended remote sessions.
+
+* Should already be running in the background
+
+* `ssh-add [KeyName]`
+
+.small[ https://gist.github.com/rezlam/850855 ]
+
+---
+## Password-less login
+
+* Automate `ssh-agent` start by adding the auto-start function in your `~/.bashrc`
+
+.small[
+```bash
+# Start ssh-agent
+ SSH_ENV=$HOME/.ssh/environment
+ function start_agent {
+    echo "Initializing new SSH agent..."
+    # spawn ssh-agent
+    /usr/bin/ssh-agent | sed 's/^echo/#echo/' &gt; "${SSH_ENV}"
+    echo succeeded
+    chmod 600 "${SSH_ENV}"
+    . "${SSH_ENV}" &gt; /dev/null
+    /usr/bin/ssh-add
+ }
+
+ if [ -f "${SSH_ENV}" ]; then
+    . "${SSH_ENV}" &gt; /dev/null
+    ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ &gt; /dev/null || {
+        start_agent;
+    }
+ else
+    start_agent;
+ fi
+```
+]
+
+---
+## Advantages
+
+* **Password Exposure**: SSH eliminates the risk of password exposure. It doesn’t transmit passwords in plain text format, therefore making it impossible to "sniff" the passwords.
+
+* **Data Eavesdropping**: SSH uses strong encryption and authentication when transmitting data. SSH guarantees that only the recipient can read the transmitted data.
+
+* **Man-in-the-Middle Attack**: The SSH protocol applies server authentication and cryptographic integrity checks to ensure that the data cannot be modified undetected while sent through a network.
+
+---
+## Drawbacks
+
+* **Password Cracking**: SSH improves password security through encryption, but it’s still a weak form of authentication because it can be lost, given away, or guessed.
+
+* **IP and TCP Attacks**: SSH operates on top of TCP; therefore, some of its weaknesses come from TCP/IP problems.
+
+* **Traffic Analysis**: Traffic patterns can be an important source of information for a hacker. Sudden increases or decreases in traffic can indicate important transactions or unguarded networks.
+
+* **Covert Channels**: SSH doesn't attempt to eliminate covert channels because their analysis is usually performed by other security applications.
+
+---
+## Secure copy (`scp`) files over the network
+
+**scp**: securely copy a file from one computer to another
+
+* Use `scp` to securely transfer files between two Unix computers
+* Replaces `ftp`, `rcp`, file sharing
+* The `scp` command uses SSH to transfer data, so it requires a password or passphrase for authentication
+* `scp` encrypts both the file and any passwords exchanged
+* Alternatively, use `rsync`
+
+The syntax for the scp command is:
+
+```bash
+scp [options] username1@source_host:directory1/filename1 \
+              username2@destination_host:directory2/filename2
+```
+
+---
+## scp examples
+
+* Copy remote file locally (in the current folder)
+
+```bash
+scp mdozmorov@athena.hprc.vcu.edu:/lustre/home/juicer/ExtData/hg38.Ensembl.gtf .
+```
+
+* Copy local file to the remote home folder of the user
+
+```bash
+scp hg38.Ensembl.gtf mdozmorov@athena.hprc.vcu.edu:/lustre/home/juicer/ExtData/
+```
+
+* Use `-r` (recursive) option to copy a directory
+
+---
+## rsync: Efficient Remote File Synchronization
+
+- **`rsync`** is a fast and flexible tool for copying and synchronizing files and directory trees.
+- Transfers only **changed portions of files**, reducing network usage compared to `scp`.
+- Commonly uses **SSH as its transport**, providing encryption and authentication.
+- Supports compression, permissions preservation, and incremental updates.
+- Widely used for backups, mirroring, and deployment workflows.
+
+```bash
+rsync -azv -e ssh hg38.Ensembl.gtf mdozmorov@athena.hprc.vcu.edu:/lustre/home/juicer/ExtData/
+```
+
+* **`-a`**: archive mode (preserves permissions, timestamps, symlinks).
+* **`-z`**: compress data during transfer.
+* **`-v`**: verbose output.
+* **`-e ssh`**: use SSH as the remote shell.
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
