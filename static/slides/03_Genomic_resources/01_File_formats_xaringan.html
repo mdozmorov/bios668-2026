@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Genomic data formats</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-02-02" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Genomic data formats
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-02-02
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+# Sequencing data ecosystem
+
+---
+## The reference genome as a coordinate system
+
+The reference genome serves as a universal **linear map**, allowing us to pinpoint any biological feature by its exact address. Just as a GPS uses latitude and longitude, bioinformatics uses **Genomic Coordinates** to define specific locations.
+
+A genomic region is uniquely identified by three primary variables:
+
+1. **Chromosome:** The specific scaffold or linkage group (e.g., *chr17*).
+2. **Start Position:** The exact nucleotide where the feature begins.
+3. **End Position:** The exact nucleotide where the feature concludes.
+
+---
+## The reference genome as a coordinate system
+
+By combining these into a **Region ID** (e.g., `chr17:43044295-43125483`), we create a standardized language that allows different tools and researchers to reference the same sequence regardless of the file format used.
+
+&lt;img src="img/genomic_coordinates.png" alt="" width="1000px" style="display: block; margin: auto;" /&gt;
+
+---
+## Binary and "plain text" files
+
+**"Plain text" ("flat") file formats** - Information often structured into lines and columns
+
+* Human-readable, processable with simple command-line tools
+* Space is often saved through archiving (e.g., zip) and human-readable information coding (e.g., flags)
+
+--
+
+**Binary file formats** - Not human-readable (not intended for direct reading)
+
+* Require special software for processing (programs intended for plain text processing, such as `wc` or `grep`, will not work properly)
+* Efficient storage with significant reduction in file size compared to plain text counterparts (e.g., 75% space saved)
+
+---
+## Some common file formats
+
+* **FASTA** - Simple collections of named DNA/protein sequences (text)
+* **FASTQ** - Extension of the FASTA format; contains additional quality information. Widely used for storing unaligned sequencing reads (text)
+* **SAM/BAM** - Alignments of sequencing reads to a reference genome (text/binary)
+* **BED** - Region-based genome annotation information (e.g., a list of genes and their genomic locations). Used for visualization or simple enumeration (text)
+* **GFF/GTF** - Gene-centric annotations (text)
+* **(big)WIG** - Continuous signal representation (text, binary)
+* **VCF** - Variant Call Format, used to store information about genomic variants (text)
+
+---
+## FASTA format
+
+* Developed in the 1980s for FASTP/FASTA software packages for sequence similarity searching
+
+* Convenient format for storing and transferring simple sequence collections
+
+* Intended for both nucleotide and protein sequences (FAST-A stands for "Fast-All")
+
+* Common output format of sequence databases and a standard input format for various tools
+
+---
+## FASTA format
+
+Each sequence entry consists of:
+
+* *A single line* with sequence metadata, starting with the "greater-than" symbol ("&gt;")
+* *Any number of lines* representing the actual sequence
+
+.small[
+```
+&gt;SRR493818.1.1 HWUSI-EAS519_0001_FC61TCNAAXX:2:1:960:20843 length=54
+NGTAAATCCCGTTACCTCTCTGAGCCTCGGTNNCCNNNNNTGTAAAAAGGNNNN
+&gt;SRR493818.2.1 HWUSI-EAS519_0001_FC61TCNAAXX:2:1:961:7550 length=54
+NACACTACAATGTAAAAGCTTGGCCTAACTTNNTTNNNNNGGCTGTTATTNNNN
+```
+]
+
+---
+## FASTA format
+
+The nucleic acid codes that can be found in a FASTA file:
+
+```
+A --&gt; adenosine           M --&gt; A C (amino)
+C --&gt; cytidine            S --&gt; G C (strong)
+G --&gt; guanine             W --&gt; A T (weak)
+T --&gt; thymidine           B --&gt; G T C
+U --&gt; uridine             D --&gt; G A T
+R --&gt; G A (purine)        H --&gt; A C T
+Y --&gt; T C (pyrimidine)    V --&gt; G C A
+K --&gt; G T (keto)          N --&gt; A G C T (any)
+                          - gap of indeterminate length
+
+```
+
+.small[ http://zhanglab.ccmb.med.umich.edu/FASTA/ ]
+
+---
+## The Human Genome if FASTA format
+
+The human reference genome is maintained by the **Genome Reference Consortium (GRC)**, but most bioinformaticians download "flavored" versions from one of three major resource hubs. Choosing a provider determines your chromosome naming convention (`chr1` vs `1`) and available metadata.
+
+**1. UCSC Genome Browser**
+
+UCSC provides "full" genome builds and is the favorite for visualization and simple command-line retrieval.
+
+* **Naming:** Uses the `chr` prefix (e.g., `chr1`, `chrM`).
+* **Best for:** Quick downloads of specific chromosomes or integrated tracks (RepeatMasker, conservation scores).
+* **Format:** Typically provides `2bit` (binary) and standard FASTA.
+
+.small[
+UCSC Downloads: [hgdownload.soe.ucsc.edu/downloads.html](https://hgdownload.soe.ucsc.edu/downloads.html)
+]
+
+---
+## The Human Genome if FASTA format
+
+**2. Ensembl (EBI)**
+
+Ensembl focuses on high-quality annotation and is the standard for European research and many automated pipelines.
+
+* **Naming:** Uses "bare" numbers (e.g., `1`, `MT`).
+* **Best for:** Downloading genomes bundled with consistent GTF/GFF gene sets.
+* **Versions:** Provides "Top-level" (all sequences) and "Primary Assembly" (no haplotypes—usually best for mapping).
+
+.small[
+Ensembl FTP: [ensembl.org/info/data/ftp/index.html](https://www.ensembl.org/info/data/ftp/index.html)
+]
+
+---
+## The Human Genome if FASTA format
+
+**3. NCBI (GenBank/RefSeq)**
+
+The official repository for the GRC assemblies.
+
+* **Naming:** Often uses Accession numbers (e.g., `NC_000001.11`) or bare numbers.
+* **Best for:** Finding the most authoritative and "raw" version of the assembly (GRCh38.p14).
+
+**Best practices:** If you map your reads to a UCSC FASTA, you *must* use a UCSC-compatible annotation (GTF). Mixing a UCSC genome (`chr1`) with an Ensembl annotation (`1`) is the most common cause of "zero reads mapped" errors.
+
+---
+## FASTA format
+
+* Human genome data is available here: http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/
+* Get chromosome Y sequence:
+
+.small[
+```bash
+$URL=[http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chrY.fa.gz$](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chrY.fa.gz$) wget $URL; mv chrY.fa.gz hg38.chrY.fa.gz
+# or
+$ curl $URL &gt; hg38.chrY.fa.gz
+# Ungzip
+$ gzip -d hg38.chrY.fa.gz
+# Peek into the file
+$head hg38.chrY.fa$ tail hg38.chrY.fa
+# How many lines
+$ wc -l hg38.chrY.fa
+# Look somewhere in the middle
+$ head -n 10000 hg38.chrY.fa | tail
+```
+]
+
+---
+## Orienting in a FASTA file
+
+* Do not run:
+
+```bash
+$ # grep &gt; hg38.chrY.fa
+```
+
+* What will this command do?
+
+```bash
+$ grep "&gt;" hg38.chrY.fa
+```
+
+* What will this command do?
+
+```bash
+$ grep -v "&gt;" hg38.chrY.fa
+```
+
+---
+## chrY summary statistics
+
+* How long is chrY?
+
+```bash
+$ grep -v "&gt;" hg38.chrY.fa | grep -o "[ATCGatcg]" | wc -l
+26415043
+```
+
+* How many adenosines are there?
+
+```bash
+$ grep -v "&gt;" hg38.chrY.fa | grep -o -i "A" | wc -l
+7886192
+```
+
+---
+## Low-complexity regions
+
+* Approximately 45% of the human genome is recognized as being derived from transposable elements
+
+* The majority are non-long terminal repeat (LTR) retrotransposons, such as LINE-1 (L1), Alu, and SVA elements
+
+* Other low-complexity biases: CG- and AT-rich DNA
+
+* Represented by lower-case letters
+
+```
+GATCAAAGTGTCATACAGTAACAGCCCAGACAGACGATAGGTATGGCAGa
+aaagaaaaaaactaaaaaaaaaaaaaaaaaaaaaaaTCGCATGGGAAGTT
+TCCCCGCCTCCTCTTTGGCCATTCTGTGCCCGGAGATCAAAGTTCTCATT
+```
+
+---
+## The conversion of sequencing signal to a nucleotide sequence
+
+Nearly all sequencing technologies produce sequencing reads in **FASTQ** format.
+
+Four lines: **Sequence ID** **Sequence** **Separator** **Quality scores** ]
+
+`@SEQ_ID`  
+`GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT`  
+`+`  
+`!''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF&gt;&gt;&gt;&gt;&gt;&gt;CCCCCCC65`
+
+---
+## Sequence ID
+
+&lt;img src="img/seqid.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+---
+## FASTQ quality scores (Phred scores)
+
+**PHRED Base quality (Q)** – integer value derived from the estimated probability (P) of the corresponding base being determined incorrectly. (rounded to the nearest integer)
+
+* The *Ph* in Phred comes from Phil Green, the inventor of the encoding.
+
+* P might be computed in different ways depending on the sequencing platform, but the meaning of Q remains the same.
+
+.small[ Peter J. A. Cock et al., "The Sanger FASTQ file format for sequences with quality scores, and the Solexa/Illumina FASTQ variants" Nucleic Acids Res. 2010 https://doi.org/10.1093/nar/gkp1137   
+http://www.gs.washington.edu/faculty/green.htm ]
+
+---
+## FASTQ quality scores (Phred scores)
+
+**PHRED Base quality (Q)** – integer value derived from the estimated probability (P) of the corresponding base being determined incorrectly.
+
+* A higher quality score is better (&gt;=20 is considered "good").
+
+&lt;img src="img/phred_table.png" alt="" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## ASCII table
+
+**ASCII** (American Standard Code for Information Interchange) is a character-encoding standard that assigns a unique numerical value to letters, digits, and symbols.
+
+In sequencing, it is used to represent **Phred quality scores** as single characters (like `!`, `@`, or `h`), allowing the quality of each base to be stored efficiently in a one-to-one mapping within a single line of a **FASTQ** file.
+
+&lt;img src="img/ascii-chars-table-landscape.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ http://www.asciicharstable.com/_site_media/ascii/ascii-chars-table-landscape.pdf ]
+
+---
+## Older FASTQ encoding schemes
+
+Older FASTQ versions used different encoding schemes for PHRED quality scores.
+
+&lt;img src="img/fastq_quality_encoding.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+* Phred + 33 is the current standard.
+
+---
+## Standard Sequencing Data Processing
+
+Nearly all high-throughput sequencing pipelines follow a universa workflow to move from raw FASTQ output to biological insights.
+
+**Step 1: Quality Control (QC)**
+
+Before processing, we must assess the raw "unprocessed" data.
+
+* **Goal:** Identify sequencing errors, adapter contamination, or poor-quality cycles.
+* **Key Tool:** **FastQC** is the industry standard. It provides reports on base quality scores, GC content, and overrepresented sequences.
+* **Output:** A report (HTML) highlighting potential issues that require troubleshooting.
+
+---
+## Standard Sequencing Data Processing
+
+**Step 2: Adapter Trimming &amp; Cleaning**
+
+Raw reads often contain synthetic sequences (adapters) used to attach DNA to the sequencer flow cell.
+
+* **Goal:** Remove adapters and low-quality bases from the ends of reads (e.g., Phred score &lt; 20).
+* **Key Tools:** **Cutadapt**, **Trimmomatic**, or **fastp**.
+* **Impact:** Prevents "false mismatches" during alignment caused by non-genomic sequences.
+
+---
+## Standard Sequencing Data Processing
+
+**Step 3: Genomic Alignment (Mapping)**
+
+The cleaned reads are aligned to a reference genome to determine their origin.
+
+* **Goal:** Find the most likely genomic coordinate for every read.
+* **Key Tools:** **BWA-MEM** or **Bowtie2** (for DNA-Seq/ChIP-Seq).
+* **STAR** or **HISAT2** (for RNA-Seq, accounting for "split" reads across introns).
+
+* **Output:** A **SAM** or **BAM** file.
+
+---
+## FASTQC - quality control
+
+.pull-left[
+* Java program with HTML output
+
+* Essential for assessing raw data quality
+
+* Helps identify adapter contamination and base quality drops
+]
+.pull-right[
+&lt;img src="img/fastqc.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+]
+
+.small[
+* http://www.bioinformatics.babraham.ac.uk/projects/fastqc/   
+* Video tutorial: https://www.youtube.com/watch?v=bz93ReOv87Y 11m
+]
+
+---
+## fastx toolkit: manipulating FASTQ and FASTA files
+
+* The **FASTX-Toolkit** is a collection of command-line utilities designed for the preprocessing and manipulation of short-read FASTA and FASTQ files. 
+* It allows researchers to perform essential tasks such as quality filtering, trimming, adapter clipping, and format conversion to improve downstream mapping and alignment results.
+
+&lt;img src="img/fastx.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ http://hannonlab.cshl.edu/fastx_toolkit/ ]
+
+---
+## fastx toolkit: usage examples
+
+```bash
+fastx_quality_stats -h
+fastx_quality_stats -Q 0 -i file.fastq -o fastx_report.txt
+head fastx_report.txt
+fastx_trimmer -h
+fastx_trimmer -f 1 -l 100 -i file.fastq -o file_trimmed.fastq
+```
+
+---
+## The Sequence Alignment/Map format (SAM)
+
+* Intended for storing read alignments against reference sequences.
+* Features a binary version with excellent software support (BAM format).
+
+The SAM format consists of two sections:
+
+**Header section**
+
+* Describes the data source, reference sequence, alignment method, etc.
+
+**Alignment section**
+
+* Describes the read, its quality, and the nature of its alignment to a specific genomic region.
+
+.small[ SAM format specification: https://samtools.github.io/hts-specs/SAMv1.pdf ]
+
+---
+## BAM File Format: Sorting and Indexing
+
+To enable efficient data retrieval, BAM files undergo a two-step optimization process: **Sorting** and **Indexing**.
+
+**1. Sorting (Required first)**
+
+Before a BAM file can be indexed, it must be sorted. The choice of sorting method depends on the downstream analysis:
+
+* **Coordinate Sort:** Alignments are ordered by their position on the chromosome (e.g., chr1, chr2). This is the standard for most tools like variant callers and genome browsers.
+* **Name Sort:** Alignments are ordered by the read ID. This is typically used when you need to keep paired-end reads together (e.g., for certain alignment or quantification tools).
+
+---
+## BAM File Format: Sorting and Indexing
+
+To enable efficient data retrieval, BAM files undergo a two-step optimization process: **Sorting** and **Indexing**.
+
+**2. Indexing (`.bai`)**
+
+Once sorted, an index file is generated (usually with a `.bai` extension) which acts as a "Table of Contents" for the binary data.
+
+* Allows software to **jump directly** to a specific genomic region.
+* Enables rapid visualization in tools like IGV without loading the entire multi-gigabyte file into memory.
+
+---
+## SAM example
+
+&lt;img src="img/sam_example.png" alt="" width="1100px" style="display: block; margin: auto;" /&gt;
+
+---
+## SAM/BAM header section
+
+* Describes data source, reference sequence, and programs used.
+* Each section begins with ‘@’ followed by a two-letter record type code and various tags.
+
+.small[
+```
+@HD The header line
+  VN: format version
+  SO: Sorting order of alignments
+@SQ Reference sequence dictionary
+  SN: reference sequence name
+  LN: reference sequence length
+@RG Read group
+  ID: read group identifier
+  SM: sample name
+@PG Program
+  PN: program name
+  VN: program version
+```
+]
+
+---
+## SAM/BAM alignment section
+
+&lt;img src="img/sam_alignment.png" alt="" width="900px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://samtools.github.io/hts-specs/SAMv1.pdf ]
+
+---
+## Samtools: The Swiss Army Knife of Alignments
+
+**samtools** is the industry-standard suite of programs for interacting with high-throughput sequencing data. It provides the essential interface between human-readable **SAM** files and machine-efficient **BAM/CRAM** files.
+
+.pull-left[
+
+* **Convert:** Seamlessly switch between SAM, BAM, and CRAM formats.
+* **Manipulate:** Sort, merge, and index alignment files.
+* **Filter:** Extract specific reads based on genomic coordinates or bitwise flags.
+* **Analyze:** Generate depth statistics and identify variants (mpileup).
+]
+
+.pull-right[
+
+* **Efficiency:** Built in C for high-speed processing of massive datasets.
+* **Standardization:** Originally developed by Heng Li at the Sanger Institute; it defines how the community handles alignment data.
+* **Integration:** Acts as the foundation for almost all bioinformatics pipelines.
+]
+
+.small[
+Documentation: [https://www.htslib.org/doc/samtools.html](https://www.htslib.org/doc/samtools.html)
+]
+
+---
+## SAMTOOLS Commands: Editing &amp; Viewing
+
+**Indexing**
+- `index` - index alignment
+- `faidx` - index/extract FASTA
+- `dict` - create a sequence dictionary file
+
+**Editing**
+- `fixmate` - fix mate information
+- `reheader` - replace BAM header
+- `rmdup` - remove PCR duplicates
+
+**Viewing**
+- `flags` - explain BAM flags
+- `tview` - text alignment viewer
+- `view` - SAM&lt;-&gt;BAM&lt;-&gt;CRAM conversion
+
+---
+## SAMTOOLS Commands: Files &amp; Stats
+
+**File operations**
+- `cat` - concatenate BAMs
+- `merge` - merge sorted alignments
+- `mpileup` - multi-way pileup
+- `sort` - sort alignment file
+- `fastq/fasta` - convert BAM back to raw formats
+    
+**Statistics**
+- `bedcov` - read depth per BED region
+- `flagstat` - simple summary stats
+- `idxstats` - BAM index stats
+- `stats` - comprehensive stats
+
+---
+## Samtools Cheatsheet: Essential Commands
+
+| Category | Command | Description |
+| --- | --- | --- |
+| **Viewing** | `view` | Convert between binary (BAM) and text (SAM) |
+| **Ordering** | `sort` | Sort alignments by coordinate or read name |
+| **Access** | `index` | Create `.bai` index for random access |
+| **Subsetting** | `view [region]` | Extract reads from a specific genomic window |
+| **Summary** | `flagstat` | Provide a simple count of alignment types |
+| **Metrics** | `stats` | Generate comprehensive alignment statistics |
+| **Coverage** | `depth` | Compute the sequencing depth for every base |
+| **Sequencing** | `fastq` / `fasta` | Convert BAM back into raw sequence formats |
+
+.small[ https://github.com/samtools/samtools ]
+
+---
+## Using SAM flags to filter subsets of reads
+
+* 12 bitwise flags describe the alignment.
+
+* "Bitwise" means values are powers of two (representing a single bit in a binary number).
+
+* All combinations can be represented as a number from 1 to 2048 ().
+
+* You can specify "required" (`-f`) or "filter" (`-F`) flags in the `samtools view` command.
+
+---
+## Understanding Bitwise FLAGs
+
+* Unambiguous: there is exactly one possible decomposition for each FLAG sum.
+
+* Each value contributing to the sum represents one fulfilled condition.
+
+&lt;img src="img/sam_flags.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+.small[
+https://broadinstitute.github.io/picard/explain-flags.html  
+https://samtools.github.io/hts-specs/SAMv1.pdf
+]
+
+---
+## SAM – bitwise FLAG (example)
+
+&lt;img src="img/flag_example.png" alt="" width="900px" style="display: block; margin: auto;" /&gt;
+
+---
+## SAM – bitwise FLAG decomposition
+
+**FLAG 83** - In binary: FLAG 1010011 is a sum of 1000000, 10000, 10, and 1.
+
+* In decimal: 83 = 64 + 16 + 2 + 1.
+* Meaning:
+
+&lt;img src="img/flag_example1.png" alt="" width="600px" style="display: block; margin: auto;" /&gt;
+
+---
+## CIGAR string
+
+&lt;img src="img/sam_cigar.png" alt="" width="600px" style="display: block; margin: auto;" /&gt;
+
+* A sequence of base lengths and "operations" indicating alignment status (match, mismatch, deletion, insertion, intron).
+* Example: `81M859N19M`
+* Interpretation: 81 bases align, 859 bases are skipped (intron), followed by 19 aligned bases.
+
+.small[ https://samtools.github.io/hts-specs/SAMv1.pdf ]
+
+---
+## Other Tools for SAM/BAM Files
+
+* **sambamba** – A high-performance alternative to `samtools`. Written in D, it is highly parallelized and significantly faster for indexing and marking duplicates on multi-core systems.
+
+* **Mosdepth** – The current standard for rapid BAM/CRAM depth calculation. It is many times faster than `samtools depth` and works exceptionally well for both whole-genome and exome data.
+
+* **Picard Tools** – A Java-based suite essential for advanced manipulation. It is the "gold standard" for validating SAM file structures and is a core component of the GATK best practices pipeline.
+
+* **SamBlaster** – A specialized tool designed for the rapid marking of duplicates and extraction of discordant/split reads directly while the aligner is streaming data.
+
+.small[
+* **Sambamba:** [https://lomereiter.github.io/sambamba/](https://lomereiter.github.io/sambamba/)
+* **Picard:** [https://broadinstitute.github.io/picard/](https://broadinstitute.github.io/picard/)
+* **Mosdepth:** [https://github.com/brentp/mosdepth](https://github.com/brentp/mosdepth)
+]
+
+---
+## BED format
+
+* Text-based, tab-separated list of genomic regions.
+
+* Each region is defined by a reference sequence and start/end positions.
+
+* Optional properties: strand, name, score, color.
+
+* Designed for visualizing annotations in IGV or the UCSC Genome Browser.
+
+.small[ http://genome.ucsc.edu/FAQ/FAQformat.html#format1 ]
+
+---
+## BED format: Columns
+
+3 mandatory columns:
+
+* **chrom**: chromosome.
+* **chromStart**: first base of the region (0-based counting).
+* **chromEnd**: first base after the region.
+* `[chromStart, chromEnd)` notation allows for simple length calculation (`End - Start`).
+
+.small[
+```text
+chr1  115263684 115263685 rs10489525  0 +
+chr12 97434219  97434220  rs6538761   0 +
+chr14 102360744 102360745 rs7142002   0 +
+```
+]
+
+---
+## BED format – optional fields
+
+* 9 additional fields with binding order.
+* All regions in a file must contain the same optional fields.
+
+**Important fields:** - **name**: region identifier.
+
+* **score**: value between 0 and 1000 (often used for grayscale shading).
+* **strand**: "+" or "-" (defines directionality).
+
+.small[ https://genome.ucsc.edu/FAQ/FAQformat.html#format1.7 ]
+
+
+---
+## bedtools: The Swiss Army Knife for Genome Arithmetic
+
+**bedtools** allows for lightning-fast comparison and manipulation of genomic features across multiple formats (BED, GFF, VCF, BAM). It is built on the principle of "Genome Arithmetic"—treating genomic intervals as mathematical sets.
+.small[
+.pull-left[
+
+**Key Commands**
+
+* **`intersect`**: Find overlapping regions between two files (the "workhorse").
+* **`merge`**: Combine overlapping or nearby intervals into a single record.
+* **`subtract`**: Remove regions in file A that overlap with file B.
+* **`slop`**: Increase the size of intervals (e.g., adding 1kb flanking regions).
+* **`getfasta`**: Extract DNA sequences from a FASTA file using BED coordinates.
+]
+
+.pull-right[
+
+**Advanced Utilities**
+
+* **`coverage`**: Summarize the "depth" of features in A that overlap with B.
+* **`closest`**: Find the nearest feature in B for every feature in A (even if they don't overlap).
+* **`genomecov`**: Calculate coverage across the entire genome.
+* **`bamtobed`**: Convert BAM alignments into BED intervals for easier processing.
+]
+]
+
+---
+## bedtools: The Swiss Army Knife for Genome Arithmetic
+
+**bedtools** allows for lightning-fast comparison and manipulation of genomic features across multiple formats (BED, GFF, VCF, BAM). It is built on the principle of "Genome Arithmetic"—treating genomic intervals as mathematical sets.
+
+**The Power of Piping**
+
+Almost all commands support `stdin` and `stdout`, allowing you to chain operations:
+
+```bash
+bedtools intersect -a A.bed -b B.bed | bedtools merge -i stdin &gt; result.bed
+```
+
+.small[ Documentation: [https://bedtools.readthedocs.io/](https://bedtools.readthedocs.io/) ]
+
+---
+## BEDOPS: High-Performance Genomic Feature Operations
+
+**BEDOPS** is a highly scalable suite of tools optimized for performance and "embarrassingly easy" parallelization. It excels at processing large-scale genomic data by relying on strictly sorted BED input.
+
+.small[
+.pull-left[
+**Core Set Operations**
+
+* **`bedops`**: The primary tool for Boolean set operations (union, intersection, difference, complement). It can handle many input files simultaneously.
+* **`bedextract`**: Performs lightning-fast retrieval of specific features (e.g., by chromosome) from sorted BED files.
+* **`closest-features`**: Efficiently finds the nearest upstream/downstream features between two sets.
+]
+.pull-right[
+**Mapping &amp; Statistics**
+
+* **`bedmap`**: Maps "source" data (like signal or scores) onto "target" regions. It can compute statistical summaries (mean, max, count) during the mapping process.
+* **`sort-bed`**: The critical preprocessing tool. BEDOPS requires files to be lexicographically sorted to achieve its high speeds.
+]
+]
+
+.small[ Documentation: [https://bedops.readthedocs.io/](https://bedops.readthedocs.io/) ]
+
+---
+## GFF/GTF: Genomic Annotation Formats
+
+These formats are used to describe the "features" of a genome, such as where genes, exons, and introns are located. While similar, they serve slightly different roles in bioinformatics pipelines.
+
+* **GFF (General Feature Format)**: A flexible, hierarchical format used to describe any genomic feature. It is often used for general genome annotations and can represent complex relationships between biological elements (e.g., a gene "owning" multiple transcript variants).
+* **GTF (Gene Transfer Format)**: A specialized and more restrictive version of GFF (specifically GFF version 2.2). It is the **industry standard** for defining gene models because it enforces strict rules on how exons, start codons, and stop codons are linked to specific Gene and Transcript IDs.
+
+---
+## GFF/GTF: Genomic Annotation Formats
+
+| Feature | GFF (v3) | GTF (v2) |
+| --- | --- | --- |
+| **Hierarchy** | Uses `ID` and `Parent` tags | Uses `gene_id` and `transcript_id` |
+| **Strictness** | Very flexible | Highly standardized for gene sets |
+| **Common Use** | General annotation / Sequence Ontology | Transcriptomics / RNA-Seq |
+
+.small[
+
+* GFF specs: https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+* GTF specs: https://www.gencodegenes.org/pages/data_format.html
+]
+
+---
+## GFF/GTF structure
+
+* Tab-delimited text file with 9 columns:
+1. contig (chromosome)
+2. source
+3. type
+4. start / 5. end
+5. score
+6. strand
+7. phase
+8. attributes (key-value pairs)
+
+.small[ `wget ftp://ftp.ensembl.org/pub/release-89/gtf/homo_sapiens/Homo_sapiens.GRCh38.89.gtf.gz` ]
+.small[ GTF gene annotations: http://www.ensembl.org/info/data/ftp/index.html ]
+
+---
+## GTF Gene Annotations: GENCODE and Ensembl
+
+Accurate gene annotation is the foundation of transcriptomics. For human and mouse genomes, **GENCODE** and **Ensembl** are the primary providers of the GTF files that define where genes and transcripts begin and end.
+
+**GENCODE** is the official gene set for the ENCODE project and is widely considered the "gold standard" for human and mouse research.
+
+* **Curation:** Combines manual curation (from the **Havana** team) with automated computational pipelines.
+* **Comprehensive:** It provides the most detailed mapping of **lncRNAs**, antisense transcripts, and pseudogenes.
+* **Community Standard:** Used by major projects like **TCGA** (The Cancer Genome Atlas) and **GTEx** (Genotype-Tissue Expression) to ensure consistent results across the field.
+
+---
+## GTF Gene Annotations: GENCODE and Ensembl
+
+**Ensembl** provides annotations for thousands of species using an automated annotation pipeline, supplemented by manual curation for key organisms.
+
+* **Human/Mouse Synchronization:** Since Ensembl release 79 (GENCODE 22), the two sets are functionally identical for human and mouse.
+
+* **Chromosome Naming:** A critical difference is the coordinate naming. Ensembl GTFs use **bare numbers** (`1`, `2`, `X`), while GENCODE typically uses the **chr prefix** (`chr1`, `chr2`, `chrX`) to match UCSC standards.
+
+---
+## GTF Gene Annotations: Best practices
+
+* **Check Your FASTA:** Your GTF must match your reference genome's chromosome naming (e.g., if your FASTA has `chr1`, your GTF must have `chr1`).
+
+* **Version Control:** Always record the version number (e.g., GENCODE v44). Gene boundaries and IDs change between releases, which can significantly impact your read counting and differential expression results.
+
+.small[
+Download GENCODE: [https://www.gencodegenes.org/](https://www.gencodegenes.org/)
+
+Download Ensembl: [http://www.ensembl.org/info/data/ftp/index.html](http://www.ensembl.org/info/data/ftp/index.html)
+]
+
+---
+## WIG (Wiggle) Format: Representing Continuous Signal
+
+The **Wiggle (WIG)** format is designed for displaying continuous-valued data, such as GC content, probability scores, or sequencing depth, as a track in a genome browser. It is specifically optimized for dense, "signal-like" data.
+
+.small[
+.pull-left[
+**1. variableStep** Used for data with **irregular intervals** between data points. It is more efficient when data is sparse.
+
+* Requires a `chrom` definition.
+* Each line lists a `position` and a `value`.
+
+```text
+variableStep chrom=chr1
+41196312 10.5
+41196350 12.8
+```
+]
+.pull-right[
+**2. fixedStep** Used for data with **regular, constant intervals**. It is more compact because the positions are calculated automatically.
+
+* Defines a `start` and a constant `step` size.
+* Only the `values` are listed.
+
+```text
+fixedStep chrom=chr1 start=41196312 step=20
+10.5
+12.8
+```
+]
+]
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.small[ UCSC WIG Documentation: [https://genome.ucsc.edu/goldenpath/help/wiggle.html](https://genome.ucsc.edu/goldenpath/help/wiggle.html) ]
+
+---
+## Working with WIG format
+
+**Optimization: BigWig**
+
+Because WIG files are plain text and can become enormous, they are usually converted into **BigWig** format—an indexed, binary version that allows for near-instantaneous zooming and scrolling in genome browsers (like IGV).
+
+* **WiggleTools**: performs math (mean, sum, etc.) on genomic signal files.
+
+.small[
+https://genome.ucsc.edu/goldenpath/help/wiggle.html
+https://github.com/Ensembl/WiggleTools
+]
+
+---
+## VCF format
+
+* Variant Call Format (VCF) is a flexible and extendable format for variation data.
+
+&lt;img src="img/vcf_format1.png" alt="" width="1000px" style="display: block; margin: auto;" /&gt;
+
+---
+## VCF Column Definitions: The "Fixed" Fields
+
+The **Variant Call Format (VCF)** is a tab-delimited text file containing meta-information lines, a header line, and then data lines. Each data line represents a single genomic variant with eight mandatory fixed columns.
+
+.small[
+| Column | Name | Description |
+| --- | --- | --- |
+| **CHROM** | Chromosome | The identifier of the reference sequence (e.g., `chr1` or `1`). |
+| **POS** | Position | The **1-based** coordinate of the first base in the variant. |
+| **ID** | Identifier | Unique semi-colon separated identifiers (e.g., dbSNP `rs` numbers). |
+| **REF** | Reference | The reference allele (the string of bases found in the reference genome). |
+| **ALT** | Alternate | Comma-separated list of non-reference alleles (the variants found). |
+| **QUAL** | Quality | Phred-scaled probability that the variant is incorrect (higher is better). |
+| **FILTER** | Filter | `PASS` if all quality filters are met; otherwise, lists specific failure codes. |
+| **INFO** | Information | A "key=value" field for extended annotations (e.g., allele frequency, depth). |
+]
+
+.small[
+VCF v4.2 Specification: [https://samtools.github.io/hts-specs/VCFv4.2.pdf](https://samtools.github.io/hts-specs/VCFv4.2.pdf)
+]
+
+---
+## VCF Format Application
+
+Beyond these eight, VCF files often contain a **FORMAT** column and one or more **SAMPLE** columns, which hold the genotype data (`GT`), genotype quality (`GQ`), and read depth (`DP`) for individual subjects.
+
+&lt;img src="img/vcf_appnote.png" alt="" width="500px" style="display: block; margin: auto;" /&gt;
+
+.small[ Petr Danecek, 1000 Genomes Project Analysis Group, et al. "The variant call format and VCFtools", Bioinformatics, Volume 27, Issue 15, August 2011, Pages 2156–2158, https://doi.org/10.1093/bioinformatics/btr330 ]
+
+---
+## Mutation Annotation Format (MAF): Cancer Variant Reporting
+
+The **Mutation Annotation Format (MAF)** is a tab-delimited file specifically designed to aggregate somatic mutations across many samples. While VCF files are usually "per-sample" or "per-cohort," MAF files are the standard for large-scale cancer studies like **The Cancer Genome Atlas (TCGA)**.
+
+* **Protected MAFs**: These are raw files containing all sequenced mutations, including both **somatic** (cancer-specific) and **germline** (inherited) variants. Because they contain germline data, access is usually restricted to protect patient privacy.
+* **Somatic (Public) MAFs**: These are filtered files intended for general research. They retain only high-confidence somatic mutations, typically restricted to **protein-coding regions** or splice sites, and are cleaned of sequencing errors and germline "noise."
+
+---
+## Mutation Annotation Format (MAF): Cancer Variant Reporting
+
+* **Project-Wide Integration:** MAF files make it easy to see mutation patterns (e.g., "Which genes are most frequently mutated in this lung cancer cohort?") across hundreds of patients.
+
+* **Rich Annotation:** Each variant is linked to its functional effect (e.g., Missense, Nonsense, Frame_Shift) and its specific gene symbol (HUGO).
+
+.small[
+GDC MAF Documentation: [https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)  
+https://github.com/mskcc/vcf2maf
+]
+
+---
+## Indexing for rapid data access
+
+To handle massive genomic datasets efficiently, almost every format requires an **index file**.
+
+* **Fasta Index (`.fai`)**: Allows tools to jump to specific chromosomal coordinates instantly.
+* **BAM Index (`.bai`)**: Enables random access to alignments in specific regions (e.g., for viewing a single gene in IGV).
+* **Tabix (`.tbi`)**: Generic index for compressed, sorted tab-delimited files like BED, GFF, or VCF.
+
+*Requirement:* Files must be **sorted** by coordinate before they can be indexed.
+
+---
+## Genomic Coordinate Systems
+
+Bioinformatics uses two distinct ways of counting positions. Understanding the difference is critical to avoid "off-by-one" errors.
+
+| Feature | 1-Based (Closed) | 0-Based (Half-Open) |
+| :--- | :--- | :--- |
+| **First Base** | Position 1 | Position 0 |
+| **Common Formats** | SAM, VCF, GFF, Wiggle | BED, BAM, BigWig |
+| **Logic** | "The 1st base to the 10th base" | "The space before base 0 to base 10" |
+| **Calculation** | `\(Length = (End - Start) + 1\)` | `\(Length = End - Start\)` |
+
+&lt;img src="img/bed_coordinates.jpg" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+.small[ **Note:** Bioconductor's `GenomicRanges` (GRanges) standardizes data into **1-based** coordinates internally, regardless of the input format. ]
+
+
+---
+## Formats use different chromosome naming conventions
+
+* The UCSC and Ensembl databases name their chromosomes differently.
+
+* By convention, UCSC chromosomes start with **chr** (e.g., `chr5`).
+
+* Ensembl chromosome names usually consist of just the number (e.g., `5`).
+
+* Mixing these conventions in a single analysis pipeline will cause tools to fail!
+
+**Bioconductor packages like `GenomeInfoDb` help translate between these styles.**
+
+---
+## IGV: Visualizing all genomics formats
+
+The **Integrative Genomics Viewer (IGV)** is the industry-standard, high-performance visualization tool designed for the interactive exploration of large, integrated genomic datasets. It acts as the visual "hub" that can render almost every format we discussed.
+
+* **SAM/BAM/CRAM**: Visualizes individual sequencing reads, showing mismatches, indels, and structural variations (requires a `.bai` or `.crai` index).
+* **BED/GFF/GTF**: Displays genomic features like genes, exons, and custom regions of interest.
+* **VCF**: Visualizes variant calls, highlighting genotypes across multiple samples.
+* **WIG/BigWig**: Renders continuous signal data as bar charts or line graphs (ideal for ChIP-seq or RNA-seq coverage).
+* **FASTA**: Provides the underlying nucleotide sequence for the reference genome.
+
+---
+## IGV: Visualizing all genomics formats
+
+* **Speed**: Uses indexed file formats to load only the data for the specific window you are viewing, making it possible to navigate multi-gigabyte files instantly.
+
+* **Integration**: Allows you to load data from your **local machine** or directly from **remote URLs** (like the UCSC or Ensembl servers).
+
+* **Verification**: It is the final "sanity check" for any bioinformatics pipeline—nothing beats looking at the raw alignments to confirm a variant call.
+
+.small[ Download IGV: [software.broadinstitute.org/software/igv/](https://software.broadinstitute.org/software/igv/) ]
+
+---
+## Genome Assembly Versions
+
+A **reference genome** is a representative digital sequence of an organism's DNA, serving as a standard "map" for alignment and comparison. Acts as a common coordinate system so researchers can say "Gene X is at chr1:100-200" and others know exactly where to look.
+
+* **Assembly Versions:** Genomes are periodically updated (e.g., Human `hg19` → `hg38`). New versions fix sequence gaps, correct errors, and improve accuracy.
+
+---
+## Liftover: Converting Between Assembly Versions
+
+**Liftover** is the process and the tool for remapping genomic coordinates from one assembly version to another (e.g., mapping an old GWAS study in `hg19` to the current `hg38`).
+
+* **Chain Files:** Specialized mapping files that describe how segments of the old genome align to the new one.
+
+* **Bioconductor Implementation:** The `rtracklayer` package provides the `liftOver()` function.
+
+* **Potential Outcomes:**
+    * **Successful Map:** The range moves to the new position.
+    * **Split Map:** One range in the old build maps to multiple regions in the new one (returns a `GRangesList`).
+    * **Unmapped:** The sequence was deleted or significantly changed in the new build.
+
+.small[ https://www.youtube.com/watch?v=942WLiy3eb4 1h 7m ]
+
+---
+## Liftover: Converting Between Assembly Versions
+
+```r
+library(rtracklayer)
+# 1. Import the chain file
+chain &lt;- import.chain("hg19ToHg38.over.chain")
+
+# 2. Perform the liftover
+hg38_coords &lt;- liftOver(hg19_granges, chain)
+
+# 3. Handle the output (returns a GRangesList)
+hg38_final &lt;- unlist(hg38_coords)
+```
+
+.small[ UCSC liftOver web tool: https://genome.ucsc.edu/cgi-bin/hgLiftOver ]
+
+```
+
+Would you like me to generate a table comparing the most common human genome builds (hg18, hg19, hg38, T2T) and their release years?
+
+[Liftover Analysis with rtracklayer](https://www.youtube.com/watch?v=942WLiy3eb4)
+
+This video provides a practical walkthrough of using the Bioconductor package `rtracklayer` to map coordinates between different human genome builds using chain files.
+
+
+http://googleusercontent.com/youtube_content/0
+
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
