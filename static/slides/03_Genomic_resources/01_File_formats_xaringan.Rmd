@@ -124,7 +124,6 @@ R --> G A (purine)        H --> A C T
 Y --> T C (pyrimidine)    V --> G C A
 K --> G T (keto)          N --> A G C T (any)
                           - gap of indeterminate length
-
 ```
 
 .small[ http://zhanglab.ccmb.med.umich.edu/FASTA/ ]
@@ -296,13 +295,18 @@ knitr::include_graphics("img/phred_table.png")
 ## ASCII table
 
 **ASCII** (American Standard Code for Information Interchange) is a character-encoding standard that assigns a unique numerical value to letters, digits, and symbols.
-
-In sequencing, it is used to represent **Phred quality scores** as single characters (like `!`, `@`, or `h`), allowing the quality of each base to be stored efficiently in a one-to-one mapping within a single line of a **FASTQ** file.
-
-```{r, out.width = "400px", fig.align='center', echo=FALSE}
+```{r, out.width = "800px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/ascii-chars-table-landscape.png")
 ```
+.small[ http://www.asciicharstable.com/_site_media/ascii/ascii-chars-table-landscape.pdf ]
 
+---
+## ASCII table
+
+In sequencing, it is used to represent **Phred quality scores** as single characters (like `!`, `@`, or `h`), allowing the quality of each base to be stored efficiently in a one-to-one mapping within a single line of a **FASTQ** file.
+```{r, out.width = "800px", fig.align='center', echo=FALSE}
+knitr::include_graphics("img/ascii-chars-table-landscape.png")
+```
 .small[ http://www.asciicharstable.com/_site_media/ascii/ascii-chars-table-landscape.pdf ]
 
 ---
@@ -310,7 +314,7 @@ knitr::include_graphics("img/ascii-chars-table-landscape.png")
 
 Older FASTQ versions used different encoding schemes for PHRED quality scores.
 
-```{r, out.width = "800px", fig.align='center', echo=FALSE}
+```{r, out.width = "900px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/fastq_quality_encoding.png")
 ```
 
@@ -319,7 +323,7 @@ knitr::include_graphics("img/fastq_quality_encoding.png")
 ---
 ## Standard Sequencing Data Processing
 
-Nearly all high-throughput sequencing pipelines follow a universa workflow to move from raw FASTQ output to biological insights.
+Nearly all high-throughput sequencing pipelines follow a universal workflow to move from raw FASTQ output to biological insights.
 
 **Step 1: Quality Control (QC)**
 
@@ -364,7 +368,7 @@ The cleaned reads are aligned to a reference genome to determine their origin.
 * Helps identify adapter contamination and base quality drops
 ]
 .pull-right[
-```{r, out.width = "400px", fig.align='center', echo=FALSE}
+```{r, out.width = "600px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/fastqc.png")
 ```
 ]
@@ -374,8 +378,8 @@ knitr::include_graphics("img/fastqc.png")
 * Video tutorial: https://www.youtube.com/watch?v=bz93ReOv87Y 11m
 ]
 
----
-## fastx toolkit: manipulating FASTQ and FASTA files
+<!--
+fastx toolkit: manipulating FASTQ and FASTA files
 
 * The **FASTX-Toolkit** is a collection of command-line utilities designed for the preprocessing and manipulation of short-read FASTA and FASTQ files. 
 * It allows researchers to perform essential tasks such as quality filtering, trimming, adapter clipping, and format conversion to improve downstream mapping and alignment results.
@@ -386,8 +390,7 @@ knitr::include_graphics("img/fastx.png")
 
 .small[ http://hannonlab.cshl.edu/fastx_toolkit/ ]
 
----
-## fastx toolkit: usage examples
+fastx toolkit: usage examples
 
 ```bash
 fastx_quality_stats -h
@@ -396,6 +399,7 @@ head fastx_report.txt
 fastx_trimmer -h
 fastx_trimmer -f 1 -l 100 -i file.fastq -o file_trimmed.fastq
 ```
+-->
 
 ---
 ## The Sequence Alignment/Map format (SAM)
@@ -472,7 +476,7 @@ knitr::include_graphics("img/sam_example.png")
 ---
 ## SAM/BAM alignment section
 
-```{r, out.width = "900px", fig.align='center', echo=FALSE}
+```{r, out.width = "1100px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/sam_alignment.png")
 ```
 
@@ -594,14 +598,14 @@ knitr::include_graphics("img/flag_example.png")
 * In decimal: 83 = 64 + 16 + 2 + 1.
 * Meaning:
 
-```{r, out.width = "600px", fig.align='center', echo=FALSE}
+```{r, out.width = "800px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/flag_example1.png")
 ```
 
 ---
 ## CIGAR string
 
-```{r, out.width = "600px", fig.align='center', echo=FALSE}
+```{r, out.width = "700px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/sam_cigar.png")
 ```
 
@@ -620,12 +624,12 @@ knitr::include_graphics("img/sam_cigar.png")
 
 * **Picard Tools** – A Java-based suite essential for advanced manipulation. It is the "gold standard" for validating SAM file structures and is a core component of the GATK best practices pipeline.
 
-* **SamBlaster** – A specialized tool designed for the rapid marking of duplicates and extraction of discordant/split reads directly while the aligner is streaming data.
+<!-- * **SamBlaster** – A specialized tool designed for the rapid marking of duplicates and extraction of discordant/split reads directly while the aligner is streaming data. -->
 
 .small[
-* **Sambamba:** [https://lomereiter.github.io/sambamba/](https://lomereiter.github.io/sambamba/)
-* **Picard:** [https://broadinstitute.github.io/picard/](https://broadinstitute.github.io/picard/)
-* **Mosdepth:** [https://github.com/brentp/mosdepth](https://github.com/brentp/mosdepth)
+**Sambamba:** [https://lomereiter.github.io/sambamba/](https://lomereiter.github.io/sambamba/)  
+**Mosdepth:** [https://github.com/brentp/mosdepth](https://github.com/brentp/mosdepth)  
+**Picard:** [https://broadinstitute.github.io/picard/](https://broadinstitute.github.io/picard/)  
 ]
 
 ---
@@ -762,17 +766,20 @@ These formats are used to describe the "features" of a genome, such as where gen
 ]
 
 ---
-## GFF/GTF structure
+## GFF / GTF structure
 
-* Tab-delimited text file with 9 columns:
-1. contig (chromosome)
+Tab-delimited text file with 9 columns:
+
+1. seqid (chromosome / contig)
 2. source
-3. type
-4. start / 5. end
-5. score
-6. strand
-7. phase
-8. attributes (key-value pairs)
+3. feature type
+4. start (1-based)
+5. end (1-based, inclusive)
+6. score
+7. strand
+8. phase (CDS only)
+9. attributes (key–value pairs)
+
 
 .small[ `wget ftp://ftp.ensembl.org/pub/release-89/gtf/homo_sapiens/Homo_sapiens.GRCh38.89.gtf.gz` ]
 .small[ GTF gene annotations: http://www.ensembl.org/info/data/ftp/index.html ]
@@ -780,16 +787,23 @@ These formats are used to describe the "features" of a genome, such as where gen
 ---
 ## GTF Gene Annotations: GENCODE and Ensembl
 
-Accurate gene annotation is the foundation of transcriptomics. For human and mouse genomes, **GENCODE** and **Ensembl** are the primary providers of the GTF files that define where genes and transcripts begin and end.
+Accurate gene annotation is the foundation of transcriptomics. 
+
+For human and mouse genomes, **GENCODE** and **Ensembl** are the primary providers of the GTF files that define where genes and transcripts begin and end.
+
+---
+## GTF Gene Annotations: GENCODE
 
 **GENCODE** is the official gene set for the ENCODE project and is widely considered the "gold standard" for human and mouse research.
 
 * **Curation:** Combines manual curation (from the **Havana** team) with automated computational pipelines.
+
 * **Comprehensive:** It provides the most detailed mapping of **lncRNAs**, antisense transcripts, and pseudogenes.
+
 * **Community Standard:** Used by major projects like **TCGA** (The Cancer Genome Atlas) and **GTEx** (Genotype-Tissue Expression) to ensure consistent results across the field.
 
 ---
-## GTF Gene Annotations: GENCODE and Ensembl
+## GTF Gene Annotations: Ensembl
 
 **Ensembl** provides annotations for thousands of species using an automated annotation pipeline, supplemented by manual curation for key organisms.
 
@@ -863,7 +877,7 @@ https://github.com/Ensembl/WiggleTools
 
 * Variant Call Format (VCF) is a flexible and extendable format for variation data.
 
-```{r, out.width = "1000px", fig.align='center', echo=FALSE}
+```{r, out.width = "1100px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/vcf_format1.png")
 ```
 
@@ -894,7 +908,7 @@ VCF v4.2 Specification: [https://samtools.github.io/hts-specs/VCFv4.2.pdf](https
 
 Beyond these eight, VCF files often contain a **FORMAT** column and one or more **SAMPLE** columns, which hold the genotype data (`GT`), genotype quality (`GQ`), and read depth (`DP`) for individual subjects.
 
-```{r, out.width = "500px", fig.align='center', echo=FALSE}
+```{r, out.width = "600px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/vcf_appnote.png")
 ```
 
@@ -903,9 +917,17 @@ knitr::include_graphics("img/vcf_appnote.png")
 ---
 ## Mutation Annotation Format (MAF): Cancer Variant Reporting
 
-The **Mutation Annotation Format (MAF)** is a tab-delimited file specifically designed to aggregate somatic mutations across many samples. While VCF files are usually "per-sample" or "per-cohort," MAF files are the standard for large-scale cancer studies like **The Cancer Genome Atlas (TCGA)**.
+The **Mutation Annotation Format (MAF)** is a tab-delimited file specifically designed to aggregate somatic mutations across many samples. 
+
+While VCF files are usually "per-sample" or "per-cohort," MAF files are the standard for large-scale cancer studies like **The Cancer Genome Atlas (TCGA)**.
+
+---
+## Mutation Annotation Format (MAF): Cancer Variant Reporting
 
 * **Protected MAFs**: These are raw files containing all sequenced mutations, including both **somatic** (cancer-specific) and **germline** (inherited) variants. Because they contain germline data, access is usually restricted to protect patient privacy.
+
+--
+
 * **Somatic (Public) MAFs**: These are filtered files intended for general research. They retain only high-confidence somatic mutations, typically restricted to **protein-coding regions** or splice sites, and are cleaned of sequencing errors and germline "noise."
 
 ---
@@ -943,7 +965,7 @@ Bioinformatics uses two distinct ways of counting positions. Understanding the d
 | **Logic** | "The 1st base to the 10th base" | "The space before base 0 to base 10" |
 | **Calculation** | $Length = (End - Start) + 1$ | $Length = End - Start$ |
 
-```{r, out.width = "800px", fig.align='center', echo=FALSE}
+```{r, out.width = "700px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/bed_coordinates.jpg")
 ```
 
@@ -1023,17 +1045,5 @@ hg38_coords <- liftOver(hg19_granges, chain)
 hg38_final <- unlist(hg38_coords)
 ```
 
-.small[ UCSC liftOver web tool: https://genome.ucsc.edu/cgi-bin/hgLiftOver ]
-
-```
-
-Would you like me to generate a table comparing the most common human genome builds (hg18, hg19, hg38, T2T) and their release years?
-
-[Liftover Analysis with rtracklayer](https://www.youtube.com/watch?v=942WLiy3eb4)
-
-This video provides a practical walkthrough of using the Bioconductor package `rtracklayer` to map coordinates between different human genome builds using chain files.
-
-
-http://googleusercontent.com/youtube_content/0
-
-```
+.small[ UCSC liftOver web tool: https://genome.ucsc.edu/cgi-bin/hgLiftOver  
+[Liftover Analysis with rtracklayer](https://www.youtube.com/watch?v=942WLiy3eb4) video 1h 6m]
