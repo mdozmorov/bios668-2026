@@ -1,0 +1,446 @@
+---
+title: "Shell Scripting and Automation"
+# subtitle: "Statistical Models and Inference"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", #firebrick4, "deepskyblue1"
+  text_font_size = "28px"
+)
+library(dplyr)
+library(ggplot2)
+```
+
+<!-- HTML style block -->
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+## Workflow scripts
+
+A script is a file with a `.sh` extension. It contains a list of shell commands executed by an interpreter.
+
+* **Automate** repetitive data processing tasks.
+
+* **Document** your workflow so others (and your future self) can replicate it.
+
+* **Version Control** your analysis steps using Git.
+
+---
+## Shell Script Structure
+
+While the `.sh` extension is a helpful convention for humans, Unix relies on two specific things to run it:
+
+**1. The Shebang (`#!`)**
+
+The first line of the file tells the OS which interpreter to use to "read" the rest of the file.
+* **`#!/bin/bash`** — Use the Bash shell.
+* **`#!/usr/bin/env zsh`** — Use the Z-shell (portable method).
+* **`#!/usr/bin/python3`** — Use the Python interpreter.
+
+---
+## Shell Script Structure
+
+**2. Execution Permissions**
+
+New files are created without "execute" rights by default for security. You must enable them:
+
+* **Grant Permission:** `chmod u+x my_script.sh`
+
+* **Run the Script:** `./my_script.sh` (The `./` tells the shell to look in the *current* folder).
+
+.small[ **Pro Tip:** If you don't want to change permissions, you can run a script by calling the interpreter directly: `bash my_script.sh`. ]
+
+---
+## Working with Variables
+
+**Setting Variables**
+
+In the shell, **spacing is critical**. The shell treats a space as a separator between a command and its arguments.
+
+* **Correct:** `count_of_files=3` (No spaces around the `=`)
+
+* **Incorrect:** `count_of_files = 3` (The shell will try to run a command named `count_of_files`)
+
+---
+## Working with Variables
+
+**Handling Quotes**
+
+Quotes are optional for simple strings but mandatory if the value contains spaces.
+
+* **Equivalent:**
+
+```bash
+file="/home/mdozmorov/work/README.md"
+file=/home/mdozmorov/work/README.md
+```
+
+* **Required for spaces:** `message="Analysis complete"`
+
+---
+## Working with Variables
+
+**Accessing Variables**
+
+To retrieve the value stored in a variable, prefix the name with the **`$`** symbol.
+
+* **Usage:** `echo $file`
+
+---
+## Capturing Command Output in a Variable
+
+You can save the output of a command directly into a variable to use it later in your script.
+
+* **Modern Method (Recommended):** Use `$(command)`
+
+```bash
+CURRENT_DIR=$(pwd)
+file_name=$(basename /bin/mkdir)
+```
+
+* **Legacy Method:** Use backticks `command` (the key under the `~` tilde).
+
+```bash
+echo `date`
+```
+
+.small[ **Pro Tip:** `$()` allows you to "nest" commands inside each other (e.g., `$(ls $(pwd))`) ]
+
+---
+## Script Arguments as Variables
+
+When you run a script, you can pass it information (arguments). The shell automatically assigns these to special "positional" variables:
+
+* **Example Execution:** `./hello_world.sh "Hello World!" 42`
+
+| Variable | Represents |
+| --- | --- |
+| **`$0`** | The name of the script being executed. |
+| **`$1`** | The first argument (e.g., "Hello World!"). |
+| **`$2`** | The second argument (e.g., 42). |
+| **`${10}`** | The tenth argument (braces are required for double digits). |
+| **`$#`** | The total **number** of arguments passed to the script. |
+
+---
+## Internal & Environment Variables
+
+Internal variables define your system's behavior. They are often configured in hidden files like `.bashrc`, `.zshrc`, or `.bash_profile`.
+
+* **`PATH`**: A list of directories the shell searches for executable programs.
+
+* **`HOME`**: The path to your user directory (equivalent to `~`).
+
+* **`SHELL`**: The path to your current command-line interpreter.
+
+* **`USER`**: Your current account name.
+
+* **`EDITOR`**: Your default text editor (often `nano`, `vim`, or `emacs`).
+
+* **`PWD`**: Your current working directory (updated automatically).
+
+.small[ **Pro Tip:** Type `env` or `printenv` to see a full list of every internal variable currently active in your session. ]
+
+---
+## Command Aliases: Creating Your Own Shortcuts
+
+An alias is a user-defined shortcut for a command or a long chain of piped commands. They allow you to automate repetitive typing and customize your workflow.
+
+```
+alias lah='ls -lah'
+alias ..='cd ..'
+
+# get top process eating memory
+alias psmem='ps auxf | sort -nr -k 4'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+
+# get top process eating cpu
+alias pscpu='ps auxf | sort -nr -k 3'
+alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
+
+# Find files eating space in the current directory
+alias spacehogs='du -cks * | sort -rn'
+```
+
+---
+## Command Aliases: Creating Your Own Shortcuts
+
+Type the alias directly into your terminal (it will last until you close the session).
+
+To make aliases permanent, add them to your shell's configuration file:
+
+* **macOS (Zsh):** `~/.zshrc`
+
+* **Linux (Bash):** `~/.bashrc` or `~/.bash_profile`
+
+---
+## Managing Aliases
+
+* **View all:** Type `alias` without arguments to see currently active shortcuts.
+
+* **Remove:** Type `unalias <name>` to delete a shortcut.
+
+.small[ **Pro Tip:** When defining aliases, ensure there are **no spaces** around the `=` sign (e.g., `alias name='command'`). Use single quotes to wrap commands that contain spaces or pipes. ]
+
+---
+## Conditional Execution (if ... then)
+
+The `if` statement tests a condition. If the condition returns a "zero" exit status (success), the code inside `then` runs.
+
+**`man if`** — View the full manual for all available conditional operators.
+
+.small[ **Pro Tips:**
+
+* **Spaces Matter:** You **must** have spaces inside the brackets: `if [ "$a" == "$b" ]`. Without spaces, the shell will throw a syntax error.
+* **Quote Your Variables:** Always wrap variables in double quotes (e.g., `"$results_dir"`) to prevent the script from breaking if the variable contains spaces.
+]
+
+---
+## Conditional Execution (if ... then)
+
+The `if` statement tests a condition. If the condition returns a "zero" exit status (success), the code inside `then` runs.
+
+```bash
+# Check if a directory does NOT exist, then create it
+if [ ! -e "$results_dir" ]; then 
+    mkdir "$results_dir" 
+fi 
+```
+
+.small[  **Common Test Operators**
+
+| Operator | Condition | Returns TRUE if... |
+| --- | --- | --- |
+| **`-e <path>`** | File/Dir Exists | The file or directory exists. |
+| **`-s <file>`** | Size | The file exists and is **not empty**. |
+| **`-d <path>`** | Directory | The path is a directory. |
+| **`-z <str>`** | Zero Length | The string is **empty** (length is zero). |
+| **`-n <str>`** | Not Zero | The string is **not empty**. |
+| **`==` / `!=**` | Equality | Strings are equal / not equal. |
+]
+
+---
+## Refining the Input Validation
+
+We can check the **number** of arguments.
+
+```bash
+# Check if the user provided exactly one argument
+if [ $# -ne 1 ]; then
+    echo "Error: You must provide exactly one filename."
+    echo "Usage: $0 <filename>"
+    exit 1
+fi
+```
+.small[ Letter-based "flags" to compare integers.
+
+| Flag | Meaning | Math Equivalent |
+| :--- | :--- | :---: |
+| **`-eq`** | Equal to | `==` |
+| **`-ne`** | Not equal to | `!=` |
+| **`-gt`** | Greater than | `>` |
+| **`-ge`** | Greater than or equal to | `>=` |
+| **`-lt`** | Less than | `<` |
+| **`-le`** | Less than or equal to | `<=` |
+]
+
+---
+## Advanced Conditionals: if, elif, else
+
+When you have more than two paths, use `elif` (else if). The shell evaluates these in order until it finds a true condition.
+
+```bash
+if [ "$1" == "cat" ]; then
+    echo "Cats are fun."
+elif [ "$1" == "dog" ]; then
+    echo "Dogs are cool."
+else
+    echo "Unknown pet category."
+fi
+```
+
+---
+## Loops: for .. do .. done
+
+**Iterating Over a List**
+
+The `for` loop is most commonly used to perform an action on a set of files (globbing) or a predefined list of items.
+
+```bash
+# Process every .dat file in the current directory
+for file in *.dat; do
+    echo "Analyzing $file..."
+    ./process_script.sh "$file"
+done
+```
+
+---
+## Loops: for .. do .. done
+
+**Iterating Over Numbers**
+
+```bash
+for i in {1..5}; do
+    echo "Attempt number $i"
+done
+```
+
+---
+## Loops: for .. do .. done
+
+**Iterating Over an Array of Strings**
+
+```bash
+for i in cats dogs; do
+    echo "I love $i"
+done
+```
+
+```bash
+# Equivalent
+PETS=( cats dogs )
+for i in ${PETS[@]}; do
+    echo "I love $i"
+done
+```
+
+---
+## Loops: while .. do .. done
+
+**Conditional Loops**
+
+A `while` loop continues as long as the test condition remains **true**.
+
+```bash
+count=1
+while [ $count -le 5 ]; do
+    echo "Iteration $count"
+    ((count++))  # Increment the variable
+done
+```
+
+**Reading Files Line-by-Line**
+
+One of the most powerful uses of `while` is processing a text file:
+
+```bash
+while read line; do
+    echo "Data: $line"
+done < input.txt
+```
+
+---
+## The case Statement
+
+`case` is a more readable alternative to a long list of `if/elif` statements, especially when checking a single variable against multiple patterns.
+
+```bash
+case "$extension" in
+    "jpg" | "png")
+        echo "This is an image file." ;;
+    "txt")
+        echo "This is a text document." ;;
+    "sh")
+        echo "This is a shell script." ;;
+    *)
+        echo "File type not recognized." ;;
+esac
+```
+
+---
+## The case Statement
+
+**Key Syntax Rules:**
+
+* **`)`**: Ends the pattern you are looking for.
+* **`|`**: Acts as an OR operator between patterns.
+* **`;;`**: Acts like a "break" (required at the end of each block).
+* **`*)`**: The default case (matches anything not previously caught).
+* **`esac`**: "case" spelled backward to close the block.
+
+.small[ **Pro Tip:** In shell scripts, the indentation (tabs or spaces) is not strictly required by the interpreter (unlike Python), but it is **essential** for human readability and debugging. ]
+
+---
+## The PATH environment variable
+
+- Unix executable commands are located in special folders
+```
+$ which ls
+/usr/bin/ls
+$ which cat
+/usr/bin/cat
+$ which mamba
+mamba: aliased to /usr/local/opt/micromamba/bin/mamba
+```
+
+- Executables may be kept in many different places on the Unix system.  
+- The PATH environmental variable is a colon-delimited list of directories where your shell will look to find executable commands
+```
+$ echo $PATH
+/Users/mdozmorov/miniconda2/bin:/Users/mdozmorov/.rvm/gems/ruby-2.3.1/bin:/Users/mdozmorov/.rvm/gems/ruby-2.3.1@global/bin:/Users/mdozmorov/.rvm/rubies/ruby-2.3.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/TeX/texbin:/Users/mdozmorov/.rvm/bin
+```
+
+---
+## Expanding the PATH
+
+- Often you need to install software **as a user**, i.e., not as `root` or `sudo` user
+
+- Create user-specific `bin`, `lib` folders, like:
+
+```
+$ mkdir ~/.local/bin
+$ mkdir ~/.local/lib
+```
+
+- `.local` is a hidden folder in your home directory (use `ls -lah` to see it)
+
+- Add these folders to the search path: `export PATH=$PATH:$HOME/.local/bin:$HOME/.local/lib` - now, Unix will look there for executables
+
+- Put the `export ...` command in `bash_profile` to automatically execute it every time you use shell
+
+---
+## Installing software as a user
+
+- Read `README` - each software is different
+
+- When installing using `make`, typically:
+
+```
+$ ./configure --prefix=$HOME/.local
+$ make
+$ make install
+```
+
+- When using Python `setup.py`, typically:
+
+```
+$ python setup.py install --user
+```
+
+- When installing Python packages using `pip`
+
+```
+$ pip install --user FOOBAR
+```
+
+.small[https://unix.stackexchange.com/questions/42567/how-to-install-program-locally-without-sudo-privileges]

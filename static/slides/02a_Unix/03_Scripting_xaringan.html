@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Shell Scripting and Automation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-02-09" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Shell Scripting and Automation
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-02-09
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Workflow scripts
+
+A script is a file with a `.sh` extension. It contains a list of shell commands executed by an interpreter.
+
+* **Automate** repetitive data processing tasks.
+
+* **Document** your workflow so others (and your future self) can replicate it.
+
+* **Version Control** your analysis steps using Git.
+
+---
+## Shell Script Structure
+
+While the `.sh` extension is a helpful convention for humans, Unix relies on two specific things to run it:
+
+**1. The Shebang (`#!`)**
+
+The first line of the file tells the OS which interpreter to use to "read" the rest of the file.
+* **`#!/bin/bash`** — Use the Bash shell.
+* **`#!/usr/bin/env zsh`** — Use the Z-shell (portable method).
+* **`#!/usr/bin/python3`** — Use the Python interpreter.
+
+---
+## Shell Script Structure
+
+**2. Execution Permissions**
+
+New files are created without "execute" rights by default for security. You must enable them:
+
+* **Grant Permission:** `chmod u+x my_script.sh`
+
+* **Run the Script:** `./my_script.sh` (The `./` tells the shell to look in the *current* folder).
+
+.small[ **Pro Tip:** If you don't want to change permissions, you can run a script by calling the interpreter directly: `bash my_script.sh`. ]
+
+---
+## Working with Variables
+
+**Setting Variables**
+
+In the shell, **spacing is critical**. The shell treats a space as a separator between a command and its arguments.
+
+* **Correct:** `count_of_files=3` (No spaces around the `=`)
+
+* **Incorrect:** `count_of_files = 3` (The shell will try to run a command named `count_of_files`)
+
+---
+## Working with Variables
+
+**Handling Quotes**
+
+Quotes are optional for simple strings but mandatory if the value contains spaces.
+
+* **Equivalent:**
+
+```bash
+file="/home/mdozmorov/work/README.md"
+file=/home/mdozmorov/work/README.md
+```
+
+* **Required for spaces:** `message="Analysis complete"`
+
+---
+## Working with Variables
+
+**Accessing Variables**
+
+To retrieve the value stored in a variable, prefix the name with the **`$`** symbol.
+
+* **Usage:** `echo $file`
+
+---
+## Capturing Command Output in a Variable
+
+You can save the output of a command directly into a variable to use it later in your script.
+
+* **Modern Method (Recommended):** Use `$(command)`
+
+```bash
+CURRENT_DIR=$(pwd)
+file_name=$(basename /bin/mkdir)
+```
+
+* **Legacy Method:** Use backticks `command` (the key under the `~` tilde).
+
+```bash
+echo `date`
+```
+
+.small[ **Pro Tip:** `$()` allows you to "nest" commands inside each other (e.g., `$(ls $(pwd))`) ]
+
+---
+## Script Arguments as Variables
+
+When you run a script, you can pass it information (arguments). The shell automatically assigns these to special "positional" variables:
+
+* **Example Execution:** `./hello_world.sh "Hello World!" 42`
+
+| Variable | Represents |
+| --- | --- |
+| **`$0`** | The name of the script being executed. |
+| **`$1`** | The first argument (e.g., "Hello World!"). |
+| **`$2`** | The second argument (e.g., 42). |
+| **`${10}`** | The tenth argument (braces are required for double digits). |
+| **`$#`** | The total **number** of arguments passed to the script. |
+
+---
+## Internal &amp; Environment Variables
+
+Internal variables define your system's behavior. They are often configured in hidden files like `.bashrc`, `.zshrc`, or `.bash_profile`.
+
+* **`PATH`**: A list of directories the shell searches for executable programs.
+
+* **`HOME`**: The path to your user directory (equivalent to `~`).
+
+* **`SHELL`**: The path to your current command-line interpreter.
+
+* **`USER`**: Your current account name.
+
+* **`EDITOR`**: Your default text editor (often `nano`, `vim`, or `emacs`).
+
+* **`PWD`**: Your current working directory (updated automatically).
+
+.small[ **Pro Tip:** Type `env` or `printenv` to see a full list of every internal variable currently active in your session. ]
+
+---
+## Command Aliases: Creating Your Own Shortcuts
+
+An alias is a user-defined shortcut for a command or a long chain of piped commands. They allow you to automate repetitive typing and customize your workflow.
+
+```
+alias lah='ls -lah'
+alias ..='cd ..'
+
+# get top process eating memory
+alias psmem='ps auxf | sort -nr -k 4'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+
+# get top process eating cpu
+alias pscpu='ps auxf | sort -nr -k 3'
+alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
+
+# Find files eating space in the current directory
+alias spacehogs='du -cks * | sort -rn'
+```
+
+---
+## Command Aliases: Creating Your Own Shortcuts
+
+Type the alias directly into your terminal (it will last until you close the session).
+
+To make aliases permanent, add them to your shell's configuration file:
+
+* **macOS (Zsh):** `~/.zshrc`
+
+* **Linux (Bash):** `~/.bashrc` or `~/.bash_profile`
+
+---
+## Managing Aliases
+
+* **View all:** Type `alias` without arguments to see currently active shortcuts.
+
+* **Remove:** Type `unalias &lt;name&gt;` to delete a shortcut.
+
+.small[ **Pro Tip:** When defining aliases, ensure there are **no spaces** around the `=` sign (e.g., `alias name='command'`). Use single quotes to wrap commands that contain spaces or pipes. ]
+
+---
+## Conditional Execution (if ... then)
+
+The `if` statement tests a condition. If the condition returns a "zero" exit status (success), the code inside `then` runs.
+
+**`man if`** — View the full manual for all available conditional operators.
+
+.small[ **Pro Tips:**
+
+* **Spaces Matter:** You **must** have spaces inside the brackets: `if [ "$a" == "$b" ]`. Without spaces, the shell will throw a syntax error.
+* **Quote Your Variables:** Always wrap variables in double quotes (e.g., `"$results_dir"`) to prevent the script from breaking if the variable contains spaces.
+]
+
+---
+## Conditional Execution (if ... then)
+
+The `if` statement tests a condition. If the condition returns a "zero" exit status (success), the code inside `then` runs.
+
+```bash
+# Check if a directory does NOT exist, then create it
+if [ ! -e "$results_dir" ]; then 
+    mkdir "$results_dir" 
+fi 
+```
+
+.small[  **Common Test Operators**
+
+| Operator | Condition | Returns TRUE if... |
+| --- | --- | --- |
+| **`-e &lt;path&gt;`** | File/Dir Exists | The file or directory exists. |
+| **`-s &lt;file&gt;`** | Size | The file exists and is **not empty**. |
+| **`-d &lt;path&gt;`** | Directory | The path is a directory. |
+| **`-z &lt;str&gt;`** | Zero Length | The string is **empty** (length is zero). |
+| **`-n &lt;str&gt;`** | Not Zero | The string is **not empty**. |
+| **`==` / `!=**` | Equality | Strings are equal / not equal. |
+]
+
+---
+## Refining the Input Validation
+
+We can check the **number** of arguments.
+
+```bash
+# Check if the user provided exactly one argument
+if [ $# -ne 1 ]; then
+    echo "Error: You must provide exactly one filename."
+    echo "Usage: $0 &lt;filename&gt;"
+    exit 1
+fi
+```
+.small[ Letter-based "flags" to compare integers.
+
+| Flag | Meaning | Math Equivalent |
+| :--- | :--- | :---: |
+| **`-eq`** | Equal to | `==` |
+| **`-ne`** | Not equal to | `!=` |
+| **`-gt`** | Greater than | `&gt;` |
+| **`-ge`** | Greater than or equal to | `&gt;=` |
+| **`-lt`** | Less than | `&lt;` |
+| **`-le`** | Less than or equal to | `&lt;=` |
+]
+
+---
+## Advanced Conditionals: if, elif, else
+
+When you have more than two paths, use `elif` (else if). The shell evaluates these in order until it finds a true condition.
+
+```bash
+if [ "$1" == "cat" ]; then
+    echo "Cats are fun."
+elif [ "$1" == "dog" ]; then
+    echo "Dogs are cool."
+else
+    echo "Unknown pet category."
+fi
+```
+
+---
+## Loops: for .. do .. done
+
+**Iterating Over a List**
+
+The `for` loop is most commonly used to perform an action on a set of files (globbing) or a predefined list of items.
+
+```bash
+# Process every .dat file in the current directory
+for file in *.dat; do
+    echo "Analyzing $file..."
+    ./process_script.sh "$file"
+done
+```
+
+---
+## Loops: for .. do .. done
+
+**Iterating Over Numbers**
+
+```bash
+for i in {1..5}; do
+    echo "Attempt number $i"
+done
+```
+
+---
+## Loops: for .. do .. done
+
+**Iterating Over an Array of Strings**
+
+```bash
+for i in cats dogs; do
+    echo "I love $i"
+done
+```
+
+```bash
+# Equivalent
+PETS=( cats dogs )
+for i in ${PETS[@]}; do
+    echo "I love $i"
+done
+```
+
+---
+## Loops: while .. do .. done
+
+**Conditional Loops**
+
+A `while` loop continues as long as the test condition remains **true**.
+
+```bash
+count=1
+while [ $count -le 5 ]; do
+    echo "Iteration $count"
+    ((count++))  # Increment the variable
+done
+```
+
+**Reading Files Line-by-Line**
+
+One of the most powerful uses of `while` is processing a text file:
+
+```bash
+while read line; do
+    echo "Data: $line"
+done &lt; input.txt
+```
+
+---
+## The case Statement
+
+`case` is a more readable alternative to a long list of `if/elif` statements, especially when checking a single variable against multiple patterns.
+
+```bash
+case "$extension" in
+    "jpg" | "png")
+        echo "This is an image file." ;;
+    "txt")
+        echo "This is a text document." ;;
+    "sh")
+        echo "This is a shell script." ;;
+    *)
+        echo "File type not recognized." ;;
+esac
+```
+
+---
+## The case Statement
+
+**Key Syntax Rules:**
+
+* **`)`**: Ends the pattern you are looking for.
+* **`|`**: Acts as an OR operator between patterns.
+* **`;;`**: Acts like a "break" (required at the end of each block).
+* **`*)`**: The default case (matches anything not previously caught).
+* **`esac`**: "case" spelled backward to close the block.
+
+.small[ **Pro Tip:** In shell scripts, the indentation (tabs or spaces) is not strictly required by the interpreter (unlike Python), but it is **essential** for human readability and debugging. ]
+
+---
+## The PATH environment variable
+
+- Unix executable commands are located in special folders
+```
+$ which ls
+/usr/bin/ls
+$ which cat
+/usr/bin/cat
+$ which mamba
+mamba: aliased to /usr/local/opt/micromamba/bin/mamba
+```
+
+- Executables may be kept in many different places on the Unix system.  
+- The PATH environmental variable is a colon-delimited list of directories where your shell will look to find executable commands
+```
+$ echo $PATH
+/Users/mdozmorov/miniconda2/bin:/Users/mdozmorov/.rvm/gems/ruby-2.3.1/bin:/Users/mdozmorov/.rvm/gems/ruby-2.3.1@global/bin:/Users/mdozmorov/.rvm/rubies/ruby-2.3.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/TeX/texbin:/Users/mdozmorov/.rvm/bin
+```
+
+---
+## Expanding the PATH
+
+- Often you need to install software **as a user**, i.e., not as `root` or `sudo` user
+
+- Create user-specific `bin`, `lib` folders, like:
+
+```
+$ mkdir ~/.local/bin
+$ mkdir ~/.local/lib
+```
+
+- `.local` is a hidden folder in your home directory (use `ls -lah` to see it)
+
+- Add these folders to the search path: `export PATH=$PATH:$HOME/.local/bin:$HOME/.local/lib` - now, Unix will look there for executables
+
+- Put the `export ...` command in `bash_profile` to automatically execute it every time you use shell
+
+---
+## Installing software as a user
+
+- Read `README` - each software is different
+
+- When installing using `make`, typically:
+
+```
+$ ./configure --prefix=$HOME/.local
+$ make
+$ make install
+```
+
+- When using Python `setup.py`, typically:
+
+```
+$ python setup.py install --user
+```
+
+- When installing Python packages using `pip`
+
+```
+$ pip install --user FOOBAR
+```
+
+.small[https://unix.stackexchange.com/questions/42567/how-to-install-program-locally-without-sudo-privileges]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
