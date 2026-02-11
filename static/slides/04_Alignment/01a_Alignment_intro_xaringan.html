@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Alignment Introduction</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-02-10" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Alignment Introduction
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-02-10
+]
+
+---
+
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Protein sequencing
+
+.pull-left[
+
+* Fred Sanger and colleagues sequenced insulin, the first complete protein sequence (1945–1955).
+* Established that every protein has a characteristic primary structure.
+* Protein sequencing established the concept of a biological sequence as an analyzable object.
+* This directly motivated early computational approaches to sequence comparison.
+
+&lt;!-- * Moore and Stein developed semi-automated sequencing techniques that enabled scale. --&gt;
+  ]
+
+.pull-right[
+&lt;img src="img/sanger.png" alt="" width="300px" style="display: block; margin: auto;" /&gt;
+.small[ Frederick Sanger. 1958 – first Nobel Prize. https://www.nobelprize.org/uploads/2018/06/sanger-lecture.pdf ]
+]
+
+---
+## 1960 — the dawn of computational biology
+
+* Rapid growth of amino-acid sequence collections in the 1960s
+* Computational methods became essential to analyze similarity and infer function
+* Academic computing resources made large-scale analysis feasible
+
+&lt;img src="img/protein_sequencing.png" alt="" width="700px" style="display: block; margin: auto;" /&gt;
+
+.small[ Hagen, J. The origins of bioinformatics. Nat Rev Genet 1, 231–236 (2000). https://doi.org/10.1038/35042090 ]
+
+---
+## Pioneer of computational biology — Margaret Dayhoff
+
+.pull-left[
+
+* Trained in mathematics and quantum chemistry
+* Associate director, National Biomedical Research Foundation
+* Developed FORTRAN programs to assemble protein sequences from overlaps
+* Created the first protein sequence databases and family classifications
+* Introduced PAM matrices for protein alignment (still used)
+  ]
+
+.pull-right[
+&lt;img src="img/Margaret_Oakley_Dayhoff_cropped.jpg" alt="" width="300px" style="display: block; margin: auto;" /&gt;
+]
+
+???
+
+* PAM matrices explicitly model evolutionary change.
+* Contrast PAM with later BLOSUM matrices in protein alignment.
+
+---
+## The genomics workflow
+
+* Alignment is an early and critical computational step.
+* Errors at this stage propagate downstream.
+
+&lt;img src="img/genomic_workflow.jpg" alt="" width="500px" style="display: block; margin: auto;" /&gt;
+
+---
+## Alignment — definition and goals
+
+**Alignment** is the process of determining how or where a read sequence matches a reference sequence.
+
+* Human genome: ~3.2 billion bases
+
+* Modern sequencers: hundreds of millions to billions of short reads
+
+* Goal: assign each read to its most likely genomic origin
+
+* Read alignment is different from classical global/local sequence alignment.
+
+---
+## Alignment — visual example
+
+&lt;img src="img/alignment_example.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+---
+## Sequencing coverage
+
+* Coverage = average number of reads covering each genomic base
+
+* Coverage = (reads × read length) / genome size.
+
+Example:
+If the genome is 100 Mbp, sequencing 1M × 100 bp reads gives ~1× coverage.
+
+* Coverage is an expectation; local coverage varies substantially.
+
+---
+## Library complexity
+
+* Library complexity `\(C\)` = number of unique molecules present in the sequencing library
+* Low complexity → many duplicates, limited new information
+
+&lt;img src="img/library_complexity.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+???
+
+* PCR duplication reduces effective sequencing depth.
+* Motivates duplicate marking and complexity estimation.
+
+---
+
+&lt;!--
+Begin: `MIT7_91JS14_Lecture5.pdf` - BWT, FM index
+https://www.youtube.com/watch?v=P3ORBMon8aw&amp;list=PLUl4u3cNGP63uK-oWiLgO7LLJV6ZCWXac&amp;index=5
+--&gt;
+
+## Modeling approach
+
+- Assume we have `\(C\)` unique molecules in the library and we obtain `\(N\)` sequencing reads
+
+- The probability distribution of the number of times we sequence a particular molecule is binomial (individual success probability `\(p=1/C\)`, `\(N\)` trials in total)
+
+- Assume Poisson sampling as a tractable approximation (rate `\(\lambda = N/C\)`)
+
+- Finally, truncate the Poisson process: we only see events that happened between `\(L\)` (the minimum number of times a molecule must be observed to appear in the data) and `\(R\)` (the maximum number of times a molecule is allowed or observed) times. We don’t know how many molecules were observed `\(0\)` times.
+
+---
+## Poisson distribution — refresher
+
+- The probability of a given number of events occurring in a fixed interval of time and/or space if these events occur with a known average rate and independently of the time since the last event.
+&lt;!--- Formulation comes from the limit of the binomial equation--&gt;
+- Resembles a normal distribution, but over the positive values, and with only a single parameter.
+
+Key properties
+
+- The standard deviation is the square root of the mean.
+- For mean &gt; 5, well approximated by a normal distribution
+
+`$$P(k)=\frac{\lambda^k}{k!}e^{-\lambda}$$`
+
+---
+## Poisson discribution
+
+
+``` r
+x &lt;- seq(0, 25, 1)
+y &lt;- dpois(x, 10)
+plot(x, y)
+```
+
+![](01a_Alignment_intro_xaringan_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+## Poisson discribution
+
+
+``` r
+y5  &lt;- dpois(x, 5); y10 &lt;- dpois(x, 10); y15 &lt;- dpois(x, 15)
+plot(x, y5, col = 1); lines(x, y10); lines(x, y15)
+```
+
+![](01a_Alignment_intro_xaringan_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+---
+## Estimating library complexity with a Poisson model
+
+- For Poisson sampling, we can write the (truncated) distribution over `\(x_i\)` the times we sequence the `\(i^{th}\)` molecule as:
+`$$Pr(x_i|\lambda)=\frac{1}{K_{L,R}(\lambda)}*\frac{\lambda^{x_i}}{x_i!}e^{-\lambda}$$`
+`$$K_{L,R}(\lambda)=\sum_{x=L}^RPr(x_i|\lambda)$$`
+`\(K_{L,R}(\lambda)\)` - Normalization constant, accounts for the fact that we can only observe molecules sequenced between `\(L\)` and `\(R\)` times. It's the sum of probabilities for all observable outcomes, ensuring the truncated distribution sums to 1. The probability is `\(0\)` if `\(x_i\)` is less than `\(L\)` or greater than `\(R\)`.
+
+- We can estimate the maximum likelihood rate parameter `\(\lambda\)` from a vector of observations `\(x\)`
+
+---
+## Maximum likelihood library size
+
+- `\(K_{L,R}(\lambda)\)` represents the *fraction* of molecules we expect to observe (those with counts in `\([L,R]\)`). 
+&lt;!-- `$$K_{L,R}(\lambda)=\sum_{x=L}^RPr(x_i|\lambda)$$` --&gt;
+- `\(M\)` unique sequences observed.
+- Dividing our observed count `\(M\)` by this fraction gives us the total maximum likelihood library size `\(\hat{C}\)`:
+
+`$$\hat{C}=\frac{M}{K_{L,R}(\lambda)}$$`
+
+- Approximate solution when `\(L=1\)` and `\(R=\infty\)`
+
+`$$\hat{C}=\frac{M}{1-Poisson(0,\lambda)}$$`
+
+---
+## Limitations of Poisson model
+
+* Real data: variance &gt; mean (overdispersion)
+* Poisson underestimates complexity from subsampled data
+* Empirical evidence against pure Poisson sampling.
+* Motivates Gamma–Poisson (NB) model.
+
+&lt;img src="img/library_complexity1.png" alt="" width="900px" style="display: block; margin: auto;" /&gt;
+
+---
+## Gamma–Poisson intuition
+
+.pull-left[
+
+- Gamma distributed sampling rates describe the entire population (library preparation)
+
+- Poisson sampling to form a smaller sample (sequencing)
+
+- Negative binomial distribution characterizes the resulting occurrence histogram
+  ]
+
+.pull-right[
+
+&lt;img src="img/gamma_poisson_negative_binomial.png" alt="" width="300px" style="display: block; margin: auto;" /&gt;
+]
+
+???
+
+* Gamma captures library preparation variability.
+* NB naturally models overdispersion.
+
+---
+## The Biological Intuition
+
+Think of the NB model as arising from biological heterogeneity:
+
+- Different molecules have different "capture efficiencies" - some are easier to sequence than others due to GC content, secondary structure, PCR bias, etc.
+
+- The heterogeneity creates overdispersion: Instead of all molecules having the same rate `\(\lambda\)` (Poisson), each molecule `\(i\)` has its own rate `\(\lambda_i\)` drawn from a Gamma distribution
+
+- `\(k\)` controls this heterogeneity:
+  - Small k → huge variation in capture efficiencies (some molecules sequenced 100x, others never)
+  - Large k → all molecules roughly equally likely to be sequenced (approaches Poisson)
+
+---
+## The gamma distribution is a "conjugate prior" for the Poission distribution
+
+.pull-left[
+`$$Poisson(x;\lambda)=\frac{\lambda^x e^{-\lambda}}{x!}$$`
+
+`$$Gamma(x,\alpha,\beta)=\frac{\beta^\alpha x^{\alpha-1} e^{-\beta x}}{\Gamma(\alpha)}$$`
+]
+.pull-right[
+`\(Poisson(x; \lambda)\)` - Individual molecule's sequencing counts
+&lt;!-- - x = number of times a specific molecule is sequenced --&gt;
+&lt;!-- - λ = the sequencing rate for that molecule --&gt;
+&lt;!-- - In a simple world, all molecules have the same λ --&gt;
+
+`\(Gamma(x; \alpha, \beta)\)` - Distribution of sequencing rates across molecules
+&lt;!-- - Models the **heterogeneity** in how easy different molecules are to sequence --&gt;
+&lt;!-- - x here represents λ (the rate parameter itself) --&gt;
+&lt;!-- - α = shape parameter (related to 1/k in your NB parameterization) --&gt;
+&lt;!-- - β = rate parameter (controls the mean) --&gt;
+&lt;!-- - Captures biological variation: GC content, secondary structure, PCR bias, etc. --&gt;
+
+`\(NB(y; \alpha, \beta)\)` - The resulting distribution of observed counts
+&lt;!-- - y = observed sequencing count for a molecule --&gt;
+&lt;!-- - This is what we actually see in the data --&gt;
+]
+
+`$$NB(y;\alpha,\beta)=\int_0^\infty Poisson(y;x) \, Gamma(x;\alpha,\beta) \, dx$$`
+???
+
+* Integration yields NB closed form.
+* Hierarchical interpretation is key.
+
+---
+## Negative Binomial model for sequence occurrences
+
+- `\(C\)` - library complexity (latent, fit to observed data)
+- `\(N\)` - number of reads
+- `\(M\)` - total number of unique sequences
+- `\(\lambda=N/C\)`
+- `\(k\)` - dispersion (latent, fit to observed data)
+
+`$$Pr(x_i,\lambda,k)=NB(x_i|\lambda,k)=NB(x_i|n,p)$$`
+Reparameterize for classical NB interpretation  
+- `\(p=\lambda/(\lambda + 1/k)\)` - "success probability" of each trial, rescales `\(\lambda\)` into a probability
+- `\(n=1/k\)` - number of "successes", inversely related to dispersion
+
+???
+
+* NB generalizes Poisson.
+* Widely used in RNA-seq and genomics.
+
+---
+## Simulation results show that the Gamma Poisson works well for non-uniform libraries
+
+- True library complexity `\(C\)`: 1M unique molecules
+
+- Vary `\(k\)` (controls sampling rate variance)
+
+- Given 100K reads (`\(\lambda=0.1\)`), assess estimates from both models
+
+| k    | `\(\hat{C}\)` using Poisson | `\(\hat{C}\)` using Gamma-Poisson |
+|------|:-------:|:-------------:|
+| 0.1  | 0.93M   | 0.96M         |
+| 1    | 0.52M   | 1.01M         |
+| 10   | 0.12M   | 1.10M         |
+| 20   | 0.07M   | 0.68M         |
+
+* Poisson collapses under heterogeneity. GP/NB remains stable.
+
+---
+## Negative Binomial Library Complexity better model 150 '1000 Genome' Datasets
+
+&lt;img src="img/library_complexity2.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+- Data are "overdispersed" (variance greater than mean)
+
+* Overdispersion is the rule, not the exception.
+
+---
+## Marginal value of additional sequencing
+
+- `\(C\)` – library complexity (latent – estimated) 
+- `\(N\)` – number of reads
+- `\(M\)` – number of unique sequences
+
+`\(M\)` can be estimated by `\((1 - NegativeBinomial(0 | \lambda, k)) * C\)`
+
+- Assume we have `\(r\)` more reads `\(s = (N + r) / N\)`
+
+- Replace `\(\lambda\)` by `\(s * \lambda\)` to estimate `\(M'\)` achieved with `\(r\)` more reads
+
+---
+## Marginal value of additional sequencing
+
+.pull-left[
+- Setup: Library with `\(C = 10^6\)` (1 million) unique molecules (dashed line)
+- X-axis: Sequencing reads (total number `\(N\)`)
+- Y-axis: Observed molecules (`\(M\)`, the number of unique sequences)
+- Blue (k=0.005) &amp; Green (k=0.050) - Very low `\(k\)` = HIGH heterogeneity, helps observing unique molecules
+- Red (k=0.500) &amp; Cyan (k=1.000) - Moderate/low heterogeneity
+]
+.pull-right[
+&lt;img src="img/marginal_sequencing_value.png" alt="" width="500px" style="display: block; margin: auto;" /&gt;
+- Diminishing returns guide experimental design
+]
+
+???
+
+even at 5 million reads, you've only seen ~92% of the library
+
+&lt;!--
+End: `MIT7_91JS14_Lecture5.pdf` - BWT, FM index
+--&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
