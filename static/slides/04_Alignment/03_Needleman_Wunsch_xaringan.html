@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Needleman-Wunsch global alignment</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-02-16" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Needleman-Wunsch global alignment
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-02-16
+]
+
+---
+
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Alignment goals
+
+- **Homology** - sequence similarity - helps to infer functions of genes uncharacterized in one organism but known in another
+
+- **Global sequence alighment** (Needleman-Wunch)
+
+- **Gapped local sequence alignment** (Smith-Waterman)
+
+---
+## Glibal alignment
+
+Global alignment attempts to align two sequences end-to-end, forcing an alignment across their entire lengths.
+
+When it is appropriate:
+
+- Sequences are of similar length
+- Sequences are homologous over their full length
+
+---
+## Glibal alignment
+
+Typical use cases:
+
+- Comparing orthologous genes
+- Aligning full-length proteins
+- Pairwise alignment in phylogenetics
+
+Key properties:
+
+- Penalizes gaps anywhere, including at sequence ends
+- Sensitive to unrelated regions or large insertions/deletions
+- Produces a single optimal alignment covering both sequences
+
+---
+## Local alignment
+
+Local alignment finds the best matching subsequences within two sequences, without requiring alignment of the entire length.
+
+When it is appropriate
+
+- Sequences differ substantially in length
+- Only subregions are homologous
+
+---
+## Local alignment
+
+Typical use cases:
+
+- Searching for domains or motifs
+- Aligning reads to a reference
+- Database searches
+
+Key properties
+
+- Does not penalize unaligned ends
+- Can return multiple high-scoring local matches
+- Robust to non-homologous flanking regions
+
+
+---
+## Needleman–Wunsch Algorithm (Global Alignment)
+
+- The problem of finding best possible alignment of two sequences is solved by Saul B. Needleman and Christian D. Wunsch in 1970
+
+- The Needleman-Wunsch algorithm is an example of dynamic programming, a discipline invented by Richard E. Bellman in 1953
+
+- It refers as optimal matching problem or global alignment
+
+.small[ Needleman, S. B., and C. D. Wunsch. “A General Method Applicable to the Search for Similarities in the Amino Acid Sequence of Two Proteins.” Journal of Molecular Biology (March 1970) https://doi.org/10.1016/0022-2836(70)90057-4  
+
+Wikipedia: https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm ]
+
+---
+## Needleman-Wunsch algorithm
+
+Core idea
+
+- Dynamic programming over a 2D matrix
+
+- Each cell represents the best alignment score up to that position
+
+- The alignment must span both sequences entirely
+
+---
+## Needleman-Wunsch algorithm
+
+- In its simplest form, assign a value `\(A\)` where the aligned pair consists of the same letters (nucleotides, amino acids) 
+
+- If the letters differ, subtract `\(B\)` - edit penalty.
+
+- If a gap needs to be made, subtract a gap penalty times the number of gaps
+
+---
+## Steps
+
+1. Initialization of the score matrix `\(D(i,j)\)` with gap penalties along the first row and column
+2. Calculation of scores, such that
+$$
+D(i,j) = \max(\text{match},\ \text{delete},\ \text{insert})
+$$
+
+$$
+\text{match} = D(i-1,j-1) + s(i,j)
+$$
+
+$$
+\text{delete} = D(i-1,j) + g
+$$
+
+$$
+\text{insert} = D(i,j-1) + g
+$$
+
+Where `\(s(i,j)\)` is the substitution score for entries `\(i\)` and `\(j\)`, and `\(g\)` is the gap penalty
+
+---
+## Example of a simple penalty matrix
+
+|   | A | G | C | T |
+|:--:|:--:|:--:|:--:|:--:|
+| **A** |  1 | -1 | -1 | -1 |
+| **G** | -1 |  1 | -1 | -1 |
+| **C** | -1 | -1 |  1 | -1 |
+| **T** | -1 | -1 | -1 |  1 |
+
+In reality, similarity matrices were derived based on evolutionary observations
+
+---
+## Alignment of two sequences
+
+* **G A T** (horizontal)
+
+* **G C T** (vertical)
+
+* Scoring scheme:
+
+  * Match = +1
+  * Mismatch = −1
+  * Gap = −1
+
+---
+## Step 1: Create the scoring matrix framework
+
+Rows = vertical sequence (+ empty prefix)
+Columns = horizontal sequence (+ empty prefix)
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   | 0 |   |   |   |
+| G |   |   |   |   |
+| C |   |   |   |   |
+| T |   |   |   |   |
+
+---
+## Step 2: Initialize first row and first column with gap penalties
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |    |    |    |
+| C | -2 |    |    |    |
+| T | -3 |    |    |    |
+
+---
+## Step 3: Fill cell (G,G)
+
+Choices:
+Diagonal: 0 + match = 0 + 1 = 1
+Up:      -1 + gap   = -2
+Left:    -1 + gap   = -2
+
+Take max = 1
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |    |    |
+| C | -2 |    |    |    |
+| T | -3 |    |    |    |
+
+---
+## Step 4: Fill cell (G,A)
+
+Choices:
+Diagonal: -1 + mismatch = -2
+Up:       -2 + gap      = -3
+Left:      1 + gap      =  0
+
+Take max = 0
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 |    |
+| C | -2 |    |    |    |
+| T | -3 |    |    |    |
+
+---
+## Step 5: Fill cell (G,T)
+
+Choices:
+Diagonal: -2 + mismatch = -3
+Up:       -3 + gap      = -4
+Left:      0 + gap      = -1
+
+Take max = -1
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |    |    |    |
+| T | -3 |    |    |    |
+
+---
+## Step 6: Fill cell (C,G)
+
+Choices:
+Diagonal: -1 + mismatch = -2
+Up:        1 + gap      =  0
+Left:     -2 + gap      = -3
+
+Take max = 0
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |  0 |    |    |
+| T | -3 |    |    |    |
+
+---
+## Step 7: Fill cell (C,A)
+
+Choices:
+Diagonal:  1 + mismatch =  0
+Up:        0 + gap      = -1
+Left:      0 + gap      = -1
+
+Take max = 0
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |  0 |  0 |    |
+| T | -3 |    |    |    |
+
+---
+## Step 8: Fill cell (C,T)
+
+Choices:
+Diagonal:  0 + mismatch = -1
+Up:       -1 + gap      = -2
+Left:      0 + gap      = -1
+
+Take max = -1
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |  0 |  0 | -1 |
+| T | -3 |    |    |    |
+
+---
+## Step 9: Fill cell (T,G)
+
+Choices:
+Diagonal: -2 + mismatch = -3
+Up:        0 + gap      = -1
+Left:     -3 + gap      = -4
+
+Take max = -1
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |  0 |  0 | -1 |
+| T | -3 | -1 |    |    |
+
+---
+## Step 10: Fill cell (T,A)
+
+Choices:
+Diagonal:  0 + mismatch = -1
+Up:        0 + gap      = -1
+Left:     -1 + gap      = -2
+
+Take max = -1
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |  0 |  0 | -1 |
+| T | -3 | -1 | -1 |    |
+
+---
+## Step 11: Fill cell (T,T)
+
+Choices:
+Diagonal:  0 + match = 1
+Up:       -1 + gap   = -2
+Left:     -1 + gap   = -2
+
+Take max = 1
+
+Final scoring matrix:
+
+|   |   | G | A | T |
+|---|---|---|---|---|
+|   |  0 | -1 | -2 | -3 |
+| G | -1 |  1 |  0 | -1 |
+| C | -2 |  0 |  0 | -1 |
+| T | -3 | -1 | -1 |  1 |
+
+---
+## Traceback
+
+- Global alignment forces full-length alignment
+
+- Traceback always starts at the bottom-right
+
+- Each move corresponds to a biological interpretation:
+  - Diagonal → match/mismatch
+  - Horizontal/vertical → insertion/deletion
+
+- Multiple traceback paths ⇒ multiple optimal alignments
+
+---
+## Example of penalty matrix
+
+Suppose your empirically defined matrix is
+
+|   | A  | G  | C  | T  |
+|:--:|:--:|:--:|:--:|:--:|
+| **A** | 10 | -1 | -3 | -4 |
+| **G** | -1 |  7 | -5 | -3 |
+| **C** | -3 | -5 |  9 |  0 |
+| **T** | -4 | -3 |  0 |  8 |
+
+.pull-left[with gap penalty= -5  
+Apply it to the second sequence:]
+.pull-right[Read: AGACTAGTTAC  
+Ref:  CGA---GACGT]
+
+.center[-3+7+10+(3)(-5)+7-4+0-1+0 = 1]
+
+---
+## PAM250 
+
+- The similarity matrix is frequently used to score aligned peptide sequences to determine the similarity of those sequences. 
+
+- Derived from comparing aligned sequences of proteins with known homology and determining the "point accepted mutations" (PAM) observed. 
+
+- The frequencies of these mutations are in this table as a "log odds-matrix" where: `\(M_{ij} = 10(log_{10}R_{ij})\)`,
+where `\(M_{ij}\)` is the matrix element and `\(R_{ij}\)` is the probability of that substitution as observed in the database, divided by the normalized frequency of occurence for amino acid `\(i\)`. 
+
+---
+## PAM250 
+
+&lt;img src="img/pam250.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://www.thegpm.org/BIOML/aainfo/pam250.htm ]
+
+---
+## BLOSUM - BLOcks Substitution Matrix
+
+- BLOSUM62 - sequences having at least 62% identity are merged together. 
+
+- BLOSUM30 - sequences having at least 30% identity are merged together. 
+
+- BLOSUM90 - sequences having at least 90% identity are merged together.
+
+---
+## Best possible alignment for two sequences
+
+- The Needleman-Wunsch algorithm is mathematically proven to find the best alignment of two sequences
+
+- N-W algorithm takes `\(O(n^2)\)` to find best alignment of `\(n\)` letters in two sequences
+
+- Accessing all possible alignments one by one would take `\(\binom{2n}{n}\)` steps, so `\(n^2\)` is much smaller
+
+---
+## Sequence searching and alignment
+
+- **FASTA** - a DNA and protein sequence alignment software package by David J. Lipman and William R. Pearson in 1985.  
+
+- **BLAST** (Basic Local Alignment Search Tool) - an algorithm for comparing primary biological sequence information, such as the amino-acid sequences of proteins or the nucleotides of DNA sequences. 
+    - Designed by Stephen Altschul, Warren Gish, Webb Miller, Eugene Myers, and David J. Lipman
+    - Innovation: heuristic database search (speed), followed by optimal alignment (accuracy, statistics)
+
+---
+## BLAST
+
+- BLAST is not used for NGS because it is too slow.
+
+- Format for command line version: `blastall -d assemblyfasta -i genefasta -o output.blast -p blastn -e 1e-15`
+    - `-i` indicates what is the gene file
+    - `-o` indicates what you want the output to be
+    - `-p` with ending "n" means nucleotide alignment -e statistical significance of alignments
+
+- Magic-BLAST is an alternative
+
+.small[https://ncbi.github.io/magicblast/
+
+https://ncbiinsights.ncbi.nlm.nih.gov/2016/10/13/introducing-magic-blast/ ]
+
+---
+## BLAT (BLAST-Like Alignment Tool)
+
+**BLAT** = fast alignment tool optimized for finding high-similarity sequences. 
+Developed by Jim Kent (UCSC Genome Browser)
+
+* Index the **genome**, not the query
+* Use **k-mer exact matches** (default k=11 for DNA)
+* Extend matches into longer alignments
+* Optimized for **long, highly similar sequences**
+
+BLAT trades sensitivity for speed and is ideal for **quick genomic coordinate mapping of similar sequences**.
+
+.small[ https://genome.ucsc.edu/cgi-bin/hgBlat?command=start ]
+
+---
+## Significance of the alignment
+
+- For local alignment we want to address how high an alignment score `\(S\)` exceeds a cutoff `\(x\)`. 
+
+- If the quality score is within random chance then it probably isn't a good alignment. We use an extreme value (aka  Gumbel) distribution with parameter:
+
+`$$P(S &gt; x) = 1 - exp(-K M N e^{-\lambda x})$$`
+
+- `\(M\)` is the effective length of the query sequence
+
+- `\(N\)` is the effective length of the reference sequence
+
+- `\(K\)` and `\(\lambda\)` are positive parameters that depend on the score matrix and the composition of the sequences being compared
+
+---
+## E-values
+
+- E-values are the number of alignments with scores at least equal to `\(x\)` that would be expected by chance alone. The larger the database the more likely you will have a hit by chance, therefore we must take the size of the database into consideration.
+
+- We can treat E-values as multiple comparison corrected p-values.
+    - Low E-value ~ strong match or good hits
+    - Commonly used threshold: E-value &lt; 0.05
+
+&lt;!--
+## New Aligners for NGS data: MAQ, BWA, Bowtie, SOAP, Rsubread, etc.
+
+- The main technique for faster alignment: indexing. We make substrings of length `\(k\)` (short integer) and put the substring and its location in a hash table.
+- **MAQ** - Mapping and Assemblies with Quality (Li, Ruan, Durbin 2008)
+    - Does the alignment but also calls SNPs
+    - At the alignment stage it searches for the un-gapped match with the lowest mismatch score, defined as the sum of qualities at mismatching bases
+    - Only considers positions that have two or fewer mismatches in the first 28 base pairs (this is the default which can be changed)
+- Sequences that fail to reach a mismatch score threshold are searched with Smith-Waterman algorithm that allows for gaps
+- Always reports a single alignment, positions aligned equally well to a read are chosen randomly
+- Potential problem - multimapped reads will not contribute to variant calling
+--&gt;
+
+---
+## BWA, Bowtie
+
+- Bowtie employs Burrows-Wheeler transform (BWT) based on the full-text minute-space (FM) index. Index is built using `bwa index`, `bowtie2-build`
+
+```
+acaacg$ → $acaacg →(sort) $acaacg → gc$aaac
+          g$acaac         aacg$ac
+          cg$acaa         acaacg$
+          acg$aca         acg$aca
+          aacg$ac         caacg$a
+          caacg$a         cg$acaa
+          acaacg$         g$acaac
+```
+- Bowtie has a memory footprint of 1.3 GB for the human genome. Very fast.
+- The last first mapping can transform it back to the original sequence.
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

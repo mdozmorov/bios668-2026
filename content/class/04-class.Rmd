@@ -32,3 +32,16 @@ knitr::include_url('../../slides/04_Alignment/01a_Alignment_intro_xaringan.html#
 ```{r echo=FALSE}
 knitr::include_url('../../slides/04_Alignment/01b_Assembly_algorithms_xaringan.html#1')
 ```
+
+<a href="../../slides/04_Alignment/02_Approximate_matching_Langmead.pdf" target="_blank">Lecture slides in PDF format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/02_Approximate_matching_Langmead.pdf')
+```
+
+# Code
+
+- Naive exact matching, [naive_exact.R](../../slides/04_Alignment/lab/naive_exact.R)
+- Naive approximate matching, [naive_Hamming.R](../../slides/04_Alignment/lab/naive_Hamming.R)  
+- Edit distance, recursive implementation, [edDistRecursive.R](../../slides/04_Alignment/lab/edDistRecursive.R)
+- Edit distance, dynamic programming implementation, [edDistDynamic.R](../../slides/04_Alignment/lab/edDistDynamic.R)

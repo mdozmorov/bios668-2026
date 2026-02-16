@@ -43,8 +43,9 @@ Take the pasted presentation and reformat it into Xaringan presentation (no need
 \end{center}
 
 Into R code chunks like that
-{r, out.width = "400px", fig.align='center', echo=FALSE}
+```{r, out.width = "400px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/sanger.png")
+```
 
 Also, instead of \tiny, use .small[ <text> ] formatting. For two-column, use .pull-left[] and .pull-right[]. Keep all text, links, and image names intact. Keep HTML comments. Only if necessary, correct grammar. Analyze the whole content and add any slide that you feel is missing from the overall narrative, and add "(added)" suffix to the slide header. Return results in one Markdown code block.
 -->
