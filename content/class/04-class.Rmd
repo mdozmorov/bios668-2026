@@ -33,11 +33,7 @@ knitr::include_url('../../slides/04_Alignment/01a_Alignment_intro_xaringan.html#
 knitr::include_url('../../slides/04_Alignment/01b_Assembly_algorithms_xaringan.html#1')
 ```
 
-<a href="../../slides/04_Alignment/02_Approximate_matching_Langmead.pdf" target="_blank">Lecture slides in PDF format</a>
-
-```{r echo=FALSE}
-knitr::include_url('../../slides/02_Approximate_matching_Langmead.pdf')
-```
+<a href="../../slides/04_Alignment/02_Approximate_matching_Langmead.pdf" target="_blank">"Approximate matching" Lecture slides in PDF format</a>
 
 # Code
 
