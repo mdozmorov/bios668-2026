@@ -41,3 +41,4 @@ knitr::include_url('../../slides/04_Alignment/01b_Assembly_algorithms_xaringan.h
 - Naive approximate matching, [naive_Hamming.R](../../slides/04_Alignment/lab/naive_Hamming.R)  
 - Edit distance, recursive implementation, [edDistRecursive.R](../../slides/04_Alignment/lab/edDistRecursive.R)
 - Edit distance, dynamic programming implementation, [edDistDynamic.R](../../slides/04_Alignment/lab/edDistDynamic.R)
+- Global alignment, dynamic programming implementation, [globalAlignment.R](../../slides/04_Alignment/lab/globalAlignment.R)

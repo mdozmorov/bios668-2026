@@ -2,9 +2,6 @@
 # https://www.youtube.com/watch?v=ep91JWd6fs0&list=PL2mpR0RYFQsBiCWVJSvVAO3OJ2t7DzoHA&index=17
 # https://nbviewer.jupyter.org/github/BenLangmead/comp-genomics-class/blob/master/notebooks/CG_Naive.ipynb
 
-t = 'haystack needle haystack' # "text" - thing we search in
-p = 'needle' # "pattern" - thing we search for
-
 naive <- function(p, t) {
   # Assume text at least as long as pattern
   if (nchar(p) <= nchar(t)) {
@@ -27,6 +24,9 @@ naive <- function(p, t) {
     return(occurrences)
   }
 }
+
+t = 'haystack needle haystack' # "text" - thing we search in
+p = 'needle' # "pattern" - thing we search for
 
 naive(p, t)
 naive(p = "CAT", t = "ACATT")
