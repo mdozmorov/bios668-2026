@@ -502,9 +502,9 @@ $$P(S > x) = 1 - exp(-K M N e^{-\lambda x})$$
 -->
 
 ---
-## BWA, Bowtie
+## Burrows-Wheeler transform (BWT)
 
-- Bowtie employs Burrows-Wheeler transform (BWT) based on the full-text minute-space (FM) index. Index is built using `bwa index`, `bowtie2-build`
+- Modern aligners (Bowtie, bwa) employ Burrows-Wheeler transform (BWT) based on the full-text minute-space (FM) index.
 
 ```
 acaacg$ → $acaacg →(sort) $acaacg → gc$aaac
@@ -515,6 +515,8 @@ acaacg$ → $acaacg →(sort) $acaacg → gc$aaac
           caacg$a         cg$acaa
           acaacg$         g$acaac
 ```
-- Bowtie has a memory footprint of 1.3 GB for the human genome. Very fast.
-- The last first mapping can transform it back to the original sequence.
+
+- BWT has a memory footprint of 1.3 GB for the human genome. Very fast.
+
+- The Last-First (LF) mapping can transform it back to the original sequence.
 
