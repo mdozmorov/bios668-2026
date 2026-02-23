@@ -35,7 +35,7 @@ knitr::include_url('../../slides/02a_Unix/01_Unix_xaringan.html#1')
 knitr::include_url('../../slides/02a_Unix/02_Text_xaringan.html#1')
 ```
 
-## Shell scriptiong
+## Shell scripting
 
 <a href="../../slides/02a_Unix/03_Scripting_xaringan.html" target="_blank">Lecture slides in HTML format</a>
 
@@ -51,7 +51,23 @@ knitr::include_url('../../slides/02a_Unix/03_Scripting_xaringan.html#1')
 knitr::include_url('../../slides/02b_Network/01_Network_SSH_xaringan.html#1')
 ```
 
+## High-performance computing
 
+<a href="../../slides/02b_Network/02_VCU_HPRC_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/02b_Network/02_VCU_HPRC_xaringan.html#1')
+```
+
+## Docker/Singularity
+
+<a href="../../slides/02c_Docker/01_Docker_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/02c_Docker/01_Docker_xaringan.html#1')
+```
+
+<a href="../../slides/02c_Docker/lab/02_Docker_tutorial.html#1" target="_blank">Docker tutorial slides in HTML format</a>
 
 
 # References
