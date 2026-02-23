@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>High-Performance Computing at VCU</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-02-23" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# High-Performance Computing at VCU
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-02-23
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+
+## What is Athena?
+
+Athena is VCU’s primary High-Performance Computing (HPC) cluster designed for research-intensive workloads.
+
+* **Operating System:** Rocky Linux 9.
+
+* **Storage:** 3 PB shared Lustre filesystem.
+
+* **Architecture:** A 2-level hierarchy of partitions tailored for different computational needs.
+
+* **Goal:** Fair allocation of 9,218 CPU cores and 36 high-end GPUs.
+
+---
+## Accessing the Cluster
+
+1. **Account:** Request via the HPRC account creation form.  
+.small[  https://docs.google.com/forms/d/1kal3qmZMCGrevvprKDjSouXpyi2o9kACG5Khh73y6Tk/viewform?edit_requested=true ]
+
+2. **VPN:** All off-campus access **requires** the VCU VPN.
+
+**Connection via SSH**
+
+Open your terminal (MobaXterm, Terminal.app, or Linux shell) and run:
+
+```bash
+ssh yourvcueid@athena.hprc.vcu.edu
+```
+
+* There are two login nodes: `athena1` and `athena2`.
+
+.small[ **Pro Tip:** Set up SSH keys for passwordless login. ]
+
+
+---
+## Hardware Overview: Partitions
+
+| Partition | Nodes | CPU Cores/Node | RAM/Node | GPUs |
+| --- | --- | --- | --- | --- |
+| **cpu-small** | 73 | 28 - 36 | 96 - 256 GB | - |
+| **cpu-large** | 43 | 128 | 256 - 1500 GB | - |
+| **gpu-v100** | 4 | 32 - 128 | 384 - 512 GB | 2x V100 |
+| **gpu-a100** | 2 | 128 | 1024 GB | 4x A100 |
+| **gpu-h100** | 3 | 64 - 112 | 1024 - 2048 GB | 4-8x H100 |
+
+.small[ **Note:** 2 CPUs and 8 GB RAM per node are reserved for the OS and cannot be allocated to user jobs. ]
+
+---
+## Cluster Etiquette (The "Do's and Don'ts")
+
+* **Login Nodes:** NEVER run heavy computation on `athena1` or `athena2`. Use them only for editing scripts and submitting jobs.
+
+* **Resources:** Remember it's a **shared** system. Don't "hog" resources; write jobs to be aware of actual CPU/RAM needs.
+
+* **Monitoring:** Staff track resource usage. If your job impacts others, you will be contacted.
+
+* **Open OnDemand:** Close sessions when finished to release resources.
+
+---
+## Open OnDemand (OOD)
+
+OOD is a web-based portal that provides a Graphical User Interface (GUI) for Athena (runs on athena3).
+
+&lt;img src="img/athena_ondemand.png" alt="" width="600px" style="display: block; margin: auto;" /&gt;
+
+.small[ * **Limitations:** Sessions are limited to **7 days**. For longer runs, use `sbatch`.  
+https://athena3.hprc.vcu.edu/pun/sys/dashboard ]
+
+---
+## The Module System
+
+Software on Athena is managed via Environment Modules. This prevents version conflicts.
+
+* **`module avail`** — See all available software.
+
+* **`module load &lt;name&gt;`** — Load a specific tool (e.g., `module load Matlab/R2024a`).
+
+* **`module list`** — See what you currently have loaded.
+
+* **`module purge`** — Clear all loaded modules to start fresh.
+
+.small[ Default Rocky 9 tools include **GCC 11**, **Java 11**, and **Python 3.9**. ]
+
+---
+## Running Software
+
+* **Command Line:** After loading a module, you can run the software directly from the terminal.
+
+* **Scripts:** For complex analyses, write a shell script that loads the necessary modules and runs your commands.
+  * Use variables to define paths and parameters for better readability and reproducibility.
+
+```bash
+SAMPLE="4DNFIIE6459J" # Sample name
+BAM=${SAMPLE}_subsampled.bam # BAM file name
+OUT=${SAMPLE}_subsampled.bw # Output file name
+EGS=2913022398 # set effective genome size for hg38
+bamCoverage -b ${BAM} -o ${OUT} --normalizeUsing RPGC --effectiveGenomeSize ${EGS}
+```
+
+* **Help:** Run the software with no arguments or `-h` or `--help` arguments to see usage information.
+
+---
+## Python Best Practices
+
+Athena recommends using virtual environments to keep your projects isolated.
+
+**The "User" Install**
+
+When using `pip`, always install to your home directory:
+
+```bash
+pip install --user &lt;package_name&gt;
+```
+
+---
+## SLURM: Terminology
+
+Athena uses **Slurm** to schedule jobs.
+
+* **Job:** The entire workload submitted to the cluster (usually via a script).
+
+* **Task:** An instance of a program (usually 1 task = 1 process).
+
+* **CPU:** In Slurm, "CPU" refers to a **CPU Core**.
+
+* **Exclusivity:** Slurm allocates resources exclusively. While your job runs, those CPUs/GPUs/RAM "belong" only to you.
+
+---
+## Essential Slurm Commands
+
+| Command | Action |
+| --- | --- |
+| **`sbatch`** | Submit a script to run in the background (Preferred). |
+| **`squeue -u &lt;eid&gt;`** | Check the status of your jobs. |
+| **`srun`** | Run a command interactively or as a task within a script. |
+| **`scancel &lt;id&gt;`** | Kill a running or queued job. |
+| **`sinfo`** | View cluster-wide node availability. |
+
+Pro Tip: run `nodestat` to see real-time node status and load.
+
+---
+## Writing an `sbatch` Script
+
+Create a file (e.g., `myscript.sh`):
+
+```
+#!/bin/bash
+#SBATCH --job-name=MyResearch
+#SBATCH --mail-user=mdozmorov@vcu.edu
+#SBATCH --mail-type=ALL
+#SBATCH --partition=cpu
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --time=01:00:00
+#SBATCH --output=MyResearch.%j.out
+#SBATCH --error=MyResearch.%j.err
+
+module load R/4.4.1
+Rscript my_analysis.R
+```
+
+Submit it with: `sbatch myscript.sh`
+
+---
+## GPU Computing: Exclusive vs. Shared
+
+Athena allows you to request GPUs in two ways:
+
+1. **Exclusive Mode (`gpu`):** You get the entire GPU.
+```bash
+#SBATCH --gres=gpu:1
+```
+
+2. **Shared Mode (`shard`):** Use for smaller jobs. You share the GPU with others.
+```bash
+#SBATCH --gres=shard:1
+```
+
+.small[ **Memory Warning:** If your job exceeds allocated `--mem`, Slurm will kill it. Don't under-allocate, but don't "over-hog" either. ]
+
+---
+## Slurm Interactive Sessions
+
+Sometimes you need a live terminal on a compute node rather than submitting a script to the background. This is ideal for:
+
+* **Debugging** code in real-time.
+
+* **Testing** resource requirements (CPU/RAM/GPU).
+
+* **Interactive tools** that require a shell.
+
+To get an interactive shell, you use `srun` with the `--pty` (pseudo-terminal) flag and specify `bash` at the end.
+
+```bash
+srun -p cpu --ntasks=1 --cpus-per-task=16 --mem=120G --pty bash
+```
+
+---
+## Slurm Interactive Sessions
+
+**Example: A100 GPU Session**
+
+```bash
+srun -p gpu-a100 --gres=gpu:1 --mem=100G --pty bash
+```
+
+* Requests one NVIDIA A100 GPU and 100GB of system RAM.
+
+* **`--pty bash`**: The most critical part; it opens an interactive Bash shell on the allocated node (pseudoterminal)
+
+* **`-p &lt;partition&gt;`**: Directs your request to a specific pool of hardware (e.g., `cpu`, `gpu-a100`).
+
+* **`--gres=gpu:1`**: Specifically requests the hardware accelerator.
+
+* **`exit`** or **Ctrl+D**: Type this to end your session and release the resources back to the cluster.
+
+.small[ **Note:** Always `exit` your interactive session when finished. If you just close your laptop, the session may keep running, "hogging" resources and consuming your account's allocation! ]
+
+---
+## Data Management &amp; I/O
+
+**Storage Tiers**
+
+* **Home Directory:** Shared across all nodes. Best for scripts and small data.
+
+* **`/tmp`:** Local SSD/NVMe on each node. **Crucial for high I/O jobs.** Copy your data here at the start of a job for 10x speed.
+
+**Data Classification**
+
+* **Category II &amp; III:** Allowed on Athena (Public/Proprietary/De-identified).
+
+* **Category I (Sensitive):** FERPA, HIPAA, CUI are **FORBIDDEN** on Athena. Use the **Apollo** cluster instead.
+
+---
+## Persistent Sessions with tmux
+
+`tmux` (Terminal Multiplexer) is a critical tool for HPC users. It allows you to:
+
+* **Keep processes running** even if your SSH connection drops or you close your laptop.
+
+* **Divide one window** into multiple panes.
+
+* **Manage multiple "windows"** within a single terminal session.
+
+If your terminal gets "stuck" or you lose connection while running a long SLURM job, `tmux` is your safety net. Always start a `tmux` session on the login node **before** running `srun` or starting long file transfers.
+
+---
+## Session Management
+
+* **Create a named session:** `tmux new -s my_project`
+
+* **Re-attach to a session (after new login):** `tmux attach -t my_project`
+
+* **List active sessions:** `tmux ls`
+
+* **Detach from a session:** Press `Ctrl + b` then **`d`**. Your code keeps running in the background!
+
+* **Kill/Exit a session:** Type `exit` inside the shell or press `Ctrl + d`.
+
+**Pro Tip:** Your session lives on the node where you started it. If you start `tmux` on athena2, make sure you are on athena2 when you re-attach. Use `ssh athena2` to get there if needed.
+
+---
+## The "Prefix" Key
+
+All `tmux` actions are triggered by a prefix. By default, this is:
+
+**`Ctrl + b`** (Press them together, release, then press the next key).
+
+
+
+
+---
+## Managing Windows
+
+Think of **Windows** like tabs in a web browser. Each window has its own full-screen shell.
+
+* **Create a new window:** `Ctrl + b` then **`c`**
+
+* **Switch by number:** `Ctrl + b` then **`0-9`**
+
+* **Kill current window:** `Ctrl + b` then **`x`** (you will be prompted to confirm)
+
+---
+## Advanced window management
+
+* **Next window:** `Ctrl + b` then **`n`**
+
+* **Previous window:** `Ctrl + b` then **`p`**
+
+* **List all windows:** `Ctrl + b` then **`w`** (allows you to pick from a menu).
+
+- **Rename Window:**  `Ctrl + b` + `,` 
+
+- **Split Vertically:**  `Ctrl + b` + `%` 
+
+- **Split Horizontally:** `Ctrl + b` + `"` 
+
+- **Switch Panes:** `Ctrl + b` + `Arrow Keys` 
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
