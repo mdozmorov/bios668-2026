@@ -1,0 +1,207 @@
+---
+title: "Nextflow and nf-core Pipelines"
+# subtitle: "Scalable, Reproducible Workflows for Bioinformatics"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", 
+  text_font_size = "28px"
+)
+
+```
+
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+## What is Nextflow?
+
+Nextflow is a workflow engine that simplifies writing complex pipelines.
+
+* Separates the analysis logic (the code) from the execution environment (HPC, Cloud, or Local).
+
+* Native support for **Docker**, **Singularity**, and **Conda**.
+
+* If a pipeline crashes, use the `-resume` flag to pick up exactly where it left off.
+
+---
+## The nf-core Community
+
+You rarely need to write a pipeline from scratch. **nf-core** is a community effort to collect a curated set of high-quality, peer-reviewed Nextflow pipelines.
+
+**nf-core standards include:**
+
+* Continuous Integration (CI) testing.
+* Mandatory documentation.
+* Use of containers (Docker/Singularity).
+* Standardized output (MultiQC reports).
+
+.small[ Browse 144 pipelines at: https://nf-co.re/pipelines ]
+
+<!--
+## Popular Pipelines: At a Glance
+
+| Pipeline | Application | Primary Tools |
+| --- | --- | --- |
+| **rnaseq** | Bulk RNA-seq | STAR, Salmon, DESeq2 |
+| **scrnaseq** | Single-cell RNA-seq | Alevin-fry, CellRanger, Starsolo |
+| **sarek** | Variant Calling | GATK4, FreeBayes, Strelka2 |
+| **chipseq** | ChIP-seq / ATAC-seq | BWA, MACS2, DeepTools |
+| **mag** | Metagenomics | MEGAHIT, SPAdes, QUAST |
+-->
+
+---
+## nf-core/rnaseq
+
+The most used pipeline for quantifying gene expression. It handles everything from raw reads to a gene count matrix.
+
+**Key Features:**
+
+* Supports both **Genomic** (STAR) and **Transcriptomic** (Salmon/Kallisto) mapping.
+
+* Extensive QC: FastQC, RSeQC, Qualimap, and Dupradar.
+
+* Automatic generation of a **MultiQC** summary report.
+
+.small[https://nf-co.re/rnaseq ]
+
+---
+## The Input: Samplesheet (RNA-seq)
+
+Instead of using complex file patterns in the command line, nf-core uses a **CSV samplesheet**. This ensures that metadata (like strandedness) is explicitly defined for every file.
+
+```csv
+sample,fastq_1,fastq_2,strandedness
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,auto
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,auto
+TREATED_REP1,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,auto
+```
+
+* **sample:** Unique identifier for the replicate.
+* **fastq_1 / 2:** Full paths to the raw sequencing files.
+* **strandedness:** Can be `forward`, `reverse`, or `unstranded`.
+
+.small[  If your data is single-end, simply leave the `fastq_2` column empty. ]
+
+---
+## nf-core/scrnaseq
+
+Designed for single-cell transcriptomics. It is highly flexible to accommodate various technologies (10x Genomics, Smart-seq, etc.).
+
+**Available Aligners/Quantifiers:**
+
+* **Alevin-fry:** Extremely fast and memory-efficient.
+* **STARsolo:** Standard for 10x data.
+* **Kallisto-bustools:** Fast pseudo-alignment.
+* **Cellranger:** Standard 10x processing engine.
+
+It produces standardized objects (SingleCellExperiment or AnnData) ready for downstream analysis in R or Python.
+
+.small[ https://nf-co.re/scrnaseq ]
+
+---
+## nf-core/chipseq
+
+Used for analyzing **ChIP-seq** and **ATAC-seq** data to identify DNA-protein binding sites or regions of open chromatin.
+
+* Uses **BWA** to align reads to the reference genome.
+* Utilizes **MACS2** to identify enriched regions (peaks).
+* Automatically creates a set of common peaks across replicates for differential analysis.
+
+.small[ **Note:** For ChIP-seq, the samplesheet must also define the "control" (Input) sample for each treatment replicate to allow for accurate background subtraction.
+
+If control is not available, use the `atacseq` pipeline.
+]
+
+.small[ https://nf-co.re/chipseq ]
+
+---
+## nf-core/sarek
+
+A comprehensive pipeline for **Germline** or **Somatic** variant calling (mapping, QC, and calling).
+
+* **Input:** FASTQ or BAM files.
+* **Scope:** Supports Whole Genome (WGS) and Whole Exome (WES) sequencing.
+* **Annotation:** Automatically annotates variants using VEP or SnpEff.
+
+.small[ https://nf-co.re/sarek ]
+
+---
+## Basic Execution Syntax
+
+To run an nf-core pipeline, you only need the pipeline name and a sample sheet.
+
+```bash
+nextflow run nf-core/rnaseq \
+    --input samplesheet.csv \
+    --outdir ./results \
+    --genome GRCh38 \
+    -profile docker
+
+```
+
+* `-profile`: Tells Nextflow whether to use `docker`, `singularity`, or `conda`.
+* `-resume`: Use this to restart a failed or modified run without re-calculating finished steps.
+
+<!--
+## Handling Configuration (Profiles)
+
+On an HPC like Athena, you shouldn't run heavy computations on the login node. Nextflow uses **profiles** to manage where jobs run.
+
+```nextflow
+// Example custom.config
+process {
+    executor = 'slurm'
+    queue    = 'high_mem'
+}
+```
+
+**Running with a specific config:**
+
+```bash
+nextflow run nf-core/rnaseq -c my_hpc.config -profile singularity
+```
+
+## Monitoring: Nextflow Tower
+
+For large-scale projects, you can monitor your pipelines in real-time using a web interface.
+
+* **Visualization:** See which processes are running, pending, or failed.
+* **Resource Logging:** Track CPU and RAM usage for every single task.
+* **Collaboration:** Share run results and logs with teammates easily.
+
+.small[ Access the open-source version at: https://seqera.io/tower/ ]
+-->
+
+---
+## Best Practices
+
+* **Use a specific version:** Never run the "latest" in production. Use `-r` (e.g., `-r 3.12.0`).
+
+* **Clean up:** Nextflow creates a `work/` directory that can grow to Terabytes. Use `nextflow clean` or delete it once the pipeline successfully completes.
+
+* **Check MultiQC:** Always review the MultiQC report first to catch batch effects or library prep issues.
+
+- nf-core Slack, https://nf-co.re/join
+- Nextflow Documentation, https://www.nextflow.io/docs/latest/index.html
+

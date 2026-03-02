@@ -69,6 +69,23 @@ knitr::include_url('../../slides/02c_Docker/01_Docker_xaringan.html#1')
 
 <a href="../../slides/02c_Docker/lab/02_Docker_tutorial.html#1" target="_blank">Docker tutorial slides in HTML format</a>
 
+## Conda/virtual environments
+
+<a href="../../slides/02c_Docker/03_Conda_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/02c_Docker/03_Conda_xaringan.html#1')
+```
+
+## Nextflow
+
+<a href="../../slides/02c_Docker/04_Nextflow_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/02c_Docker/04_Nextflow_xaringan.html#1')
+```
+
+
 
 # References
 

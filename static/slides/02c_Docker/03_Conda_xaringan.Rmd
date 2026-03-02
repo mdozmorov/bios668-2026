@@ -1,0 +1,427 @@
+---
+title: "Conda and Virtual Environments"
+subtitle: "Package & Environment Management for Local and HPC"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", #firebrick4, "deepskyblue1"
+  text_font_size = "28px"
+)
+library(dplyr)
+library(ggplot2)
+```
+
+<!-- HTML style block -->
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+## The "Dependency Hell" Problem
+
+Imagine you have two research projects:
+
+* **Project A** requires **Python 3.8** and an old version of a library.
+
+* **Project B** requires **Python 3.12** and the latest version of that same library.
+
+Installing them globally on your system is impossible—one will always break the other. This conflict is often called **"Dependency Hell."**
+
+---
+## The Virtual Environment Solution
+
+A vitrual environment acts as a "container" for your project’s software. It provides:
+
+*  **Isolation:** Every environment is a separate folder. Changes in one cannot affect others.
+
+*  **Reproducibility:** You can export your exact environment "recipe" so a colleague can run your code with the same results.
+
+Treat your "base" environment as a sacred, read-only space. Never install research packages there—always create a new environment for every paper or project.
+
+---
+## What is Conda?
+
+Conda is an open-source **package management system** and **environment management system**.
+
+* **Package Manager:** Installs any software (Python, R, C++, etc.) and their dependencies.
+
+* **Environment Manager:** Creates isolated "sandboxes" so project A's dependencies don't break project B.
+
+*  **No Root Access Needed:** On HPC clusters (like Athena), you cannot install software globally. Conda allows you to install anything you need within your own user space.
+
+---
+## The Conda Ecosystem: Which one to choose?
+
+| Tool | Focus | Why use it? |
+| :--- | :--- | :--- |
+| **Anaconda** | "Batteries included" | 1500+ packages pre-installed. Very heavy (~5GB). |
+| **Miniconda** | Minimalist | Just Conda and Python. You install only what you need. |
+| **Miniforge** | Community-first | Uses **conda-forge** as default. No licensing issues. |
+| **Mamba** | Speed | A C++ rewrite of Conda. 10x faster at solving dependencies. |
+
+---
+## Installation (Local & HPC)
+
+On a cluster or local Linux/Mac, you typically download a shell script.
+
+```bash
+# Miniconda
+curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+# Run Installation
+bash ~/Miniconda3-latest-MacOSX-arm64.sh
+```
+
+* Follow prompts.
+
+* When asked to run `conda init`, say **yes**.
+
+* **Restart your terminal** after installation.
+
+.small[ https://www.anaconda.com/docs/getting-started/miniconda/install ]
+
+---
+## Conda Best Practices on HPC
+
+* On HPC, use the modules system, `module load miniconda3`
+
+```bash
+module load miniconda3
+conda create -n my_env python=3.11
+conda activate my_env
+```
+
+---
+## Basic Operations: Cheat Sheet
+
+| Action | Command |
+| --- | --- |
+| **Create Env** | `conda create -n my_project python=3.10` |
+| **Activate** | `conda activate my_project` |
+| **Install Pkg** | `conda install numpy pandas` |
+| **List Envs** | `conda env list` |
+| **Remove Env** | `conda env remove -n my_project` |
+
+Use `-y` argument to answer yes to all prompts (e.g., `conda install -y numpy`).
+
+Search for `conda install <software name>` for installation recipes. 
+
+If `conda activate` doesn't work, try `source activate` or `source ~/miniconda3/bin/activate`.
+
+---
+## Typical Conda Workflow
+
+In this workflow, we will create an isolated environment named `align-tools`, install a specific version of `python`, and add the `samtools` package from the `bioconda` channel.
+
+**1. Create the Environment** It is best practice to specify your Python version at creation to ensure a clean dependency resolution.
+```bash
+conda create -n align-tools python=3.11
+```
+
+--
+
+**2. Activate the Environment** Your terminal prompt will usually change to `(align-tools)` to indicate you are no longer in the `base` environment.
+
+```bash
+conda activate align-tools
+```
+
+---
+## Typical Conda Workflow
+
+**3. Install the Software** We specify the channel (`-c`) to ensure Conda finds the package in the correct repository.
+
+```bash
+conda install -c bioconda samtools
+```
+--
+
+**Verifying the Installation**
+
+Once installed, you should verify that the executable is coming from your conda folder and not the system path.
+
+* **Check version:** `samtools --version`
+* **Check location:** `which samtools`
+* *Expected output:* `~/miniconda3/envs/align-tools/bin/samtools`
+
+---
+## Typical Conda Workflow
+
+**Cleaning Up**
+
+When your analysis is finished, return to the global environment:
+
+```bash
+conda deactivate
+```
+
+.small[ **Pro Tip:** You can combine steps 1 and 3 into a single command: 
+
+`conda create -n align-tools -c bioconda python=3.11 samtools` ]
+
+---
+## Conda Channels
+
+Channels are the locations (URLs) where Conda looks for packages. Think of them as different "App Stores" for software. When you run `conda install`, Conda searches your enabled channels in a specific order.
+
+* **Default:** Managed by Anaconda Inc. Reliable, but sometimes slower to update.
+
+* **Conda-Forge:** The community-led powerhouse. It is the most up-to-date and contains thousands of packages not found in the default channel.
+
+* **Bioconda:** The standard for bioinformatics software (requires `conda-forge`).
+
+---
+## Conda Channels
+
+**Configuring Channel Priority**
+
+To avoid "Dependency Hell," you should tell Conda exactly which store to check first. We recommend setting `conda-forge` as the highest priority.
+
+```bash
+# 1. Add conda-forge to the top of the list
+conda config --add channels conda-forge
+
+# 2. Add bioconda (if doing life sciences research)
+conda config --add channels bioconda
+
+# 3. Enable STRICT priority
+conda config --set channel_priority strict
+```
+
+---
+## Reproducibility: Exporting Environments
+
+Never rely on memory. Always export your environment to a YAML file so others (or future you) can recreate it.
+
+```bash
+# Exporting
+conda env export > environment.yml
+```
+
+```bash
+# Recreating from file
+conda env create -f environment.yml
+```
+
+.small[ **Note:** `conda env export` includes your specific OS builds. For a "cross-platform" version, use:
+`conda env export --from-history > environment.yml`
+]
+
+<!--
+## HPC Best Practices: Storage
+
+On HPC clusters, your **Home directory** often has a strict storage quota (e.g., 20GB). Conda environments can easily exceed this.
+
+### Solution: Move environments to Project/Scratch space
+
+Edit your `~/.condarc` file to tell Conda where to store environments and package caches:
+
+```yaml
+envs_dirs:
+  - /path/to/your/project/space/conda/envs
+pkgs_dirs:
+  - /path/to/your/project/space/conda/pkgs
+```
+
+### Clean up regularly
+
+Conda keeps every version of every package you've ever downloaded.
+
+```bash
+conda clean --all
+```
+-->
+
+---
+## HPC Best Practices: Slurm Jobs
+
+When running a batch script, you must activate your environment inside the script.
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=my_job
+#SBATCH --partition=cpu
+
+# Required to make 'conda activate' work inside a script
+
+module load miniconda3
+conda activate my_project
+
+python my_script.py
+```
+
+---
+## Mamba: The Speed King
+
+Conda is famously slow at "Solving Environment." **Mamba** is a drop-in replacement that is significantly faster.
+
+If you have Conda, install Mamba into your base environment:
+
+```bash
+conda install mamba -n base -c conda-forge
+```
+
+Simply replace the command `conda` with `mamba`:
+
+```bash
+# Instead of: conda install numpy
+mamba install numpy 
+```
+
+---
+## Python-Native Environments: venv and pip
+
+While Conda is a "generalist" (handling Python, R, and C libraries), `venv` is the "specialist" built into Python itself. 
+
+**Use `venv` if:**
+
+* Your project is **100% Python-based**.
+
+* You want a **lightweight** environment (it doesn't duplicate the entire Python binary).
+
+* You are deploying to a system where Python is already pre-installed and you cannot install Conda.
+
+---
+## The `venv` Workflow
+
+**1. Create the Environment**
+This creates a folder named `.venv` in your project directory containing the environment files.
+```bash
+python3 -m venv .venv
+```
+
+**2. Activate the Environment**
+This tells your shell to use the Python and packages located inside that `.venv` folder.
+
+* **macOS / Linux:** `source .venv/bin/activate`
+* **Windows:** `.venv\Scripts\activate`
+
+---
+## The `venv` Workflow
+
+**3. Install Packages with `pip**`
+
+```bash
+pip install --upgrade pip
+pip install numpy pandas matplotlib
+
+```
+
+**4. Save/recover your current setup**
+`pip` uses a simple text file called `requirements.txt`.
+```bash
+pip freeze > requirements.txt
+# pip install -r requirements.txt
+```
+
+---
+## uv: The Next-Gen Python Package Manager
+
+`uv` is an extremely fast Python package and project manager written in **Rust**. It is designed to be a "single tool to replace them all."
+
+* **Performance:** 10–100x faster than `pip`.
+
+* **Consolidation:** Replaces `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`, and `virtualenv` (specialized tools for working with Python virtual environments).
+
+* **Universal Lockfile:** Provides Cargo-style reproducibility for Python projects.
+
+---
+## uv: The Next-Gen Python Package Manager
+
+* **Python Version Management:** Installs and switches between Python versions (`uv python install 3.12`).
+
+* **Tool Execution:** Run apps in ephemeral environments using `uvx` (like `pipx`).
+
+* **Global Cache:** Disk-space efficient; dependencies are deduplicated across environments using a global cache.
+
+---
+## uv: Script Support
+
+Run single-file scripts with inline dependency metadata.
+```python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "requests",
+#   "pandas",
+# ]
+# ///
+
+import pandas as pd
+import requests
+
+# Your research code here...
+```
+```vash
+uv run my_script.py
+```
+`uv` reads the top comments, creates a temporary, isolated environment in the background, installs pandas and requests packages into that temporary space. It executes your script and then cleans up.
+
+---
+## The uv Workflow
+
+**1. Installation**
+```bash
+curl -LsSf [https://astral.sh/uv/install.sh](https://astral.sh/uv/install.sh) | sh
+```
+
+**2. Project Initialization**
+
+```bash
+uv init my_project
+cd my_project
+uv add requests ruff  # Creates venv and adds dependencies
+
+```
+
+---
+## The uv Workflow
+
+**3. Running Commands**
+
+```bash
+uv run python my_script.py  # Automatically uses the project venv
+
+```
+
+**4. Fast Pip Replacement**
+
+If you just want to use it as a faster `pip`:
+
+```bash
+uv pip install -r requirements.txt
+
+```
+
+For HPC users, `uv` is a game-changer for building environments quickly on compute nodes where shared filesystems can make traditional `pip` or `conda` installs feel sluggish.
+
+---
+## Summary: The "Golden Rules"
+
+1. **Don't install things in the `base` environment:** Keep `base` clean. Always create a new environment for a new project.
+
+2. **Use Mamba:** Save hours of waiting for "Solving environment."
+
+3. **Specify Versions:** When creating an env, specify the Python version (`python=3.11`).
+
+4. **Clean up:** Run `conda clean --all` monthly to save your disk quota.
+
+5. **YAML importance:** Always keep an `environment.yml` in your project folder.
