@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>The Cancer Genomics Atlas (TCGA)</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-03-04" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# The Cancer Genomics Atlas (TCGA)
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-03-04
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+
+## The Cancer Genome Atlas (TCGA)
+
+- Started December 13, 2005, phase II in 2009, ended in 2014
+
+- Mission - to accelerate our understanding of the molecular basis of cancer through the application of genome analysis technologies, including large-scale genome sequencing.
+
+- Data generation
+    - Clinical information about participants
+    - Metadata about the samples (e.g. the weight of a sample portion, etc.)
+    - Histopathology slide images from sample portions
+    - Molecular information derived from the samples (e.g. mRNA/miRNA expression, protein expression, copy number, etc.)
+
+.small[ https://www.cancer.gov/ccg/research/genome-sequencing/tcga ]
+
+---
+## TCGA by the numbers
+
+&lt;img src="img/tcga_stats.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+.small[ https://www.cancer.gov/ccg/research/genome-sequencing/tcga ]
+
+&lt;!---
+## Major TCGA Research Components
+
+* **Biospecimen Core Resource (BCR)** - Collect and process tissue samples
+
+* **Genome Sequencing Centers (GSCs)** - Use high-throughput Genome Sequencing to identify the changes in DNA sequences in cancer
+
+* **Genome Characterization Centers (GCCs)** - Analyze genomic and epigenomic changes involved in cancer
+
+* **Data Coordinating Center (DCC)** - The TCGA data are centrally managed at the DCC
+
+* **Genome Data Analysis Centers (GDACs)** - These centers provide informatics tools to facilitate broader use of TCGA data.
+--&gt;
+
+---
+## TCGA Data Access Policy
+
+* An access control policy is in place for TCGA data to ensure that personally identifiable information is kept from unauthorized users.
+
+* **Open access** - Houses data that cannot be aggregated to generate a data set unique to an individual. This tier does not require user certification for data access.
+
+* **Controlled access** - Houses individually-unique information that could potentially be used to identify an individual. This tier requires user certification for data access.
+
+---
+## TCGA Controlled Access Data
+
+Access to controlled data is available to researchers who:
+
+* Agree to restrict their use of the information to biomedical research purposes only
+
+* Agree with the statements within TCGA Data Use Certification (DUC)
+
+* Have their institutions certifiably agree to the statements within TCGA DUC
+
+* Complete the Data Access Request (DAR) form and submit it to the Data Access Committee to be a TCGA Approved User. This form is available electronically through dbGaP.
+
+.small[ https://gdc.cancer.gov/access-data/obtaining-access-controlled-data ]
+
+---
+## TCGA data types
+
+&lt;img src="img/tcga_data_types.png" alt="" width="850px" style="display: block; margin: auto;" /&gt;
+.small[ http://www.liuzlab.org/TCGA2STAT/DataPlatforms.pdf ]
+
+---
+## TCGA cancer types
+
+&lt;img src="img/tcga_cancer_types.png" alt="" width="750px" style="display: block; margin: auto;" /&gt;
+.small[ http://www.liuzlab.org/TCGA2STAT/CancerDataChecklist.pdf ]
+
+---
+## TCGA Clinical data
+
+&lt;img src="img/tcga_clinical.png" alt="" width="700px" style="display: block; margin: auto;" /&gt;
+.small[ http://www.liuzlab.org/TCGA2STAT/ClinicalVariables.pdf ]
+
+---
+## TCGA sample identifiers
+
+* Each sample has a unique ID (barcode), like `TCGA-AO-A128` or `TCGA-A1-A0SK-01A`
+
+* Each barcode can and should be parsed
+
+&lt;img src="img/tcga_barcode.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+* Can be used to distinguish normal and tumor samples (Sample: Tumor types range from 01 - 09, normal types from 10 - 19 and control samples from 20 - 29)
+
+* Not to be confused with case UUIDs, like `7eea2b6e-771f-44c0-9350-38f45c8dbe87`, which are bound to filenames
+
+.small[ https://wiki.nci.nih.gov/display/TCGA/TCGA+barcode ]
+
+---
+## PAM50
+
+* Breast cancer can be classified into 4 major intrinsic subtypes: Luminal A, Luminal B, Her2-enriched, Basal
+
+* Subtypes are clinically relevant for drug sensitivity and long-term survival
+
+* Determine tumor subtype by looking at the gene expression of 50 genes
+
+.small[ Parker, Joel S., Michael Mullins, Maggie C. U. Cheang, Samuel Leung, David Voduc, Tammi Vickery, Sherri Davies, et al. “Supervised Risk Predictor of Breast Cancer Based on Intrinsic Subtypes.” Journal of Clinical Oncology: Official Journal of the American Society of Clinical Oncology 27, no. 8 (March 10, 2009): 1160–67. https://doi.org/10.1200/JCO.2008.18.1370. ]
+
+.small[ https://xenabrowser.net/datapages/?dataset=TCGA.BRCA.sampleMap/BRCA_clinicalMatrix&amp;host=https://tcga.xenahubs.net ]
+
+.small[ `genefu` R package for PAM50 classification and survival analysis. https://www.bioconductor.org/packages/release/bioc/html/genefu.html ]
+
+---
+## The Broad Institute Genome Data Analysis Center (GDAC) Firehose
+
+* Standardized, analysis-ready TCGA datasets
+  * Aggregated, version-stamped
+  * Analysis-ready format / semantics
+
+* Standardized analyses results
+  * Gold standard algorithms: GISTIC (Genomic Identification of Significant Targets in Cancer), MutSig (significantly mutated genes), ...
+  * Companioned with biologist-friendly reports
+
+.small[ http://gdac.broadinstitute.org/ ]
+
+---
+## Firehose data access
+
+&lt;!-- * `fbget` - Python application programming interface (API) with &gt;27 functions for Sample-level data, Firehose analyses, Standard data archives, Metadata access --&gt;
+
+* Unix command-line access, `firehose_get`
+
+* `FirebrowseR` - An R client for broads firehose pipeline, providing TCGA data sets
+
+* `web-TCGA` - a shiny app to access TCGA data from Firebrowse
+
+.small[
+http://firebrowse.org/
+
+https://broadinstitute.atlassian.net/wiki/spaces/GDAC/pages/844333139/Download
+
+&lt;!-- https://confluence.broadinstitute.org/display/GDAC/fbget --&gt;
+
+&lt;!-- https://confluence.broadinstitute.org/display/GDAC/Download --&gt;
+
+https://github.com/mariodeng/FirebrowseR
+
+https://github.com/mariodeng/web-TCGA
+]
+
+&lt;!---
+## Firehose data visualization
+
+Firehose data comes pre-loaded in IGV (File/Load from server)
+
+&lt;img src="img/tcga_igv.png" alt="" width="700px" style="display: block; margin: auto;" /&gt;
+--&gt;
+
+
+
+---
+## R resources to access TCGA data
+
+* `curatedTCGAData` - Curated Data From The Cancer Genome Atlas (TCGA) as MultiAssayExperiment Objects
+  * MultiAssayExperiment objects integrate multiple assays (e.g. RNA-seq, copy number, mutation, microRNA, protein, and others) with clinical / pathological data.
+  * Patient IDs are matched (same number and order) across multiple assays, enabling harmonized subsetting of rows (features) and columns (patients / samples) across the entire experiment.
+
+* `HarmonizedTCGAData` - Processed Harmonized TCGA Data of Five Selected Cancer Types
+
+.small[
+https://bioconductor.org/packages/release/data/experiment/html/curatedTCGAData.html
+
+MultiAssayExperiment TCGA data, http://tinyurl.com/MAEOurls https://bioconductor.org/packages/release/data/experiment/html/HarmonizedTCGAData.html
+]
+
+---
+## R resources to access TCGA data
+
+* `curatedOvarianData`
+  * 30 datasets, &gt; 3K unique samples
+  * survival, surgical debulking, histology...
+
+* `curatedCRCData` (colorectal)
+  * 34 datasets, ~4K unique samples
+  * many annotated for MSS, gender, stage, age, N, M
+
+* `curatedBladderData`
+  * 12 datasets, ~1,200 unique samples
+  * many annotated for stage, grade, OS
+
+---
+## TCGA packages
+
+* `TCGAbiolinks` - an R/Bioconductor package for integrative analysis of TCGA data
+
+&lt;img src="img/tcga_rpackages.png" alt="" width="300px" style="display: block; margin: auto;" /&gt;
+
+.small[ Colaprico, Antonio, Tiago C. Silva, Catharina Olsen, Luciano Garofano, Claudia Cava, Davide Garolini, Thais S. Sabedot, et al. “TCGAbiolinks: An R/Bioconductor Package for Integrative Analysis of TCGA Data.” Nucleic Acids Research 44, no. 8 (May 5, 2016): e71. https://doi.org/10.1093/nar/gkv1507. ]
+
+.small[ https://bioconductor.org/packages/release/bioc/html/TCGAbiolinks.html ]
+
+&lt;!---
+ TCGA2STAT
+
+&lt;img src="img/tcga2statlogo4-1024x294.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+* Well-structured TCGA data access in R
+
+.small[ http://www.liuzlab.org/TCGA2STAT/ ]
+--&gt;
+
+
+&lt;!--
+## Gitools
+
+* A framework for analysis and visualization of multidimensional genomic data using interactive heatmaps
+* User-provided and precompiled datasets: TCGA, IntOGen
+* Analyses: Enrichment, Group Comparison, Mutual exclusion and co-occurrence test, Correlations, Overlaps, Combination of p-values
+
+&lt;img src="img/gitools.png" alt="" width="90px" style="display: block; margin: auto;" /&gt;
+
+.small[ http://www.gitools.org/ ]
+--&gt;
+
+---
+## TCGA analysis on the cloud
+
+* Goal - simplify centralized access to TCGA data and provide easy analysis
+
+* Three centers were awarded to develop cloud access
+  * Institute for Systems Biology Cancer Genomics Cloud (ISB-CGC)
+  * Broad Institute FireCloud
+  * Seven Bridges Cancer Genomics Cloud
+
+.small[
+http://cgc.systemsbiology.net/
+
+https://software.broadinstitute.org/firecloud/
+
+http://www.cancergenomicscloud.org/
+]
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

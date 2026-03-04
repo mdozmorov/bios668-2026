@@ -4,7 +4,7 @@
     <title>Genomic Resources</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mikhail Dozmorov" />
-    <meta name="date" content="2026-02-13" />
+    <meta name="date" content="2026-03-04" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ### Virginia Commonwealth University
 ]
 .date[
-### 2026-02-13
+### 2026-03-04
 ]
 
 ---
@@ -39,7 +39,7 @@ class: center, middle, inverse, title-slide
 
 &lt;!-- https://claude.ai/chat/38d486b0-ebfc-4186-96db-b9b69051b66c --&gt;
 
-## Key Resource Categories
+&lt;!--## Key Resource Categories
 
 1. **Cancer Genomics** - TCGA, cBioPortal, COSMIC, ICGC/PCAWG
 
@@ -53,9 +53,9 @@ class: center, middle, inverse, title-slide
 
 6. **Functional Genomics** - DepMap, ENCODE, Roadmap
 
-7. **Protein &amp; Pathways** - Human Protein Atlas, STRING, Reactome
+7. **Protein &amp; Pathways** - Human Protein Atlas, STRING, Reactome--&gt;
 
----
+
 ## TCGA: The Cancer Genome Atlas
 
 - **33 cancer types**, &gt;11,000 patients
@@ -73,18 +73,170 @@ class: center, middle, inverse, title-slide
 ---
 ## cBioPortal
 
-- User-friendly **web interface** for cancer genomics, no coding required
+* Rich set of tools for visualization, analysis and download of large-scale cancer genomics data sets.
+  * Mutations (OncoPrint display)
+  * Mutual exclusivity of genetic events (log-odds ratio)
+  * Correlations among genetic events (boxplots)
+  * Survival (Kaplan-Meier plots)
 
-- Integrates TCGA + 300+ other studies
+* The Onco Query Language (OQL) to fine-tune queries
+
+&lt;img src="https://frontend.cbioportal.org/reactapp/images/9191641182bccd18797c7c77d7e35002.png" alt="" width="300px" style="display: block; margin: auto;" /&gt;
+
+.small[
+http://www.cbioportal.org/index.do
+
+Gao, Jianjiong, Bülent Arman Aksoy, Ugur Dogrusoz, Gideon Dresdner, Benjamin Gross, S. Onur Sumer, Yichao Sun, et al. “Integrative Analysis of Complex Cancer Genomics and Clinical Profiles Using the CBioPortal.” Science Signaling 6, no. 269 (April 2, 2013): pl1. https://doi.org/10.1126/scisignal.2004088.
+]
+
+---
+## cBioPortal: Programmatic Access
+
+- **Web REST API:** Standardized Swagger/OpenAPI interface allowing access to all studies, clinical data, and molecular profiles.
+
+- **R Clients:**
+    - `cBioPortalData`: Modern Bioconductor package that returns data as **MultiAssayExperiment** objects for high-level integration.
+    - `cbioportalR`: A tidyverse-compatible wrapper designed for easy data retrieval and clinical research workflows.
+
+- **Python Clients:** - `pyBioPortal`: Streamlines data acquisition directly into **Pandas DataFrames** for rapid analysis.
+    - `cbio_py`: A simple wrapper for basic API interactions and dictionary-based data retrieval.
+
+.small[ https://docs.cbioportal.org/web-api-and-clients/ ]
+
+---
+## Therapeutically Applicable Research To Generate Effective Treatments (TARGET)
+
+- A comprehensive genomic approach to determine molecular changes that drive childhood cancers.
+
+- Includes extensive data on pediatric cancers such as Acute Myeloid Leukemia (AML) and Neuroblastoma.
+
+&lt;img src="https://www.cancer.gov/ccg/sites/g/files/xnrzdm256/files/styles/cgov_article/public/cgov_image/media_image/2022-05/Target_banner.jpg" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://ocg.cancer.gov/programs/target ]
+
+---
+## Cancer Cell Line Encyclopedia (CCLE)
+
+- Provides genome-wide information of ~1000 cell lines under baseline conditions.
+
+- Includes deep pharmacologic response profiles (IC50 - Half Maximal Inhibitory Concentration).
+
+- Features comprehensive mutation status analysis for identifying drug targets.
+
+&lt;img src="https://sites.broadinstitute.org/files/files/ccle/files/cclelogo_200h_4.jpg" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://portals.broadinstitute.org/ccle ]
+
+---
+## Stand Up To Cancer (SU2C)
+
+- Detailed molecular profiling of 50 Breast cancer cell lines.
+
+- Incorporates drug sensitivity metrics (GI50) to 77 diverse therapeutic compounds.
+
+&lt;img src="https://standuptocancer.org/wp-content/uploads/SU2C-Stream-Team-SU2C-Logo-For-Light-Background-912x530-Evergreen-Toolkit.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ http://www.standuptocancer.org/ ]
+
+---
+## NCI's Genomic Data Commons (GDC)
+
+* Launched on June 6, 2016
+
+* Provides standardized genomic and clinical data from
+  * **The Cancer Genome Atlas (TCGA)**
+  * **Therapeutically Applicable Research To Generate Effective Treatments (TARGET)**
+  * **Cancer Cell Line Encyclopedia (CCLE)**
+  * **Stand Up To Cancer (SU2C)** 
+  * Many more
+
+.small[https://gdc.cancer.gov/]
+
+---
+## Accessing GDC
+
+* The GDC Application Programming Interface (API)
+
+* `GenomicDataCommons` - GDC access in R
+
+.small[ https://docs.gdc.cancer.gov/API/Users_Guide/Getting_Started/#api-endpoints ]
+
+.small[ https://bioconductor.org/packages/GenomicDataCommons/ ]
+
+- `GDCRNATools`- Downloading, organizing, and integrative analyzing RNA data in the GDC
+
+.small[ https://github.com/rli012/GDCRNATools ]
+
+.small[ Li, Ruidong, Han Qu, Shibo Wang, Julong Wei, Le Zhang, Renyuan Ma, Jianming Lu, Jianguo Zhu, Wei-De Zhong, and Zhenyu Jia. “GDCRNATools: An R/Bioconductor Package for Integrative Analysis of LncRNA, MiRNA, and MRNA Data in GDC,” December 11, 2017. https://doi.org/10.1101/229799. ]
 
 
-- **OncoPrint visualizations**
-- **Survival analysis **
-- **Mutation mapping on protein structures**
-- **Pathway enrichment analysis**
-- **Co-expression &amp; correlation tools**
 
-.small[ https://www.cbioportal.org ]
+---
+## LINCS: Library of Integrated Network-based Cellular Signatures
+
+- A NIH Common Fund program that generates a massive library of molecular "signatures" (patterns).
+
+- Measures cellular responses to chemical, genetic, and environmental stressors across multiple cell types.
+
+- Integrates diverse data types including transcriptomics, proteomics, and high-content imaging.
+
+&lt;img src="img/LINCS.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
+
+.small[ https://lincsproject.org/ ]
+
+---
+## Connectivity Map (CMap)
+
+- A biological resource for finding connections between genes, drugs, and diseases via gene expression.
+
+- Utilizes the **L1000 assay**, a high-throughput technology measuring ~1,000 landmark genes to infer the full transcriptome.
+
+- Contains over **1.3 million perturbational profiles**, significantly expanded from its original 2006 pilot.
+
+- Enables researchers to identify drugs that can mimic or reverse a specific disease state.
+
+.small[ https://www.broadinstitute.org/connectivity-map-cmap ]
+
+---
+## CLUE: CMap &amp; LINCS Unified Environment
+
+- The modern, cloud-based central hub to analyze CMap and LINCS data.
+
+- Provides user-friendly applications like **Query** for pattern matching and **Morpheus** for heatmap visualization.
+
+.small[
+.pull-left[
+**Core Analysis Tools**
+
+* **Touchstone:** Benchmark dataset of well-studied perturbagens used to assess and explore signature connectivity.
+
+* **Query:** Matches your gene expression signature against the entire CMap library to find positive or negative connections.
+
+* **Proteomics Query:** Connects protein sets of interest to the **Touchstone-P** reference (P100 and GCP proteomics data).
+]
+.pull-right[
+**Visualization &amp; Discovery**
+
+* **Morpheus:** Interactive matrix visualization tool for manipulating, annotating, and exploring heatmaps of genomic datasets.
+
+* **Repurposing:** A dedicated portal to explore ~5,000 clinical drugs and tool compounds for new therapeutic opportunities.
+
+https://clue.io 
+]
+]
+
+---
+## DepMap: Cancer Dependency Map
+
+Mapping Genetic Vulnerabilities in Cancer
+
+* **Gene Essentiality:** Identifies critical survival genes via **CRISPR screens** in &gt;1,000 cell lines.
+
+* High-throughput drug response data (PRISM, CTD²).
+
+* Correlates genetic alterations directly with drug sensitivity.
+
+.small[ https://depmap.org/portal ]
 
 ---
 ## COSMIC: Catalogue of Somatic Mutations
@@ -123,113 +275,98 @@ class: center, middle, inverse, title-slide
 .small[ https://www.ncbi.nlm.nih.gov/clinvar ]
 
 ---
-## UCSC Genome Browser
+## CIViC: Clinical Interpretation of Variants in Cancer
 
-**The Hub for Genomic Visualization**
+An open-access, collaborative platform for the clinical interpretation of cancer variants.
 
-* **Interactive Context:** Explore hundreds of annotation tracks.
+- Links specific genomic alterations to therapeutic, prognostic, diagnostic, and predisposing clinical actions.
 
-* **Data Integration:** Seamlessly upload and view **Custom Tracks**.
+- Peer-reviewed summaries of the clinical significance of mutations, curated from medical literature.
 
-* **Comparative Analysis:** Conservation, regulation, and multi-species alignments.
+- Designed to bridge the gap between raw genomic data and actionable oncology bedside decisions.
 
-* **Global Standard:** Real-time access to variation and clinical data.
-
-.small[ https://genome.ucsc.edu ]
+.small[ https://civicdb.org ]
 
 ---
-## Ensembl
+## IntOGen: Catalog of Cancer Driver Mutations
 
-**Comprehensive Genome Annotation**
+A comprehensive resource for identifying **cancer driver genes** across 28,000+ tumors and 66 cancer types.
 
-* **Core Genes:** Gold-standard gene and transcript annotations.
+- Combines multiple computational methods to detect signals of **positive selection** in cancer genomes.
 
-* **Variant Analysis:** Industry-leading **Variant Effect Predictor (VEP)**.
+- Provides biological and clinical context for identified drivers to support drug discovery and research.
 
-* **Regulation:** Deep epigenomics and regulatory feature mapping.
+.small[ https://www.intogen.org 
 
-* **Evolution:** Extensive comparative genomics across lineages.
-
-.small[ https://www.ensembl.org ]
+Gonzalez-Perez, Abel, Christian Perez-Llamas, Jordi Deu-Pons, David Tamborero, Michael P Schroeder, Alba Jene-Sanz, Alberto Santos, and Nuria Lopez-Bigas. “IntOGen-Mutations Identifies Cancer Drivers across Tumor Types.” Nature Methods 10, no. 11 (September 15, 2013): 1081–82. https://doi.org/10.1038/nmeth.2642. ]
 
 ---
-## WashU Epigenome Browser
+## AACR Project GENIE
 
-**Next-Gen Epigenomic Visualization**
+An international pan-cancer registry of real-world clinical-grade genomic data.
 
-* **Integrated Data:** Native access to **Roadmap Epigenomics** projects.
+- Aggregates data from over **150,000 sequenced tumors** across 19 world-leading cancer centers.
 
-* **Format Flexibility:** Supports standard UCSC track types and features.
+- Links CLIA-certified genomic sequencing with clinical outcomes, treatment history, and patient demographics.
 
-* **Interoperability:** Effortlessly load **UCSC Track Hub** documents.
+- Primary public access is provided through **cBioPortal** for rapid visualization and query.
 
-* **Advanced Mapping:** Specialized for high-resolution (epi)genomic landscapes.
-
-.small[ https://epigenomegateway.wustl.edu/ ]
+.small[ https://www.aacr.org/professionals/research/aacr-project-genie ]
 
 ---
-## Genomic Data Visualization
-Integrative Genomics Viewer (IGV)
-&lt;img src="img/igv.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
-.small[ https://igv.org/doc/desktop/ ]
+## OncoKB: Precision Oncology Knowledge Base
+
+High-quality, expert-reviewed database detailing the biological and clinical effects of somatic mutations.
+
+- Categorizes variants by FDA-approved labels and professional guidelines for targeted therapies.
+
+- Maps genomic alterations to specific drugs, providing therapeutic recommendations for clinical decision support.
+
+- Frequently paired with cBioPortal for real-time clinical annotation of cancer genomic profiles.
+
+.small[ https://www.oncokb.org ]
 
 ---
-## IGV Features
+## PharmGKB: Pharmacogenomics Knowledgebase
 
-- Explore large genomic datasets with an intuitive, easy-to-use interface.
+A comprehensive resource for how genetic variation impacts drug efficacy, dosage, and toxicity.
 
-- Integrate multiple data types with clinical and other sample information.
+- Provides annotated **CPIC** (Clinical Pharmacogenetics Implementation Consortium) guidelines and regulatory drug labels (FDA, EMA).
 
-- View data from multiple sources:
-    - local, remote, and "cloud-based".
-    - Intelligent remote file handling - no need to download the whole dataset
+- Variants are assigned a **Level of Evidence (1-4)** based on the strength of the association in the literature.
 
-- Automation of specific tasks using command-line interface
+- Includes curated diagrams of pharmacokinetics (PK) and pharmacodynamics (PD) for specific drugs.
 
-.small[ https://github.com/griffithlab/rnaseq_tutorial/wiki/IGV-Tutorial ]
+.small[ https://www.pharmgkb.org ]
 
 ---
-## NCBI Gene Browser
+class: middle,center
 
-**Integrated Clinical &amp; Literature Hub**
-
-* **Reference Standards:** Curated **RefSeq** gene summaries and annotations.
-
-* **Unified Ecosystem:** Direct links to NCBI databases (GEO, dbGaP, Assembly).
-
-* **Clinical Insights:** Real-time association with **ClinVar** and clinical variants.
-
-* **Evidence-Based:** Integrated access to gene-specific **PubMed** literature.
-
-.small[ https://www.ncbi.nlm.nih.gov/gene ]
+# General genomic resources
 
 ---
 ## GTEx: Genotype-Tissue Expression
 
-**The Gold Standard for Baseline Expression**
+The Gold Standard for Baseline Expression
 
-* **Comprehensive Map:** Bulk RNA-seq of **54 non-diseased tissues**.
+* Bulk RNA-seq of **54 non-diseased tissues**.
 
-* **Massive Scale:** Data from **~1,000 donors** and **&gt;17,000 samples**.
+* Data from **~1,000 donors** and **&gt;17,000 samples**.
 
-* **Regulatory Insights:** Leading resource for **eQTL** (expression Quantitative Trait Loci) mapping.
-
-* **Baseline Reference:** Defines "normal" expression to identify disease-related deviations.
+* Leading resource for **eQTL** (expression Quantitative Trait Loci) mapping.
 
 .small[ https://gtexportal.org ]
 
 ---
 ## GEO: Gene Expression Omnibus
 
-**The Global Repository for Functional Genomics**
+The Global Repository for Functional Genomics
 
-* **Largest Database:** Access to **3+ million samples** from thousands of independent studies.
+* Access to **3+ million samples** from thousands of independent studies.
 
-* **Technological Breadth:** Archives both legacy **Microarray** and modern **Next-Gen Sequencing** (RNA-seq).
+* Archives both legacy **Microarray** and modern **Next-Gen Sequencing** (RNA-seq).
 
-* **Deep Context:** Full experimental metadata alongside raw and processed data files.
-
-* **Open Science:** Built for community-driven **reanalysis and meta-studies**.
+* Full experimental metadata alongside raw and processed data files.
 
 .small[ https://www.ncbi.nlm.nih.gov/geo ]
 
@@ -320,15 +457,175 @@ https://archs4.org/
 ]
 
 ---
-## Single-Cell RNA-seq Resources
+## ENCODE Project
 
-**Limitations of Bulk RNA-seq**
+- Encyclopedia of **DNA elements**
+
+- Regulatory regions, TFBSs, chromatin state
+
+- \&gt;10,000 experiments across cell types
+
+- Includes cancer cell lines
+
+
+- ChIP-seq (histone marks, TFs)
+- DNase-seq / ATAC-seq
+- RNA-seq (incl. long non-coding RNAs)
+- 3D genome organization (Hi-C)
+
+.small[ https://www.encodeproject.org ]
+
+---
+## Roadmap Epigenomics
+
+Reference Maps of the Human Epigenome
+
+* Features **127 consolidated epigenomes** from primary human tissues and stem cells.
+
+* Defines core **chromatin states** (promoters, enhancers, quiescent) using ChromHMM.
+
+* Unified mapping of **DNA methylation**, **histone marks**, and **chromatin accessibility**.
+
+* Establishes the "normal" landscape to identify epigenetic disruptions in disease.
+
+.small[ http://www.roadmapepigenomics.org ]
+
+---
+class: middle, center
+
+# Genome browsers/Visualization
+
+---
+## UCSC Genome Browser
+
+The Hub for Genomic Visualization
+
+* Explore hundreds of annotation tracks.
+
+* Seamlessly upload and view **Custom Tracks**.
+
+* Conservation, regulation, and multi-species alignments.
+
+* Real-time access to variation and clinical data.
+
+.small[ https://genome.ucsc.edu ]
+
+---
+## UCSC Xena Functional Genomics Explorer
+
+* Former UCSC Cancer Genomics Browser. Now UCSC Xena
+
+* Includes TCGA, Cancer Cell Line Encyclopedia, the Stand Up To Cancer (SU2C) Breast Cancer data, custom datasets
+
+* A tool to visually explore and analyze cancer genomics data and its associated clinical information.
+
+* Gene- and genome-centric view
+
+* Survival analysis on user-defined subgroups
+
+.small[
+https://xenabrowser.net/, https://xenabrowser.net/datapages/, http://xena.ucsc.edu/getting-started/
+
+Cline, Melissa S., Brian Craft, Teresa Swatloski, Mary Goldman, Singer Ma, David Haussler, and Jingchun Zhu. “Exploring TCGA Pan-Cancer Data at the UCSC Cancer Genomics Browser.” Scientific Reports 3 (October 2, 2013): 2652. https://doi.org/10.1038/srep02652.
+]
+
+
+&lt;!---
+## Ensembl
+
+**Comprehensive Genome Annotation**
+
+* **Core Genes:** Gold-standard gene and transcript annotations.
+
+* **Variant Analysis:** Industry-leading **Variant Effect Predictor (VEP)**.
+
+* **Regulation:** Deep epigenomics and regulatory feature mapping.
+
+* **Evolution:** Extensive comparative genomics across lineages.
+
+.small[ https://www.ensembl.org ] --&gt;
+
+---
+## WashU Epigenome Browser
+
+Next-Gen Epigenomic Visualization
+
+* Native access to **Roadmap Epigenomics** projects.
+
+* Supports standard UCSC track types and features.
+
+* Specialized for high-resolution large (epi)genomic landscapes.
+
+.small[ https://epigenomegateway.wustl.edu/ ]
+
+---
+## Genomic Data Visualization
+Integrative Genomics Viewer (IGV)
+&lt;img src="img/igv.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+.small[ https://igv.org/doc/desktop/ ]
+
+---
+## IGV Features
+
+- Explore large genomic datasets with an intuitive, easy-to-use interface.
+
+- Integrate multiple data types with clinical and other sample information.
+
+- View data from multiple sources:
+    - local, remote, and "cloud-based".
+    - Intelligent remote file handling - no need to download the whole dataset
+
+- Automation of specific tasks using command-line interface
+
+.small[ https://github.com/griffithlab/rnaseq_tutorial/wiki/IGV-Tutorial ]
+
+---
+## UCSC annotations in IGV
+
+&lt;img src="img/igv_annotations.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+
+&lt;!--
+NCBI Gene Browser
+
+**Integrated Clinical &amp; Literature Hub**
+
+* **Reference Standards:** Curated **RefSeq** gene summaries and annotations.
+
+* **Unified Ecosystem:** Direct links to NCBI databases (GEO, dbGaP, Assembly).
+
+* **Clinical Insights:** Real-time association with **ClinVar** and clinical variants.
+
+* **Evidence-Based:** Integrated access to gene-specific **PubMed** literature.
+
+.small[ https://www.ncbi.nlm.nih.gov/gene ]--&gt;
+
+&lt;!--
+Galaxy
+
+- Web-based framework offering a user-friendly interface mapping to most popular bioinformatics tools
+    - "Data intensive biology for everyone."
+
+- Allows for reproducible results
+    - Steps / parameters kept in history
+
+- Ability to design custom pipelines and import others’
+    - All through a user-friendly GUI
+
+- Tailored for small/medium scale projects with not too many samples
+
+.small[ https://usegalaxy.org/ ]
+--&gt;
+
+---
+class: middle,center
+
+# Single-Cell RNA-seq Resources
+
+&lt;!-- **Limitations of Bulk RNA-seq**
 - Averages signal across all cells
 - Masks **cellular heterogeneity**
 - Cannot identify rare cell populations
 - Misses cell-type specific effects
-
---
 
 **Single-Cell Advantages**
 - Cell-type resolution
@@ -336,6 +633,7 @@ https://archs4.org/
 - Tumor microenvironment composition
 - Cell state transitions
 - Track clonal evolution
+--&gt;
 
 ---
 ## CELLxGENE Discover
@@ -376,6 +674,19 @@ https://archs4.org/
 .small[ https://data.humancellatlas.org ]
 
 ---
+## 10x Genomics Datasets
+
+Collection of high-quality, open-access scRNA-seq datasets.
+
+- Widely used by the community to test and validate new bioinformatic algorithms and pipelines.
+
+- Includes data for single-cell ATAC-seq, spatial transcriptomics (Visium), and immune profiling.
+
+- Spans diverse biological contexts, including peripheral blood (PBMC), tumor microenvironments, and embryonic development.
+
+.small[ https://www.10xgenomics.com/datasets ]
+
+---
 ## Cancer-Specific Single-Cell Atlases
 
 **Single Cell Portal (Broad)**
@@ -408,53 +719,9 @@ https://archs4.org/
 --&gt;
 
 ---
-## DepMap: Cancer Dependency Map
+class: middle,center
 
-**Mapping Genetic Vulnerabilities in Cancer**
-
-* **Gene Essentiality:** Identifies critical survival genes via **CRISPR screens** in &gt;1,000 cell lines.
-
-* **Functional Genomics:** Quantifiable scores for gene dependency across diverse cancer types.
-
-* **Pharmacological Profiling:** High-throughput **drug response data** (PRISM, CTD²).
-
-* **Precision Insights:** Correlates genetic alterations directly with **drug sensitivity**.
-
-.small[ https://depmap.org/portal ]
-
----
-## ENCODE Project
-
-- Encyclopedia of **DNA elements**
-
-- Regulatory regions, TFBSs, chromatin state
-
-- \&gt;10,000 experiments across cell types
-
-- Includes cancer cell lines
-
-
-- ChIP-seq (histone marks, TFs)
-- DNase-seq / ATAC-seq
-- RNA-seq (incl. long non-coding RNAs)
-- 3D genome organization (Hi-C)
-
-.small[ https://www.encodeproject.org ]
-
----
-## Roadmap Epigenomics
-
-**Reference Maps of the Human Epigenome**
-
-* **Massive Atlas:** Features **127 consolidated epigenomes** from primary human tissues and stem cells.
-
-* **Functional States:** Defines core **chromatin states** (promoters, enhancers, quiescent) using ChromHMM.
-
-* **Multi-Omics Integration:** Unified mapping of **DNA methylation**, **histone marks**, and **chromatin accessibility**.
-
-* **Regulatory Baseline:** Establishes the "normal" landscape to identify epigenetic disruptions in disease.
-
-.small[ http://www.roadmapepigenomics.org ]
+# Protein/Pathway resources
 
 ---
 ## Human Protein Atlas
@@ -479,15 +746,13 @@ https://archs4.org/
 ---
 ## STRING: Protein-Protein Interactions
 
-**Mapping the Functional Interactome**
+Mapping the Functional Interactome
 
-* **Global Networks:** Visualizes complex **Protein-Protein Interaction (PPI)** frameworks.
+* Visualizes complex **Protein-Protein Interaction (PPI)** frameworks.
 
-* **Predictive Power:** Combines confirmed experimental data with high-confidence computational predictions.
+* Combines confirmed experimental data with high-confidence computational predictions.
 
-* **Massive Scope:** Covers **&gt;14,000 organisms** with a specialized focus on the human proteome.
-
-* **Multichannel Evidence:** Aggregates data from **lab experiments, curated databases, and automated text-mining**.
+* Covers **&gt;14,000 organisms** with a specialized focus on the human proteome.
 
 .small[ https://string-db.org ]
 
@@ -510,53 +775,22 @@ https://archs4.org/
 .small[ https://reactome.org ]
 
 ---
-## Specialized Resources
-.pull-left[
-**UCSC Xena**
-- Visual browser for TCGA/GTEx data
-**https://xenabrowser.net**
-&lt;!-- - Compare cohorts side-by-side --&gt;
+## CPTAC: Clinical Proteomic Tumor Analysis Consortium
 
-**CIViC**
-- Clinical interpretations of variants
-**https://civicdb.org**
-&lt;!-- - Therapeutic/prognostic/diagnostic evidence --&gt;
+A comprehensive effort to accelerate the understanding of the molecular basis of cancer through the integration of **proteomics and genomics**.
 
-**OncoKB**
-- Precision oncology knowledge base
-**https://www.oncokb.org**
-&lt;!-- - Mutation actionability &amp; FDA approvals --&gt;
-]
+- Provides high-throughput, standardized quantitative protein expression data (mass spectrometry) alongside matched DNA and RNA sequencing.
 
-.pull-right[
-**AACR GENIE**
-**https://www.aacr.org/professionals/research/aacr-project-genie**
-- Clinical genomic data
-- \&gt;100,000 sequenced tumors
-- Access via cBioPortal
+- Goes beyond the genome to identify how mutations and copy number alterations manifest as changes in **protein levels and post-translational modifications** (e.g., phosphorylation).
 
-**10x Genomics Datasets**
-**https://www.10xgenomics.com/datasets**
-- High-quality reference scRNA-seq
-- Benchmarking datasets
-]
+- Links deep molecular phenotypes with detailed clinical and pathological data across a wide range of cancer types.
+
+.small[ https://proteomics.cancer.gov/programs/cptac ]
 
 ---
-## Galaxy
+class: middle, center
 
-- Web-based framework offering a user-friendly interface mapping to most popular bioinformatics tools
-    - "Data intensive biology for everyone."
-
-- Allows for reproducible results
-    - Steps / parameters kept in history
-
-- Ability to design custom pipelines and import others’
-    - All through a user-friendly GUI
-
-- Tailored for small/medium scale projects with not too many samples
-
-.small[ https://usegalaxy.org/ ]
-
+# References
 
 ---
 ## Large genomics projects and resources
