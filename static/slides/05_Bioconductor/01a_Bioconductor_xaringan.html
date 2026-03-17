@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Bioconductor</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-03-16" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Bioconductor
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-03-16
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+&lt;!--
+## High-throughput sequence workflow
+&lt;img src="img/SequencingEcosystem.png" alt="" width="800px" style="display: block; margin: auto;" /&gt;
+--&gt;
+
+## Bioconductor
+
+**Analysis and comprehension of high-throughput genomic data**
+
+* **Statistical Analysis:** Rigorous methods specifically designed for the unique noise and scale of large genomic datasets (e.g., normalization for sequencing depth).
+
+* **Interpretation &amp; Visualization:** Tools to bridge the gap between raw numbers and biological insights, including pathway analysis and publication-quality genomic plots.
+
+* **Unified Framework:** Ensures reproducibility by providing a consistent object-oriented structure across different data types.
+
+---
+## Bioconductor
+
+**Comprehensive Technology Support:**
+
+* **Next-Gen Sequencing (NGS):** RNA-Seq, ChIP-Seq, Single-cell, Variant Calling, and Copy Number analysis.
+
+* **Proteomics &amp; Metabolomics:** Mass spectrometry and protein interaction data.
+
+* **Single-Cell Analysis:** Flow cytometry, CyTOF, and spatial transcriptomics.
+
+* **Bio-Imaging:** Automated high-content screening and image processing.
+
+.small[ https://github.com/mikelove/bioc-refcard ]
+
+---
+## Bioconductor Package Ecosystem
+
+- **Official Repository:** [bioconductor.org](https://www.bioconductor.org/)
+
+- **Scale:** Currently hosts over **2,000+** software packages, along with thousands of annotation and experiment data packages.
+
+- **Discovery via `biocViews`:** A specialized ontology (tags) used to browse packages by biological topic (e.g., *Epigenetics*), technology (e.g., *SingleCell*), or function (e.g., *Classification*).
+
+.small[ **Browse all software:** http://bioconductor.org/packages/release/BiocViews.html#___Software ]
+
+---
+## Bioconductor Package Ecosystem
+
+- **Package 'Landing Pages':** Every package features a standardized entry point including:
+    - **Documentation:** Direct links to **Vignettes** (long-form tutorials) and **Reference Manuals**.
+    - **Installation:** Specific `BiocManager::install()` commands.
+    - **Community Metrics:** Support site activity and monthly download statistics.
+    - **Provenance:** Author/maintainer contact and citation requirements.
+
+- **Release Cycle:** - **Release Branch:** Stable versions updated every six months (aligned with R releases) for production work.
+    - **Devel Branch:** The "bleeding edge" where new features are integrated and tested.
+
+---
+## Documentation: Manuals &amp; Vignettes
+
+* **Function-Level Help:** Every user-exposed function includes a dedicated help page. Assembled in **reference manuals**.
+    * Access via `?function_name` (e.g., `?readVcf`).
+    * Contains **runnable examples** that use built-in sample data to demonstrate immediate utility.
+
+--
+
+* **Vignettes (Narrative Tutorials):** A hallmark of *Bioconductor*. Provide high-level context and step-by-step analysis workflows.
+    * **Integrated Code:** Combines explanatory text with executable R code blocks.
+    * **Format:** Usually available as polished HTML or PDF documents.
+    * **Discovery:** Use `vignette(package="PackageName")` to list available tutorials.
+
+.small[ **Example Resource:** http://bioconductor.org/packages/devel/AnnotationHub ]
+
+---
+## The S4 Object System: Interoperability by Design
+
+*Bioconductor* relies on a formal object-oriented system called **S4**. This ensures that complex biological data—like gene sequences, sample metadata, and quality scores—stay bundled together correctly and can be passed from one package to another without breaking.
+
+* **Data Integrity:** S4 classes have "slots" with strict data types, preventing you from accidentally putting a character string where a genomic coordinate should be.
+
+* **Interoperability:** Because many packages agree on a single format (like `GRanges`), you can use a package for alignment, another for filtering, and a third for visualization without manual reformatting.
+
+---
+## Exploring Objects Interactively
+
+R provides built-in tools to "peek under the hood" of these complex objects:
+
+* **Discovery:** Use `methods(class="GRanges")` to see every function that can operate on a specific object type.
+
+* **Definitions:** * `getClass("GRanges")`: Shows the internal structure and slots of a class.
+    * `selectMethod("findOverlaps", c("GRanges", "GRanges"))`: Shows the specific R code used to run a function for that object.
+
+---
+## Exploring Objects Interactively
+
+**Accessing the Right Help.**
+
+Because S4 uses "multiple dispatch" (the same function name might do different things for different objects), precise help is key:
+
+* **Class Help:** Use `?GRanges-class` to see the documentation for the object structure itself.
+
+* **Method Help:** Type `?findOverlaps,` and then hit the **`&lt;Tab&gt;`** key. This allows you to choose the documentation for the specific version of the function you are using (e.g., `findOverlaps` for `GRanges` vs. `GRangesList`).
+
+---
+## High-throughput sequence data
+
+&lt;img src="img/FilesToPackages.png" alt="" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+## DNA/amino acid sequences: FASTA files
+
+- The `Biostrings` package is used to represent DNA and other sequences, with many convenient sequence-related functions, e.g., `?consensusMatrix`.
+
+Input &amp; manipulation, FASTA file example:
+
+&gt; NM_078863_up_2000_chr2L_16764737_f chr2L:16764737-16766736
+&gt; gttggtggcccaccagtgccaaaatacacaagaagaagaaacagcatctt
+&gt; gacactaaaatgcaaaaattgctttgcgtcaatgactcaaaacgaaaatg
+
+.small[ http://bioconductor.org/packages/Biostrings ]
+
+---
+## `Biostrings`, DNA or amino acid sequences
+
+**Classes**
+
+* `XString`, `XStringSet`, e.g., `DNAString`, `DNAStringSet`
+
+**Methods**
+
+* Manipulation, e.g., `reverseComplement()`
+
+* Summary, e.g., `letterFrequency()`
+
+* Matching, e.g., `matchPDict()`, `matchPWM()`
+
+.small[ http://bioconductor.org/packages/Biostrings ]
+
+---
+## Reads: FASTQ files
+
+- The `ShortRead` package can be used for lower-level access to FASTQ files: `readFastq()`, `FastqStreamer()`, `FastqSampler()`
+
+Input &amp; manipulation, FASTQ file example: 
+
+```text
+@ERR127302.1703 HWI-EAS350_0441:1:1:1460:19184#0/1
+CCTGAGTGAAGCTGATCTTGATCTACGAAGAGAGATAGATCTTGATCGTCGAGGAGATGCTGACCTTGACCT
++
+HHGHHGHHHHHHHHDGG&lt;GDGGE@GDGGD&lt;?B8??ADAD&lt;BE@EE8EGDGA3CB85*,77@&gt;&gt;CE?=896=:
+```
+
+.small[ http://bioconductor.org/packages/ShortRead ]
+
+---
+## Processing Aligned Reads: SAM/BAM Files
+
+**'Low-Level' Control: `Rsamtools`.**
+Designed for developers or specialized tasks requiring granular control over the BAM file interface.
+
+* **Functionality:** Provides a direct wrapper around the **HTSlib** C library.
+
+* **Capabilities:** 
+  * `scanBam()`: Retrieves raw data from BAM files as a list of lists.
+  * `indexBam()` / `sortBam()` / `mergeBam()`: File management utilities.
+  * `pileup()`: Summarizes nucleotides at each genomic position.
+
+* **Best for:** Developing new tools, custom filtering based on bitwise flags, or memory-restricted streaming.
+
+.small[ http://bioconductor.org/packages/Rsamtools ]
+
+---
+## Processing Aligned Reads: SAM/BAM Files
+
+**'High-Level' Analysis: `GenomicAlignments`**
+Designed for biologists and bioinformaticians performing standard analysis. It abstracts the complexity of the BAM file into familiar genomic objects.
+
+* **Functionality:** Reads alignments directly into `GAlignments` or `GAlignmentPairs` objects.
+
+* **Ease of Use:** Automatically handles CIGAR strings to determine the "footprint" of a read on the genome.
+
+* **Best for:** Overlap counting, coverage calculations, and visualising read density.
+
+.small[ https://bioconductor.org/packages/GenomicAlignments ]
+
+
+---
+## `GenomicAlignments`: Processing Aligned Reads
+
+GenomicAlignments classes inherit from the `GenomicRanges` infrastructure, making them compatible with standard range operations while adding alignment-specific metadata:
+
+* **`GAlignments`**: Represents a set of "single-end" alignments. Stores the genomic position, strand, and the **CIGAR string** (which describes insertions, deletions, and matches).
+
+* **`GAlignmentPairs`**: Specifically designed for "paired-end" data, maintaining the relationship between the first and last fragments of a DNA molecule.
+
+* **`GAlignmentsList`**: A container for grouping alignments, often used for reads that map to multiple locations or chimeric alignments.
+
+---
+## `GenomicAlignments`: Processing Aligned Reads
+
+The `GenomicAlignments` package provides a specialized framework for representing and manipulating short-read alignments (typically from BAM files) against a reference genome.
+
+* **Data Input:**
+    * `readGAlignments()`: Efficiently loads BAM files into R.
+    * `readGAlignmentsList()`: Useful for loading paired-end data where some reads may have multiple or complex fragments.
+
+* **Quantification:**
+    * `summarizeOverlaps()`: A high-level function used to count how many reads overlap with specific genomic features (like exons or genes). This is a critical step for preparing data for differential expression analysis (e.g., with `DESeq2`).
+
+.small[ https://bioconductor.org/packages/release/bioc/html/GenomicAlignments.html ]
+
+---
+## `VariantAnnotation`: VCF Format Analysis
+
+The `VariantAnnotation` package is the primary Bioconductor tool for interacting with **Variant Call Format (VCF)** files. It allows for high-performance reading, filtering, and functional annotation of SNPs, insertions, and deletions.
+
+* `readVcf()`: Loads the entire VCF (or a subset) into a `VCF` object, which coordinates fixed data (location, alleles), info data (site-level metadata), and genotype data (sample-level data).
+
+* `readInfo()`: Retrieves only the site-specific annotations (e.g., ancestral allele, mapping quality).
+
+* `readGeno()`: Extracts specific sample-level fields like Genotype (`GT`) or Depth (`DP`).
+
+---
+## Data Structures and Methods for Variants
+
+The `VariantAnnotation` package utilizes specialized S4 classes to represent genomic variation, leveraging the `GenomicRanges` infrastructure.
+
+* **`VCF` (Wide Format)**: The primary container for VCF data. 
+    * It is "wide" because it maintains a matrix-like structure where rows represent variants and columns represent samples.
+    * Best for multi-sample analysis where you need to compare genotypes (GT), depths (DP), or qualities (GQ) across an entire cohort.
+
+--
+
+* **`VRanges` (Tall Format)**: A specialized version of `GRanges`.
+    * It is "tall" because it treats each variant-sample combination as an individual row.
+    * Optimized for single-nucleotide variant (SNV) analysis, filtering, and performing statistical operations on specific alleles.
+
+---
+## `VariantAnnotation`: Analytical Methods
+
+**Input/Output &amp; Filtering**:
+
+* `readVcf()` / `writeVcf()`: Standard functions for importing and exporting VCF data.
+
+* `filterVcf()`: Allows for "streaming" through a VCF file on disk to create a new, smaller VCF based on specific criteria without loading the entire file into memory.
+
+---
+## `VariantAnnotation`: Analytical Methods
+
+**Functional Annotation**:
+
+* `locateVariants()`: Maps variants to gene structures (coding, promoter, UTR, intronic).
+
+* `predictCoding()`: Translates DNA changes into protein consequences using a `BSgenome` reference and a `TxDb` object.
+
+* `summarizeVariants()`: High-level counting of variants per genomic feature.
+
+---
+## `VariantAnnotation`: Analytical Methods
+
+**SNP Analysis**:
+
+* `genotypeToSnpMatrix()`: Converts VCF genotype data into the `SnpMatrix` format required by the `snpStats` package for Genome-Wide Association Studies (GWAS).
+
+* `snpSummary()`: Provides quick transition and transversion counts and other allele frequencies.
+
+.small[ http://bioconductor.org/packages/VariantAnnotation ]
+
+---
+## `rtracklayer`: Bridging Files and Ranges
+
+- The `rtracklayer` package serves as the primary interface between external genomic file formats and Bioconductor’s internal data structures. 
+
+- It provides a unified framework for importing and exporting data, while also offering direct integration with the UCSC Genome Browser.
+
+- The `import()` and `export()` functions automatically detect file formats and convert them into `GRanges` or `UCSCData` objects.
+
+---
+## `rtracklayer`: Genomic Browser Integration
+
+* **BED (Browser Extensible Data):** Used for defining genomic features and track annotations. 
+  * *Result:* Imported as a `GRanges` object with standard columns (chrom, start, end, strand) and optional name/score metadata.
+
+* **WIG / bigWig:** Used for dense, continuous-valued data such as conservation scores or signal tracks (ChIP-seq peaks). 
+  * *Result:* `bigWig` is preferred for large datasets as it allows for fast, random access to genomic regions without loading the entire file.
+
+---
+## `rtracklayer`: Genomic Browser Integration
+
+* **GTF / GFF (Gene Transfer Format):** The standard for describing gene models, including exons, introns, and CDS.
+  * *Result:* Imported with detailed metadata columns for `gene_id`, `transcript_id`, and `exon_number`.
+
+* **UCSC Interaction:** Beyond file handling, `rtracklayer` allows you to create, manage, and view "tracks" directly on the UCSC Genome Browser from within your R session.
+
+* **LiftOver Support:** Provides the `liftOver()` function to translate genomic coordinates between different genome assemblies (e.g., converting `hg19` coordinates to `hg38`).
+
+.small[ http://bioconductor.org/packages/rtracklayer ]
+
+---
+## Summary: The Bioconductor Ecosystem
+
+* **Comprehensive Genomic Toolkit:** *Bioconductor* is a world-leading repository of open-source software, providing specialized tools for almost every high-throughput biological assay.
+
+* **Data Integrity via S4 Classes:** The project relies on **formal S4 classes** (like `GRanges`, `SummarizedExperiment`, and `VCF`). These classes act as "containers" that enforce data integrity and cross-compatibility.
+
+* **Vignettes as the Primary Resource:** **Vignettes** provide end-to-end analysis workflows, combining explanatory text with executable code that serves as a template for your own research.
+
+.small[ The Bioconductor Help Page https://www.bioconductor.org/help/ ]
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,415 @@
+---
+title: "Biostrings and Genomic Data Demo"
+output: html_document
+---
+
+## Introduction
+
+This document demonstrates the core functionalities of the `Biostrings` package and related Bioconductor packages for sequence analysis, genomic range manipulation, and variant annotation.
+
+### Basic BString Operations
+
+The `Biostrings` package provides efficient containers for string manipulation. The `BString` class is a general-purpose container for large strings.
+
+```{r bstring-basics}
+library(Biostrings)
+
+# Create a basic Biostring object
+a = BString("I am a string!") 
+a
+# Get the number of characters in the string
+length(a)
+# Extract the first 4 characters using standard R indexing
+a[1:4]
+# Extract a subsequence using the subseq function
+subseq(a, 1, 4)
+# Extract a subsequence from the start up to the 4th character
+subseq(a, end=4)
+# Reverse the string (note: this simply reverses characters, it is NOT a biological reverse complement)
+rev(a)
+
+# Logical comparisons
+a == "I am a string!" # Returns TRUE
+a[1:4] == "I am"      # Returns TRUE
+
+# Convert the BString back to a standard R character vector
+toString(a)
+# Check the object classes
+class(a)              # "BString"
+class(toString(a))    # "character"
+
+```
+
+### DNA and RNA Strings
+
+For biological data, it is better to use `DNAString` or `RNAString`, which enforce specific biological alphabets and enable specialized operations.
+
+```{r dna-rna-strings}
+## Inspect built-in biological alphabets and maps
+IUPAC_CODE_MAP # Dictionary of IUPAC ambiguity codes
+DNA_ALPHABET   # Allowed characters in a DNAString
+DNA_BASES      # The four core DNA bases (A, C, G, T)
+RNA_ALPHABET   # Allowed characters in an RNAString
+RNA_BASES      # The four core RNA bases (A, C, G, U)
+
+# Attempting to create a DNAString with non-DNA characters generates an error/warning
+# a = DNAString("I am a string") # (Intentionally commented out to prevent error if run)
+
+# Create a valid DNA string
+a = DNAString("ATTGCC")
+a
+
+# Create a valid RNA string
+# b = RNAString("ATTGCC") # Warning/Error in strict modes, 'T' is not standard RNA
+b = RNAString("AUUGCC") # Correct RNA string
+b = RNAString(a)      # Converts the DNAString 'a' into an RNAString (T becomes U automatically)
+b
+
+# Explore available methods for the DNAStringSet class
+methods(class="DNAStringSet") |> head()
+# Bring up the help page for DNAStringSet
+?"DNAStringSet"
+# Open the Biostrings package vignettes in the browser
+# browseVignettes(package="Biostrings") 
+
+b
+a
+length(a) # Length of the DNA sequence
+a[1:3]    # Subset the first 3 nucleotides
+
+```
+
+### Sequence Frequencies and Complements
+
+`Biostrings` provides optimized functions to count base frequencies and compute complements.
+
+```{r frequencies-complements}
+## frequencies
+# Count occurrences of all letters in the DNA alphabet
+alphabetFrequency(a)
+# Count occurrences of only the primary bases (A, C, G, T), ignoring ambiguous bases
+alphabetFrequency(a, baseOnly=TRUE)
+
+# Count the frequency of a specific letter
+letterFrequency(a, "C")
+# Count the combined frequency of C and G
+letterFrequency(a, "CG")
+# Count C and G frequencies in a sliding window of width 3 across the sequence
+letterFrequencyInSlidingView(a, view.width = 3, letters = "GC")
+# Calculate frequencies of all 16 possible dinucleotides
+dinucleotideFrequency(a)
+
+## complements
+a
+# Generate the sequence complement (A->T, C->G)
+complement(a)
+# Generate the reverse complement (Standard for finding the opposite DNA strand)
+reverseComplement(a)
+
+```
+
+### String Distances and Pattern Matching
+
+This chunk calculates the Levenshtein distance (edit distance) between sequences, clusters them, and demonstrates finding substrings with optional mismatch tolerance.
+
+```{r string-matching}
+######## String matching
+a = DNAString("ACGTACGTACGC")
+b = DNAString("ACCTACGTAGGG")
+c = DNAString("AAACCCTTTGGG")
+
+# Combine into a DNAStringSet. Start/End define bounds to extract from the strings.
+abc <- DNAStringSet(c(a, b, c), start = c(1, 13, 25), end = c(12, 24, 36))
+abc
+
+# Compute pairwise string distances using Levenshtein (edit distance)
+library(pwalign) # pairwise sequence alignments
+sdist <- stringDist(abc, method = "levenshtein")
+sdist # Returns an object of class "dist".
+
+# Perform hierarchical clustering on the distance matrix and plot it
+clust <- hclust(sdist, method = "average")
+plot(clust)
+
+# Pattern matching with mismatches
+a = DNAString("TAGCTTATCAGACTGATGTTGACAGATCGGAAGAGCACACGTCTGAACTCC")
+b = DNAString("AAGATCGGAAGAGCACACGTCT")
+
+# ?matchPattern
+# Find b in a, allowing up to 1 mismatch
+matchPattern(b, a, max.mismatch = 1)
+
+a  
+# Find exact matches of "CGT" in a
+matchPattern("CGT", a)
+# Find matches of "CGT" allowing 1 mismatch
+matchPattern("CGT", a, max.mismatch=1)
+
+# Store the match object and extract its properties
+m = matchPattern("CGT", a, max.mismatch=1)
+m
+start(m)  # Start positions of matches
+end(m)    # End positions of matches
+length(m) # Number of matches found
+
+# Just count the matches without returning their coordinates
+countPattern("CGT", a, max.mismatch=1)
+
+```
+
+### Dictionaries and Position Weight Matrices (PWM)
+
+For more complex matching, you can match multiple patterns at once using dictionaries, or score sequences using a PWM.
+
+```{r pwm-and-dictionaries}
+## multiple matching
+a = DNAString("ACGTACGTACGC")
+# Create a dictionary of multiple patterns to search for simultaneously
+dict0 = PDict(c("CGT", "ACG"))
+# Find all occurrences of the dictionary patterns in the subject sequence
+mm = matchPDict(dict0, a)
+mm
+mm[[1]] # Matches for the first dictionary item ("CGT")
+mm[[2]] # Matches for the second dictionary item ("ACG")
+
+## matching using PWM (Position Weight Matrix)
+# Define a manual PWM (4 rows for A,C,G,T and columns representing positions)
+motif = matrix(c(0.97, 0.01, 0.01, 0.01, 0.1, 0.5, 0.39, 0.01, 0.01, 0.05, 0.5, 0.44), nrow=4)
+rownames(motif) = c("A", "C", "G", "T")
+motif
+
+a = DNAString("ACGTACGTACTC")
+# Find sequence regions that match the PWM well enough
+matchPWM(motif, a)
+# Count how many regions match the PWM
+countPWM(motif, a)
+# Score the sequence against the PWM starting at specific positions (1 through 10)
+PWMscoreStartingAt(motif, a, 1:10)
+
+```
+
+### XStringViews vs. DNAStringSet
+
+`Views` define specific segments of a *single* sequence without duplicating it in memory. `DNAStringSet` is a collection of distinct sequences.
+
+```{r views-vs-stringset}
+######### multiple strings: XStringViews
+a = DNAString("ACGTACGTACTC")
+# Create 'Views' on sequence 'a', defining three distinct windows
+a2 = Views(a, start=c(1,5,8), end=c(3,8,12))
+a2
+subject(a2) # The underlying base sequence the views reference
+length(a2)  # Number of views
+start(a2)   # Start coordinates
+end(a2)     # End coordinates
+
+# Calculate frequencies across all views
+alphabetFrequency(a2, baseOnly=TRUE)
+a2
+# Logical check on the views
+a2 == DNAString("ACGT")
+toString(a2)
+
+## DNAStringSet
+a = DNAString("ACGTACGTACTC")
+# Instead of views, create a distinct set of strings extracted from 'a'
+a2 = DNAStringSet(a, start=c(1,5,9), end=c(4,8,12))
+a2
+a2[[1]] # Access the first string in the set
+alphabetFrequency(a2, baseOnly=TRUE)
+
+```
+
+### Operations Allowed on StringSets but not Views
+
+Certain mathematical set operations and vectorized matching functions are only designed for `StringSet` objects.
+
+```{r set-operations}
+###### Operations only allowed for StringSet but not StringViews
+a = DNAString("ACGTACGTACTC")
+a1 = DNAStringSet(a, start=c(1,5,9), end=c(4,8,12))
+a1
+unique(a1) # Returns unique sequences in the set
+
+a2 = Views(a, start=c(1,5,9), end=c(4,8,12))
+a2
+# unique(a2) # Works only for Sets, running this on Views generates an error
+
+a1 = Views(a, start=c(1,9), end=c(4,12))
+a1
+a2 = Views(a, start=c(1), end=c(4))
+a2
+# setdiff(a1, a2) ## this will generate error because Views don't support set algebra
+# union(a1, a2)   ## error
+
+### set operations are allowed for StringSet
+a1 = DNAStringSet(a, start=c(1,9), end=c(4,12))
+a1
+a2 = DNAStringSet(a, start=c(1), end=c(4))
+a2
+setdiff(a1, a2) # Find sequences in a1 not in a2
+union(a1, a2)   # Combine unique sequences from a1 and a2
+
+####### matching for multiple strings
+a = DNAString("ACGTACGTACTC")
+a2 = DNAStringSet(a, start=c(1,5,9), end=c(4,8,12))
+a2
+# Vectorized match pattern - searches for "CG" across all strings in the set
+vv = vmatchPattern("CG", a2)
+vv
+vv[[1]] # Matches found in the first string
+
+## doesn't work for Views
+a2 = Views(a, start=c(1,5,9), end=c(4,8,12))
+a2
+# vv = vmatchPattern("CG", a2) # Generates an error, vmatchPattern requires a StringSet
+
+```
+
+### BSgenome and Reference Data Packages
+
+`BSgenome` packages contain full reference genomes. This demonstrates how to interact with full chromosomes.
+
+```{r bsgenome-exploration, eval=FALSE}
+#####################################################
+## Now show BSgenome and data packages
+#####################################################
+# Note: Ensure BSgenome and BSgenome.Hsapiens.UCSC.hg38 are installed
+library(BSgenome)
+
+# List all available genomes you have installed
+available.genomes()
+
+# Load the Human reference genome (hg38)
+library(BSgenome.Hsapiens.UCSC.hg38)
+# List objects available within this package
+ls("package:BSgenome.Hsapiens.UCSC.hg38")
+
+Hsapiens
+Hsapiens$chr1 # Extract full sequence for Chromosome 1
+
+seqnames(Hsapiens) # List all chromosome names
+seqlengths(Hsapiens)[1:25] # View the length (in bp) of the first 25 chromosomes
+
+# Slice out a specific 11bp region from Chromosome 1
+Hsapiens$chr1[100000000:100000010]
+
+# Calculate the base frequencies across all of Chromosome 1
+alphabetFrequency(Hsapiens$chr1, baseOnly=TRUE)
+# Get the relative proportions of each base on Chromosome 1
+alphabetFrequency(Hsapiens$chr1, baseOnly=TRUE) / length(Hsapiens$chr1)
+
+# Find all occurrences of the "CG" dinucleotide on Chromosome 1
+mm = matchPattern("CG", Hsapiens$chr1)
+length(mm) # Count of CG sites
+mm
+
+```
+
+### Masked Genomes and SNPs
+
+Masked genomes block out repetitive or uncharacterized regions. SNP packages inject known variant locations into the reference genome.
+
+```{r masked-genomes-snps, eval=FALSE}
+### masking
+# Note: Requires BSgenome.Hsapiens.UCSC.hg38.masked
+library(BSgenome.Hsapiens.UCSC.hg38.masked)
+
+# Accessing a masked chromosome reveals active masks (e.g., against repeats)
+Hsapiens[["chr1"]]
+Hsapiens$chr1
+
+## SNPs
+# List available and installed SNP packages
+available.SNPs()
+installed.SNPs()
+
+# Inject SNPs into the reference genome to create a variant-aware genome object
+# (Commented out because the exact dbSNP package needs to be installed locally)
+# SnpHsapiens <- injectSNPs(Hsapiens, "SNPlocs.Hsapiens.dbSNP.20120608")
+# SnpHsapiens
+
+# snpcount(SnpHsapiens) # Count SNPs injected
+# head(snplocs(SnpHsapiens, "chr1")) # View the first few SNP locations on chr1
+
+IUPAC_CODE_MAP
+
+```
+
+### Genomic Ranges and Alignments
+
+Using `GenomicRanges` and `GenomicAlignments` to find sequencing reads that span or support specific biological events (like splice junctions).
+
+```{r genomic-alignments, eval=FALSE}
+# Find reads supporting the junction identified above, at position
+# 19653707 + 66M = 19653773 of chromosome 14
+
+library(GenomicRanges)
+library(GenomicAlignments)
+library(Rsamtools)
+
+## our 'region of interest' (ROI)
+IRanges(start = 19653773, width=1)
+# Create a GRanges object mapping the ROI to chromosome 14
+roi <- GRanges("chr14", IRanges(start = 19653773, width=1)) 
+roi
+
+## sample data
+# Load sample BAM file containing RNA-seq data
+library('RNAseqData.HNRNPC.bam.chr14')
+bf <- BamFile(RNAseqData.HNRNPC.bam.chr14_BAMFILES[[1]], asMates=TRUE)
+bf
+
+## alignments, junctions, overlapping our roi
+# ?readGAlignmentsList
+# Read paired-end alignments into memory
+paln <- readGAlignmentsList(bf)
+paln
+
+# ?summarizeJunctions
+# Extract and summarize splice junctions from the alignments
+j <- summarizeJunctions(paln, with.revmap=TRUE)
+j
+
+# Subset junctions to find only the ones overlapping our Region of Interest
+j_overlap <- j[j %over% roi]
+j_overlap
+
+## supporting reads
+# Use the reverse map to extract the actual reads that support the junction at the ROI
+paln[j_overlap$revmap[[1]]]
+
+```
+
+### Variant Annotation
+
+This final chunk takes variants from a standard VCF file and determines their functional impact by intersecting them with a known database of gene models.
+
+```{r variant-annotation, eval=FALSE}
+# Read variants from a VCF file, and annotate with respect to a known gene model
+
+## input variants
+library(VariantAnnotation)
+# Locate a sample VCF file shipped with the VariantAnnotation package
+fl <- system.file("extdata", "chr22.vcf.gz", package="VariantAnnotation")
+# Read the VCF file, specifying it aligns to human genome build hg19
+vcf <- readVcf(fl, "hg19")
+# Subset to focus only on chromosome 22
+seqlevels(vcf) <- "chr22"
+
+## known gene model
+# Load the reference database of transcripts for hg19
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+
+# Intersect the variants (from the VCF) with the known gene models (TxDb) 
+# Specifically look for coding variants (e.g., synonymous, non-synonymous)
+coding <- locateVariants(
+  rowRanges(vcf),
+  TxDb.Hsapiens.UCSC.hg19.knownGene,
+  CodingVariants()
+)
+
+# View the resulting variant annotations
+head(coding)
+
+```
