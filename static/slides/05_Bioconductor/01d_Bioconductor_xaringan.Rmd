@@ -1,0 +1,297 @@
+---
+title: "Bioconductor Annotation Resources"
+# subtitle: "Statistical Models and Inference"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", #firebrick4, "deepskyblue1"
+  text_font_size = "28px"
+)
+library(dplyr)
+library(ggplot2)
+```
+
+<!-- HTML style block -->
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+
+## Bioconductor Annotation Resources
+
+* **`AnnotationDbi`**: The foundational "engine" that provides a consistent user interface (`select()`, `mapIds()`) for querying SQLite-based annotation databases.
+
+* **`org.*` (Organism-level)**: Centralized maps between gene identifiers.
+    * *Example:* `org.Hs.eg.db` links Entrez IDs to Gene Symbols, Ensembl IDs, and GO terms for *Homo sapiens*.
+
+* **`TxDb` (Transcript-level)**: Contains "gene models" - the precise genomic coordinates for exons, introns, and transcripts. 
+    * *Source:* Typically built from UCSC tracks or RefSeq.
+
+---
+## Bioconductor Annotation Resources
+
+* **`EnsDb` (Ensembl-level)**: Similar to `TxDb` but sourced exclusively from Ensembl. These often include additional protein-coding metadata and version-matching for Ensembl releases.
+
+* **`BSgenome` (Sequence-level)**: Large packages containing the full DNA sequences for entire genomes of model organisms.
+    * *Utility:* Essential for extracting DNA sequences from specific `GRanges` or calculating GC content.
+
+.small[ **Pro-Tip:** Use `AnnotationHub` to discover and download these resources dynamically rather than installing them as massive local packages. ]
+
+---
+## Querying Annotation Resources
+
+Bioconductor uses a consistent set of "verbs" across different annotation objects (`OrgDb`, `TxDb`, `EnsDb`), allowing you to navigate complex databases with a single workflow.
+
+.small[
+| Category | Function | Purpose |
+| :--- | :--- | :--- |
+| **Discover** | `keytypes(db)` | See what IDs can be used as **input** (e.g., `ENTREZID`). |
+| | `columns(db)` | See what data can be retrieved as **output** (e.g., `SYMBOL`, `GO`). |
+| | `keys(db, type)` | List all possible values for a specific ID type. |
+| **Retrieve** | `select()` | The primary query function. Returns a data frame mapping keys to columns. |
+| | `mapIds()` | A simplified version of `select` that returns a named vector (ideal for 1-to-1 mapping). |
+| **Extract** | `transcripts()` | Extract all transcript coordinates as a `GRanges`. |
+| | `exonsBy()` | Extract exons grouped by gene or transcript as a `GRangesList`. |
+| | `cds()` | Extract coding sequences (CDS) for protein-coding analysis. |
+
+https://bioconductor.org/packages/release/bioc/vignettes/AnnotationDbi/inst/doc/IntroToAnnotationPackages.pdf ]
+
+---
+## External Resources: biomaRt & Web Services
+
+Bioconductor facilitates seamless integration with major external biological databases, allowing you to pull the most recent annotations directly into your R session via web APIs.
+
+**`biomaRt`: The Universal ID Converter**
+
+The `biomaRt` package is the most popular interface for querying **Ensembl** and other BioMart databases. It is essential for large-scale ID mapping and retrieving genomic coordinates or protein domains.
+
+---
+## The biomaRt Workflow
+
+1.  **Select a Mart:** (e.g., Ensembl Genes)
+
+2.  **Select a Dataset:** (e.g., *Homo sapiens* genes)
+
+3.  **Define Filters:** The IDs you *have* (e.g., a list of Gene Symbols).
+
+4.  **Define Attributes:** The data you *want* (e.g., Entrez IDs and Chromosomal positions).
+
+5.  **Run `getBM()`:** The query returns a clean R data frame.
+
+.small[ https://bioconductor.org/packages/biomaRt/
+
+https://useast.ensembl.org/info/data/biomart/index.html ]
+
+<!--
+## Specialized Web Services
+* **`KEGGREST`**: A client for the KEGG REST API. 
+    * Provides access to **Pathway** maps, functional hierarchies (Brite), and gene-to-pathway links.
+* **`PSICQUIC`**: A standardized interface to molecular interaction databases.
+    * Query multiple providers (BioGrid, IntAct, STRING, MINT) simultaneously.
+    * Uses the **MIQL** (Molecular Interaction Query Language) to retrieve protein-protein or protein-DNA interaction networks.
+-->
+
+---
+## AnnotationHub: A Cloud-Based Resource Portal
+
+`AnnotationHub` is a central web-service interface that allows you to discover and retrieve vast amounts of genomic data without needing to install dozens of individual packages. It acts as a "library catalog" for thousands of diverse resources.
+
+* **Access Massive Data Collections:** Instantly retrieve curated data from major projects, including:
+    * **Roadmap Epigenomics:** Epigenetic marks across different cell types.
+    * **Ensembl/UCSC:** GTF files and gene models for hundreds of species.
+    * **NCBI/dbSNP:** Massive collections of known genetic variants.
+
+---
+## AnnotationHub: A Cloud-Based Resource Portal
+
+* **Coordinate Conversion (`liftOver`):**
+    * Centralized access to **chain files** required for remapping genomic data between builds (e.g., `hg19` to `hg38`).
+
+* **Dynamic Resource Creation:**
+    * Generate `TxDb` or `EnsDb` objects "on the fly" for specific Ensembl releases or less-common organisms that don't have a pre-compiled Bioconductor package.
+
+---
+## AnnotationHub: A Cloud-Based Resource Portal
+
+1. **Initialize:** Create a hub object (`ah <- AnnotationHub()`).
+
+2. **Search:** Use `query()` to find data by keywords, species, or data provider.
+
+3. **Retrieve:** Access the data using its unique ID (e.g., `ah[["AH5018"]]`).
+
+.small[ https://bioconductor.org/packages/AnnotationHub ]
+
+.small[https://github.com/mdozmorov/CTCF]
+
+---
+## ExperimentHub: Curated Research Datasets
+
+While `AnnotationHub` focuses on reference metadata, **`ExperimentHub`** provides access to a vast repository of processed, publication-ready datasets. 
+
+It is the premier resource for accessing benchmark data, large-scale project results, and datasets associated with specific Bioconductor tutorials.
+
+* **Ready-to-Use Data:** Access data as Bioconductor-standard objects like `SummarizedExperiment`, `SingleCellExperiment`, or `MultiAssayExperiment`, with metadata.
+
+* **Diverse Data Types:** Includes data from single-cell RNA-seq, DNA methylation, proteomics, and microbiome studies.
+
+.small[ https://bioconductor.org/packages/ExperimentHub ]
+
+---
+## Domain-Specific Packages & Ecosystems
+
+Bioconductor is organized into specialized ecosystems. While many packages exist, a few "gold standard" tools define the workflow for current genomic domains.
+
+**Differential Expression (Bulk RNA-seq):** 
+
+* **`DESeq2`** and **`edgeR`**: The industry standards using negative binomial models.
+
+* **`limma`**: Highly versatile; originally for microarrays, now widely used for RNA-seq via the `voom` transformation.
+
+---
+## Domain-Specific Packages & Ecosystems
+
+Bioconductor is organized into specialized ecosystems. While many packages exist, a few "gold standard" tools define the workflow for current genomic domains.
+
+**Single-Cell 'Omics:**
+
+* **`scran`** & **`scater`**: Essential tools for normalization, QC, and feature selection in the `SingleCellExperiment` framework.
+
+* **`Seurat`**: While technically a CRAN package, it is the most popular single-cell tool and integrates heavily with Bioconductor objects.
+
+* **`OSCA`**: The "Orchestrating Single-Cell Analysis" book/ecosystem is the modern roadmap for scRNA-seq in R.
+
+---
+## Domain-Specific Packages & Ecosystems
+
+Bioconductor is organized into specialized ecosystems. While many packages exist, a few "gold standard" tools define the workflow for current genomic domains.
+
+**Epigenomics (ChIP-seq / ATAC-seq):**
+
+* **`DiffBind`**: For differential binding analysis of peaks.
+
+* **`ChIPseeker`**: For annotating peaks to gene features and visualizing genomic coverage.
+
+* **`ArchR`**: A comprehensive, fast framework specifically for single-cell ATAC-seq.
+
+---
+## Domain-Specific Packages & Ecosystems
+
+Bioconductor is organized into specialized ecosystems. While many packages exist, a few "gold standard" tools define the workflow for current genomic domains.
+
+**Microbiome & Metagenomics:**
+
+* **`phyloseq`**: The classic foundation for microbiome data structures.
+
+* **`mia` (Microbiome Analysis)**: The modern, high-performance successor built on the `SummarizedExperiment` framework.
+
+**Spatial Transcriptomics:**
+
+* **`SpatialExperiment`**: The core data structure for spatial data (e.g., Visium, Slide-seq).
+
+* **`BayesSpace`**: For clustering and enhancing resolution in spatial data.
+
+---
+## Working with 'Big Data' in Bioconductor
+
+Genomic datasets (BAM, VCF, FASTQ) often exceed available system memory (RAM). Bioconductor provides four primary strategies to handle these data-intensive tasks without crashing your R session.
+
+**1. Restriction: "Load Only What You Need"**
+
+Instead of loading an entire file, use parameters to extract specific subsets.
+* **`ScanBamParam()` / `ScanVcfParam()`**: Allows you to restrict data import to specific genomic coordinates (using `GRanges`) or specific metadata fields (e.g., only keep high-quality reads).
+
+---
+## Working with 'Big Data' in Bioconductor
+
+**2. Iteration: "Chunked Processing"**
+
+Process files in small, manageable pieces rather than all at once.
+* **`yieldSize`**: Setting this argument in `BamFile()` or `TabixFile()` limits how many records are read at a time.
+
+* **Streamers**: `FastqStreamer()` allows you to loop through millions of reads in blocks (e.g., 100,000 at a time), performing calculations on each block and discarding it before moving to the next.
+
+---
+## Working with 'Big Data' in Bioconductor
+
+Genomic datasets (BAM, VCF, FASTQ) often exceed available system memory (RAM). Bioconductor provides four primary strategies to
+
+**3. Compression: Run-Length Encoding (`Rle`)**
+Genomic data often contains long "runs" of the same value (e.g., zero coverage across large intronic regions).
+* **`Rle` Objects**: Instead of storing `0, 0, 0, 0, 0`, Bioconductor stores `5 zeros`.
+
+* **Memory Savings**: This significantly reduces the memory footprint of coverage vectors and "pileup" data.
+
+---
+## Working with 'Big Data' in Bioconductor
+
+**4. Parallelization: `BiocParallel`**
+
+Modern systems have multiple CPU cores. `BiocParallel` provides a consistent interface to distribute tasks across these cores.
+* **`bplapply()`**: A parallel version of `lapply()` that works seamlessly across different operating systems (Windows, macOS, Linux).
+
+* **Integration**: Many core Bioconductor functions (like `DESeq2` or `bwa` wrappers) have a `parallel=TRUE` argument built-in.
+
+.small[ https://bioconductor.org/packages/BiocParallel/ ]
+
+<!---
+## Code Optimization & Profiling
+
+**`profvis` (The Gold Standard):** An interactive tool that creates a "flame graph."
+
+* **Visualization:** It lines up your source code side-by-side with execution time and memory usage.
+
+* **Insight:** Easily spot which line of code is responsible for "GC" (Garbage Collection) pauses or long wait times.
+
+**`microbenchmark`:** Used for high-precision timing of small code snippets.
+
+* **Comparison:** Run multiple versions of a function (e.g., a `for` loop vs. `lapply` vs. a vectorized operation) hundreds of times.
+
+* **Statistical Rigor:** Provides min, mean, median, and max timings to account for system fluctuations.
+
+.small[ https://rstudio.github.io/profvis ]
+
+## Code Optimization & Profiling
+
+**`aprof` (Amdahl's Profiler):** Focused on **Amdahl's Law**, which predicts the theoretical speedup of a program when only a portion of it is parallelized.
+
+* **Usage:** Helps you decide if adding more CPU cores via `BiocParallel` will actually help, or if the serial (non-parallel) code is the real bottleneck.
+
+**Common Optimization Targets**
+
+1.  **Vectorization:** Replace slow `for` loops with vectorized functions (e.g., `rowSums()`, `vcountPattern()`).
+2.  **Pre-allocation:** Always initialize vectors/matrices to their full size before filling them.
+3.  **Memory Awareness:** Use `gc()` to monitor memory and `rm()` to remove large intermediate objects (like raw BAM data) once processed.
+
+.small[ **Optimization Rule:** "First make it work, then make it right, then make it fast." — *Kent Beck* ]
+-->
+
+---
+## Summary: The Bioconductor Ecosystem
+
+* **Comprehensive Genomic Toolkit:** *Bioconductor* is a world-leading repository of open-source software, providing specialized tools for almost every high-throughput biological assay.
+
+* **Data Integrity via S4 Classes:** The project relies on **formal S4 classes** (like `GRanges`, `SummarizedExperiment`, and `VCF`). These classes act as "containers" that enforce data integrity and cross-compatibility.
+
+* **Vignettes as the Primary Resource:** **Vignettes** provide end-to-end analysis workflows, combining explanatory text with executable code that serves as a template for your own research.
+
+.small[ The Bioconductor Help Page https://www.bioconductor.org/help/ ]

@@ -34,3 +34,20 @@ knitr::include_url('../../slides/05_Bioconductor/01a_Bioconductor_xaringan.html#
 ```{r echo=FALSE}
 knitr::include_url('../../slides/05_Bioconductor/01b_Bioconductor_xaringan.html#1')
 ```
+
+Handling genomic data using Bioconductor [PDF](../../slides/05_Bioconductor/genomicRanges.pdf)
+
+**Code:** Genomic Ranges [genomicRanges.Rmd](../../slides/05_Bioconductor/lab/genomicRanges.Rmd)
+
+<a href="../../slides/05_Bioconductor/01c_Bioconductor_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/05_Bioconductor/01c_Bioconductor_xaringan.html#1')
+```
+
+<a href="../../slides/05_Bioconductor/01d_Bioconductor_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/05_Bioconductor/01d_Bioconductor_xaringan.html#1')
+```
+
