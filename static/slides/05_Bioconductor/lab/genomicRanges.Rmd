@@ -1,0 +1,327 @@
+---
+title: "GenomicRanges and Related Packages Demo"
+output: html_document
+---
+
+## Introduction
+
+This document demonstrates the core concepts of working with genomic intervals in Bioconductor. It covers foundational integer ranges (`IRanges`), base-level run-length encoding (`Rle`), full genomic ranges with chromosome and strand information (`GenomicRanges`), and retrieving transcript annotations (`GenomicFeatures`).
+
+### Introduction to IRanges
+
+The `IRanges` package provides the foundation for representing sequences of integers. This chunk shows how to create basic interval objects using start/end coordinates or start/width combinations, and how to access their properties.
+
+```{r iranges-basics, message=FALSE, warning=FALSE}
+#####################################################
+## first on IRanges
+#####################################################
+library(IRanges)
+
+# Create an IRanges object by specifying start and end points
+r <- IRanges(start=c(1,3,12, 10), end=c(4, 5, 25, 19))
+r
+
+# Alternatively, create the exact same IRanges object using start and width
+r <- IRanges(start=c(1,3,12, 10), width=c(4,  3, 14, 10))
+r
+
+# Accessor functions to extract properties of the IRanges object
+length(r) # Number of intervals in the object
+start(r)  # Vector of start positions
+end(r)    # Vector of end positions
+width(r)  # Vector of interval widths
+
+# Subset the IRanges object to keep only the first two intervals
+r[1:2]
+
+```
+
+### Visualizing Ranges
+
+Because intervals can be abstract, this custom plotting function helps visualize them as staggered rectangles on a plot. We will use this to visualize the operations in the next chunk.
+
+```{r plot-ranges-function}
+# A small visualization function to plot intervals
+plotRanges <- function(x, xlim = x, main = deparse(substitute(x)), col = "black", sep = 0.5, ...) {
+  height <- 1
+  # Determine the x-axis limits based on the min/max of the ranges
+  if (is(xlim, "Ranges"))
+    xlim <- c(min(start(xlim)), max(end(xlim)))
+  
+  # Calculate staggered bins so overlapping ranges don't plot on top of each other
+  bins <- disjointBins(IRanges(start(x), end(x)+1))
+  
+  # Initialize the plot canvas
+  plot.new()
+  plot.window(xlim, c(0, max(bins)*(height+sep)))
+  
+  # Calculate y-coordinates for drawing the rectangles
+  ybottom <- bins * (sep + height) - height
+  
+  # Draw the ranges as rectangles
+  rect(start(x)-0.5, ybottom, end(x)+0.5, ybottom+ height, col = col, ...)
+  
+  # Add title and x-axis
+  title(main)
+  axis(1)
+}
+
+```
+
+### Single IRanges Operations
+
+This chunk demonstrates intra-range operations (transforming existing ranges) and inter-range operations (comparing ranges within a single object to each other), plotting the results.
+
+```{r single-iranges-ops}
+# Set up plotting parameters for stacked plots
+par(mar = c(2.5, 2.5, 2.6, 1.1), mgp = c(5.5, 1.5, 0), mfrow=c(2,1))
+
+# Compare original ranges vs. reduced ranges
+plotRanges(r, xlim=c(0,25), col="grey")
+# reduce() merges all overlapping or adjacent ranges into a single continuous range
+plotRanges(reduce(r), xlim=c(0,25), col="grey")
+
+par(mar = c(2.5, 2.5, 2.6, 1.1), mgp = c(5.5, 1.5, 0), mfrow=c(2,1))
+plotRanges(r, xlim=c(0,25), col="grey")
+# disjoin() breaks ranges into the largest set of non-overlapping contiguous intervals
+plotRanges(disjoin(r), xlim=c(0,25), col="grey")
+
+par(mar = c(2.5, 2.5, 2.6, 1.1), mgp = c(5.5, 1.5, 0), mfrow=c(3,1))
+plotRanges(r, xlim=c(-2,27), col="grey")
+# flank() creates new ranges of width 1 adjacent to the starts of the original ranges (upstream/downstream)
+plotRanges(flank(r, 1, both=TRUE, start=TRUE), xlim=c(-2,27), col="grey")
+plotRanges(flank(r, 1, both=TRUE, start=FALSE), xlim=c(-2,27), col="grey")
+
+par(mar = c(2.5, 2.5, 2.6, 1.1), mgp = c(5.5, 1.5, 0), mfrow=c(1,1))
+plotRanges(r, xlim=c(-2,27), col="grey")
+# coverage() calculates exactly how many ranges overlap at every single integer position
+lines(coverage(r), lwd=4, col="red")
+
+```
+
+### Operations Between Two IRanges
+
+Here we explore operations *between* two different sets of ranges, calculating standard set theory operations (union, intersection, difference) and finding overlaps.
+
+```{r two-iranges-ops}
+##### two ranges
+# Create a second set of intervals
+r2 = IRanges(start=c(8, 9, 15), end=c(10, 15, 17))
+r2
+
+par(mar = c(2.5, 2.5, 2.6, 1.1), mgp = c(5.5, 1.5, 0), mfrow=c(5,1))
+plotRanges(r, xlim=c(-2,27), col="grey")
+plotRanges(r2, xlim=c(-2,27), col="grey")
+# union: intervals that are in r OR r2
+plotRanges(union(r, r2), xlim=c(-2,27), col="grey")
+# intersect: intervals that are in BOTH r AND r2
+plotRanges(intersect(r, r2), xlim=c(-2,27), col="grey")
+# setdiff: intervals in r that do NOT overlap with r2
+plotRanges(setdiff(r, r2), xlim=c(-2,27), col="grey")
+
+par(mar = c(2.5, 2.5, 2.6, 1.1), mgp = c(5.5, 1.5, 0), mfrow=c(2,1))
+plotRanges(r, xlim=c(-2,27), col="grey")
+plotRanges(r2, xlim=c(-2,27), col="grey")
+
+# Count how many intervals in r2 overlap with each interval in r
+countOverlaps(r, r2)
+# Logical vector: TRUE if an interval in r overlaps any interval in r2
+r %over% r2
+# Detailed matrix/object showing exact indices of which ranges in r overlap with which ranges in r2
+findOverlaps(r, r2)
+
+```
+
+### Run Length Encoding (Rle)
+
+`Rle` is a data compression method frequently used in genomics (e.g., for coverage vectors) where consecutive identical values are stored as a single value and a run length.
+
+```{r rle-basics}
+###### show Rle
+# Create Rle directly from a vector
+x <- Rle(c(1,1,2,2,2))
+x
+# Create Rle by specifying the values and how long they run
+x <- Rle(values=c(1,2), lengths=c(2,3))
+x
+
+# Rle works with characters too
+x <- Rle(values=c("a","b","c"), lengths=c(2,3,4))
+x
+# Decompress back to a standard character vector
+as.character(x)
+
+x <- Rle(c(1,1,2,2,2))
+# Accessor functions for Rle objects
+length(x)     # Total decompressed length
+start(x)      # Start indices of each run
+end(x)        # End indices of each run
+width(x)      # Length of each run
+nrun(x)       # Total number of runs (2 in this case)
+runLength(x)  # Vector containing the length of each run
+
+```
+
+### Intro to GenomicRanges
+
+`GenomicRanges` (GRanges) extends `IRanges` by adding biological context: chromosome names (seqnames) and strands (+/-). It also allows metadata columns (like scores or GC content).
+
+```{r genomic-ranges-intro, message=FALSE, warning=FALSE}
+#####################################################
+## GenomicRanges
+#####################################################
+library(GenomicRanges)
+
+# Create a GRanges object combining chromosomes, intervals, strands, and metadata
+gr <- GRanges(
+  seqnames = Rle(c("chr1", "chr2"), c(2, 3)),
+  ranges = IRanges(start=1:5, end = 6:10),
+  strand = Rle(strand(c("-", "+", "+","-")), c(1,1,2,1)),
+  score = 1:5, GC = seq(1, 0, length = 5) # Metadata columns
+)
+gr
+
+# Visualize the GRanges object using ggbio
+plotRanges(gr)
+
+## operate GRanges object
+# Standard accessors now include genomic context
+length(gr)
+seqnames(gr)          # Chromosome information
+ranges(gr)            # The underlying IRanges coordinates
+strand(gr)            # Strand information
+elementMetadata(gr)   # Extract the attached metadata (score, GC)
+
+## subsetting and combining
+gr[1:2]          # Extract first two ranges
+c(gr[1], gr[3])  # Concatenate the 1st and 3rd ranges
+
+```
+
+### GRanges Operations and Visualization
+
+GenomicRanges supports the same range operations as `IRanges`, but it automatically respects boundaries like chromosomes and strands (e.g., intervals on `chr1` will never merge with intervals on `chr2`).
+
+```{r granges-ops}
+library(dplyr)
+## other useful functions
+# Coverage calculation across chromosomes
+coverage(gr)
+
+# Reduce, disjoin, flank, and gaps. Notice the use of the %>% pipe for plotting
+reduce(gr) %>% plotRanges()
+disjoin(gr) %>% plotRanges()
+flank(gr, width = 3)  %>% plotRanges()
+# gaps() finds the empty spaces between intervals on the same chromosome/strand
+gaps(gr) %>% plotRanges()
+
+```
+
+### GRanges Set Operations and Overlaps
+
+Demonstrating overlaps and set theory across two `GRanges` objects. Operations only evaluate against matching chromosomes and strands.
+
+```{r granges-overlaps}
+## set operations
+gr1 <- GRanges(
+  seqnames = Rle("chr1", 2),
+  ranges=IRanges(start=c(1,10), end = c(5,15))
+)
+gr2 <- GRanges(
+  seqnames = Rle("chr1", 1),
+  ranges = IRanges(start=3, end = 12)
+)
+
+# Plot combined ranges
+plotRanges(c(gr1, gr2))
+
+# Perform and plot set operations
+union(gr1, gr2)  %>% plotRanges()
+intersect(gr1, gr2) %>% plotRanges()
+setdiff(gr1, gr2) %>% plotRanges()
+
+## find overlaps
+# Find detailed hits between gr1 and gr2
+findOverlaps(gr1, gr2)
+# Logical check for overlaps
+gr1 %over% gr2
+
+```
+
+### GRangesList
+
+A `GRangesList` is a container for holding multiple `GRanges` objects, often used to group transcripts by gene or exons by transcript.
+
+```{r granges-list}
+##### GRangesList
+# Combine multiple GRanges into a single list object
+glist = GRangesList(gr1, gr2)
+glist
+glist[[1]] # Access the first GRanges object in the list
+glist[[2]] # Access the second GRanges object in the list
+
+# Apply functions over the list elements
+lapply(glist, length) # Returns a standard list of lengths
+sapply(glist, length) # Returns a simplified vector of lengths
+
+```
+
+### GenomicFeatures and Transcript Databases (TxDb)
+
+`GenomicFeatures` allows you to interact with transcript databases (like those from UCSC). Note: The `saveDb`/`loadDb` operations use a local file path which you will need to adjust for your system.
+
+```{r genomic-features, eval=FALSE}
+#####################################################
+## GenomicFeatures
+#####################################################
+library(GenomicFeatures)
+library(txdbmaker)
+
+## from UCSC
+# Check which UCSC tracks are supported for generating databases
+supportedUCSCtables()
+# Build a Transcript Database (TxDb) straight from the UCSC knownGene table for hg19
+txdb = makeTxDbFromUCSC(genome="hg19", tablename="knownGene")
+txdb
+
+## save and load
+# NOTE: Update 'dataDir' to a valid directory on your machine before running
+dataDir <- "/Users/mdozmorov/Documents/Work/Teaching/BIOS668.2018/assets/data"
+# Save the database locally as an SQLite file to avoid downloading it again later
+saveDb(txdb, file=paste0(dataDir, "/hg19_knownGenes.sqlite")) # Takes a few minutes
+# Load the saved database
+txdb = loadDb(paste0(dataDir, "/hg19_knownGenes.sqlite"))
+txdb
+
+## make TxDb package - this gives a package directory in current folder
+# (Commented out) This generates an actual installable R package containing your TxDb
+# makeTxDbPackageFromUCSC(maintainer="Hao Wu <hao.wu@emory.edu>", author="Hao Wu",
+#                         version="1.0", genome="hg19",tablename="knownGene")
+
+## retrieve basic features
+# Extract all transcripts as a GRanges object
+transcripts(txdb)
+# Extract transcripts, filtering only for chromosome 1
+transcripts(txdb, filter=list(tx_chrom="chr1"))
+# Extract all exons
+exons(txdb)
+
+# Group features into GRangesLists (e.g., all transcripts grouped by their parent gene)
+transcriptsBy(txdb, by="gene")
+exonsBy(txdb, by="gene")
+intronsByTranscript(txdb)
+fiveUTRsByTranscript(txdb)
+threeUTRsByTranscript(txdb)
+
+## by overlap
+# Define a region of interest
+gr = GRanges(
+  seqnames = Rle("chr1", 2),
+  ranges=IRanges(start=c(100000,500000), end = c(200000,600000))
+)
+gr
+# Retrieve only the transcripts that overlap with our region of interest
+transcriptsByOverlaps(txdb, gr)
+
+```
+
