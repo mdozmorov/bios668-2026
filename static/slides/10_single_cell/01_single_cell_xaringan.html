@@ -4,7 +4,7 @@
     <title>Single-cell RNA-seq</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mikhail Dozmorov" />
-    <meta name="date" content="2026-03-08" />
+    <meta name="date" content="2026-03-23" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ### Virginia Commonwealth University
 ]
 .date[
-### 2026-03-08
+### 2026-03-23
 ]
 
 ---
@@ -47,7 +47,7 @@ class: center, middle, inverse, title-slide
 ]
 
 .pull-right[
-**Unique deliverables**
+**scRNA-seq advantages:**
 
 * Infer cell lineages
 
@@ -1222,37 +1222,22 @@ https://github.com/aertslab/AUCell ]
 .small[ R package [https://github.com/IMB-Computational-Genomics-Lab/ascend](https://github.com/IMB-Computational-Genomics-Lab/ascend) ]
 --&gt;
 
----
 
-## single-cell ATAC-seq
-
-.pull-left[
-&lt;img src="img/scATAC-seq_overview.png" alt="" width="500px" style="display: block; margin: auto;" /&gt;
-]
-.pull-right[
-.small[ Chen, H., Lareau, C., Andreani, T. et al. Assessment of computational methods for the analysis of single-cell ATAC-seq data. Genome Biol 20, 241 (2019). https://doi.org/10.1186/s13059-019-1854-5 ]
-]
 
 ---
-## single-cell ATAC-seq challenges
+## Analysis workflows
 
-.pull-left[
-* While for an expressed gene several RNA molecules are present in a single cell, scATAC-seq assays profile DNA, a molecule which is present in only two copies per cell (for a diploid organism).
-]
-.pull-right[
-&lt;img src="img/scATAC-seq_peaks_pct.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
-]
-* The low copy number results in an inherent per-cell data sparsity, where only 1– 10% of expected accessible peaks are detected in single cells from scATAC-seq data, compared to 10–45% of expressed genes detected in single cells from scRNA-seq data.
+- Seurat - R toolkit for single cell genomics https://satijalab.org/seurat/
 
----
+- 327 Bioconductor packages: https://bioconductor.org/packages/release/BiocViews.html#___SingleCell
 
-## single-cell ATAC-seq challenges
+- Many others do specific subsets; combine into a workflow https://bioconductor.org/books/release/OSCA/
 
-* The potential feature set in scATAC-seq, which includes genome-wide regions of accessible chromatin, is typically 10–20X the size of the feature set in scRNA-seq experiments (which is defined and limited by the number of genes expressed).
+- "Analysis of single cell RNA-seq data" course, https://www.singlecellcourse.org/index.html
 
-.small[ Chen et al., “Assessment of Computational Methods for the Analysis of Single-Cell ATAC-Seq Data.” ]
+- Also Python package scanpy https://github.com/scverse/scanpy
 
-Would you like me to add a slide regarding the comparison between popular R packages like Seurat and Scanpy for scRNA-seq analysis?
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
