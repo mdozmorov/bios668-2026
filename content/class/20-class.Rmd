@@ -19,4 +19,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-<a href="../../slides/15_Final/16_final.project.html" target="_blank">Final project description in HTML format</a>
+<a href="../../slides/15_Final/16_final_project.html" target="_blank">Final project description in HTML format</a>
