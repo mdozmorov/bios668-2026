@@ -118,6 +118,13 @@ knitr::include_graphics("img/scrnaseq_vs_rnaseq.png")
 * The commonly used ‘reads per kilobase per million’ (RPKM) transcript quantification is biased on a single-cell level; at the very least, ‘transcripts per million’ (TPM) should be used.
 
 ---
+## Gene expression quantification
+```{r, out.width = "500px", fig.align='center', echo=FALSE}
+knitr::include_graphics("img/quantification.png")
+```
+
+
+---
 ## Abundance of zeros
 
 ```{r, out.width = "600px", fig.align='center', echo=FALSE}
