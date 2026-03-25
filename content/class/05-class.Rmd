@@ -51,3 +51,4 @@ knitr::include_url('../../slides/05_Bioconductor/01c_Bioconductor_xaringan.html#
 knitr::include_url('../../slides/05_Bioconductor/01d_Bioconductor_xaringan.html#1')
 ```
 
+**Code:** Annotations [annotation.Rmd](../../slides/05_Bioconductor/lab/annotation.Rmd), [annotation.html](../../slides/05_Bioconductor/lab/annotation.html)
