@@ -75,7 +75,6 @@ library(ggplot2)
 ```{r, out.width = "1000px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/biosensors-12-00450-g002.png")
 ```
-
 .small[ Pan, Y.; Cao, W.; Mu, Y.; Zhu, Q. Microfluidics Facilitates the Development of Single-Cell RNA Sequencing. Biosensors 2022, 12, 450. https://doi.org/10.3390/bios12070450 ]
 
 ---
@@ -104,11 +103,17 @@ knitr::include_graphics("img/scrnaseq_vs_rnaseq.png")
 ---
 ## How does single-cell data differ from bulk RNA-seq
 
-* In theory, up to 10,000 cells could be sequenced on a single standard Net GEM platform.
+* In theory, up to 10,000 cells could be sequenced on a single standard 10x Next GEM (Gel Beads-in-Emulsion) platform.
+
+--
 
 * Even with the most sensitive platforms, the data are relatively sparse owing to a high frequency of dropout events (lack of detection of specific transcripts), and much more variable.
 
+--
+
 * The numbers of expressed genes detected from single cells are typically lower compared with population-level ensemble measurements.
+
+--
 
 * The commonly used ‘reads per kilobase per million’ (RPKM) transcript quantification is biased on a single-cell level; at the very least, ‘transcripts per million’ (TPM) should be used.
 
@@ -154,10 +159,13 @@ knitr::include_graphics("img/scrna_seq_timeline.png")
 ---
 ## Current single-cell Platforms
 
-**Chromium Controller** (Standard instrument)
-- **Next GEM chips** (3' v4, 5' v3, ATAC, Multiome): 3,000-10,000 cells/sample, 8 samples/chip
-- Recovery rate: ~70-80% of loaded cells
-- **Chromium Single Cell HT**: Up to 20,000 cells/sample, 16 samples/chip (320,000 cells total)
+**10x Genomics** is the industry leader in droplet-based single-cell analysis, utilizing their proprietary GEM (Gel Bead-in-Emulsion) technology to partition and barcode thousands of individual cells simultaneously.
+
+* **Chromium Controller** (Standard instrument)
+    * **Next GEM chips** (3' v4, 5' v3, ATAC, Multiome): 3,000-10,000 cells/sample, 8 samples/chip
+    * Recovery rate: ~70-80% of loaded cells
+
+* **Chromium Single Cell HT**: Up to 20,000 cells/sample, 16 samples/chip (320,000 cells total)
 
 ---
 ## Current single-cell Platforms
