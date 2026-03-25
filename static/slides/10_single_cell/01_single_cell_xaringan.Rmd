@@ -89,6 +89,7 @@ Then each cell (or RNA in the cell) is marked by the unique barcode and processe
 ```{r, out.width = "500px", fig.align='center', echo=FALSE}
 knitr::include_graphics("img/technology.png")
 ```
+
 ]
 
 ---
