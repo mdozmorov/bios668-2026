@@ -1,0 +1,419 @@
+---
+title: "Seurat - Guided Clustering Tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Overview
+
+This tutorial walks through a standard **Seurat scRNA-seq workflow** using the PBMC 3k dataset from 10x Genomics. We cover:
+
+* Quality control and filtering
+* Normalization (LogNormalize and SCTransform)
+* Feature selection
+* Dimensionality reduction
+* Graph-based clustering
+* Marker identification and annotation
+
+Reference: [https://satijalab.org/seurat/articles/pbmc3k_tutorial](https://satijalab.org/seurat/articles/pbmc3k_tutorial)
+
+---
+
+## Load Libraries
+
+```{r libraries}
+library(dplyr)      # Data manipulation
+library(Seurat)     # Single-cell analysis toolkit
+library(patchwork)  # Combine plots
+```
+
+---
+
+## 1. Data Import and Seurat Object Creation
+
+```{r data-import}
+setwd("/Users/mdozmorov/Documents/Work/Teaching/BIOS668.2026/static/slides/10_single_cell/")
+
+# Read 10x Genomics data
+# Read10X() expects folder with: barcodes.tsv, genes.tsv, matrix.mtx
+pbmc.data <- Read10X(data.dir = "filtered_gene_bc_matrices/hg19/")
+
+# Examine structure of raw data
+# Sparse matrix format: '.' represents zeros
+pbmc.data[c("CD3D", "TCL1A", "MS4A1"), 1:30]
+
+# Create Seurat object with QC filters
+# min.cells = 3: keep genes detected in ≥3 cells
+# min.features = 200: keep cells with ≥200 detected genes
+pbmc <- CreateSeuratObject(
+  counts = pbmc.data, 
+  project = "pbmc3k", 
+  min.cells = 3, 
+  min.features = 200
+)
+
+# Inspect object structure
+pbmc
+# Output: 13,714 features (genes) x 2,700 samples (cells)
+```
+
+We retain genes expressed in ≥3 cells and cells with ≥200 detected genes to remove extremely sparse entries.
+
+---
+
+## 2. Quality Control (QC) and Filtering
+
+```{r qc}
+# Calculate mitochondrial gene percentage
+# Pattern "^MT-" identifies human mitochondrial genes (use "^mt-" for mouse)
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+
+# View QC metrics stored in metadata
+head(pbmc@meta.data, 5)
+# Columns: orig.ident, nCount_RNA, nFeature_RNA, percent.mt
+
+# Visualize QC metrics with violin plots
+# nFeature_RNA: number of genes detected per cell
+# nCount_RNA: total UMI count per cell
+# percent.mt: percentage of mitochondrial reads
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
+# Visualize feature-feature relationships
+# Helps identify doublets (high gene count + high UMI count)
+# and dying cells (high %MT + normal gene count)
+plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+```
+
+```{r qc-filter}
+# Filter cells based on QC metrics
+# Keep cells with: 200 < genes < 2500, and %MT < 5%
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+```
+
+* High mitochondrial % → dying cells
+* High gene/UMI counts → potential doublets
+* Thresholds are dataset-dependent
+
+---
+
+## 3. Normalization
+
+### Option A: LogNormalize (classical workflow)
+
+```{r normalize-log}
+pbmc <- NormalizeData(
+  pbmc, 
+  normalization.method = "LogNormalize", 
+  scale.factor = 10000
+)
+```
+
+
+Applies log-transformation after scaling counts to counts-per-10K.
+
+---
+
+### Option B: SCTransform (recommended modern workflow)
+
+```{r sctransform, eval=FALSE}
+pbmc <- SCTransform(
+  pbmc,
+  vars.to.regress = "percent.mt",
+  verbose = FALSE
+)
+```
+
+* Uses regularized negative binomial regression
+* Removes sequencing depth effects
+* Stabilizes variance
+* Replaces NormalizeData + ScaleData + FindVariableFeatures
+
+---
+
+## 4. Highly Variable Feature Selection
+
+```{r variable-features}
+# Only needed if NOT using SCTransform
+# Identify genes with high cell-to-cell variation
+# These drive biological heterogeneity (cell types, states)
+# VST method: variance-stabilizing transformation
+pbmc <- FindVariableFeatures(
+  pbmc, 
+  selection.method = "vst", 
+  nfeatures = 2000
+)
+
+# Identify top 10 most variable genes
+top10 <- head(VariableFeatures(pbmc), 10)
+top10
+```
+
+```{r variable-plot}
+# Visualize variable feature selection
+# X-axis: average expression, Y-axis: standardized variance
+plot1 <- VariableFeaturePlot(pbmc)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+plot1 + plot2
+```
+
+---
+
+## 5. Scaling
+
+```{r scaling}
+# Scale all genes (for visualization purposes)
+# ScaleData: centers to mean=0, scales to variance=1
+all.genes <- rownames(pbmc)
+pbmc <- ScaleData(pbmc, features = all.genes)
+# Scaled data stored in pbmc[["RNA"]]$scale.data
+
+# Optional: regress out unwanted variation
+# Example: remove mitochondrial percentage effects
+# pbmc <- ScaleData(pbmc, vars.to.regress = "percent.mt")
+```
+
+Centers and scales gene expression (mean = 0, variance = 1).
+
+---
+
+## 6. Principal Component Analysis (PCA)
+
+```{r pca}
+# Run PCA on variable features
+# Reduces 2,000 genes → ~50 PCs (metafeatures)
+pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
+
+# Examine PCA results
+# Positive loadings: genes driving PC in positive direction
+# Negative loadings: genes driving PC in negative direction
+print(pbmc[["pca"]], dims = 1:5, nfeatures = 5)
+```
+
+```{r pca-viz}
+# Visualize PCA loadings
+# Shows which genes contribute most to each PC
+VizDimLoadings(pbmc, dims = 1:2, reduction = "pca")
+
+# Plot cells in PC space
+# Each point = one cell, colored by cluster (after clustering)
+DimPlot(pbmc, reduction = "pca")
+
+# Heatmap of PC gene loadings
+# Visualize top genes and cells for each PC
+DimHeatmap(pbmc, dims = 1, cells = 500, balanced = TRUE)
+DimHeatmap(pbmc, dims = 1:15, cells = 500, balanced = TRUE)
+```
+
+---
+
+## 7. Determine Dimensionality
+
+```{r elbow}
+# Elbow plot: variance explained by each PC
+# Look for "elbow" where curve flattens (~PC 9-10 here)
+ElbowPlot(pbmc)
+
+# Decision: Use first 10 PCs for downstream analysis
+# Conservative approach: including extra PCs rarely hurts
+# Too few PCs: lose biological signal
+```
+
+Select PCs at the “elbow” (typically ~10 for PBMC 3k).
+
+---
+
+## 8. Graph-Based Clustering
+
+```{r clustering}
+# Construct K-nearest neighbor (KNN) graph
+# Uses Euclidean distance in PCA space (first 10 PCs)
+pbmc <- FindNeighbors(pbmc, dims = 1:10)
+
+# Cluster cells using Louvain algorithm
+# Resolution controls granularity: 0.4-1.2 typical for ~3K cells
+# Higher resolution → more clusters
+pbmc <- FindClusters(pbmc, resolution = 0.5)
+
+# View cluster assignments
+# Stored in Idents(pbmc) and pbmc@meta.data$seurat_clusters
+head(Idents(pbmc), 5)
+```
+
+* KNN graph captures local structure
+* Louvain partitions graph into communities
+* Resolution controls cluster granularity
+
+---
+
+## 9. UMAP Visualization
+
+```{r umap}
+# Run UMAP for visualization
+# Projects high-dimensional PCA space → 2D
+# Preserves local and some global structure
+pbmc <- RunUMAP(pbmc, dims = 1:10)
+
+# Visualize clusters on UMAP
+# Each color = one cluster from graph-based clustering
+DimPlot(pbmc, reduction = "umap", label = TRUE)
+```
+
+```{r tsne}
+# Alternative: t-SNE (less commonly used now)
+pbmc <- RunTSNE(pbmc, dims = 1:10)
+DimPlot(pbmc, reduction = "tsne")
+```
+
+---
+
+## 10. Save Intermediate Object
+
+```{r save}
+saveRDS(pbmc, file = "pbmc_tutorial.rds")
+# pbmc <- readRDS("pbmc_tutorial.rds")
+```
+
+---
+
+## 11. Differential Expression (Marker Genes)
+
+```{r markers}
+# Find markers for cluster 2 vs. all other cells
+cluster2.markers <- FindMarkers(pbmc, ident.1 = 2, min.pct = 0.25)
+head(cluster2.markers, n = 5)
+
+# Find markers distinguishing cluster 5 from clusters 0 and 3
+cluster5.markers <- FindMarkers(pbmc, ident.1 = 5, ident.2 = c(0, 3))
+head(cluster5.markers, n = 5)
+
+# Find markers for ALL clusters
+# only.pos = TRUE: only report upregulated genes
+pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+```
+
+```{r top-markers}
+# View top markers for each cluster
+pbmc.markers %>%
+  group_by(cluster) %>%
+  slice_max(n = 2, order_by = avg_log2FC)
+
+# Alternative test: ROC analysis
+# Returns "classification power" (0=random, 1=perfect)
+cluster0.markers <- FindMarkers(
+  pbmc, 
+  ident.1 = 0, 
+  logfc.threshold = 0.25, 
+  test.use = "roc", 
+  only.pos = TRUE
+)
+head(cluster0.markers)
+```
+
+---
+
+## 12. Visualization of Marker Genes
+
+```{r viz-markers}
+# Violin plots: expression distribution across clusters
+VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
+
+# Can also plot raw counts (instead of normalized)
+VlnPlot(pbmc, features = c("NKG7", "PF4"), slot = "counts", log = TRUE)
+
+# Feature plots: overlay expression on UMAP
+# Color intensity = expression level
+FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", 
+                                "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
+```
+
+```{r heatmap}
+# Heatmap of top markers
+# Extract top 10 markers per cluster
+top10_markers <- pbmc.markers %>%
+  group_by(cluster) %>%
+  dplyr::filter(avg_log2FC > 1) %>%
+  slice_head(n = 10) %>%
+  ungroup()
+
+DoHeatmap(pbmc, features = top10_markers$gene) + NoLegend()
+```
+
+```{r dotplot}
+# Dot plot: compact view of markers across clusters
+# Dot size = % cells expressing, color = average expression
+markers_to_plot <- c("IL7R", "CCR7", "CD14", "LYZ", "MS4A1", "CD8A", 
+                     "FCGR3A", "MS4A7", "GNLY", "NKG7", "FCER1A", "CST3", "PPBP")
+DotPlot(pbmc, features = markers_to_plot) + RotatedAxis()
+```
+
+---
+
+## 13. Cell Type Annotation
+
+```{r annotation}
+# Assign cell type identities based on canonical markers
+# Cluster 0: IL7R+, CCR7+ → Naive CD4+ T cells
+# Cluster 1: CD14+, LYZ+ → CD14+ Monocytes
+# Cluster 2: IL7R+, S100A4+ → Memory CD4+ T cells
+# Cluster 3: MS4A1+ → B cells
+# Cluster 4: CD8A+ → CD8+ T cells
+# Cluster 5: FCGR3A+, MS4A7+ → FCGR3A+ Monocytes
+# Cluster 6: GNLY+, NKG7+ → NK cells
+# Cluster 7: FCER1A+, CST3+ → Dendritic cells
+# Cluster 8: PPBP+ → Platelets
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", 
+                     "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+
+# Plot annotated UMAP
+DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+```
+
+---
+
+## 14. Save Final Object
+
+```{r save-final}
+saveRDS(pbmc, file = "pbmc3k_final.rds")
+```
+
+## 15. ADDITIONAL ANALYSES (OPTIONAL)
+
+```{r}
+# Ridge plots: show expression distribution as ridgeline plots
+RidgePlot(pbmc, features = c("MS4A1", "CD79A", "CD3E"))
+
+# Cell scatter: compare two genes at single-cell level
+CellScatter(pbmc, cell1 = "AAACATACAACCAC-1", cell2 = "AAACATTGAGCTAC-1")
+
+# Compare expression between specific groups
+VlnPlot(pbmc, features = "CD3E", split.by = "seurat_clusters")
+
+# Explore metadata
+head(pbmc@meta.data)
+
+# Access specific data layers
+pbmc[["RNA"]]$counts[1:10, 1:10]  # Raw counts
+pbmc[["RNA"]]$data[1:10, 1:10]    # Normalized data
+pbmc[["RNA"]]$scale.data[1:10, 1:10]  # Scaled data
+
+# Access dimensionality reductions
+head(Embeddings(pbmc, reduction = "pca"))
+head(Embeddings(pbmc, reduction = "umap"))
+```
+
+---
+
+## Key Parameters to Tune
+
+* QC thresholds (`nFeature_RNA`, `percent.mt`)
+* Number of PCs
+* Clustering resolution
+* Marker detection thresholds

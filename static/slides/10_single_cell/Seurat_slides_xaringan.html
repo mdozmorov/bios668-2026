@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Seurat: Computational Analysis of scRNA-seq Data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-03-30" />
+    <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Seurat: Computational Analysis of scRNA-seq Data
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-03-30
+]
+
+---
+
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Overview of the Seurat Workflow
+
+**Seurat** is an R toolkit for single-cell genomics developed by the Satija Lab, providing comprehensive tools for quality control, analysis, and exploration of scRNA-seq data.
+
+**1. Data Import &amp; QC** → Load UMI count matrix, filter low-quality cells
+
+**2. Normalization** → Account for sequencing depth differences between cells
+
+**3. Feature Selection** → Identify highly variable genes driving biological variation
+
+**4. Scaling &amp; Dimensionality Reduction** → PCA to compress data, remove noise
+
+.small[https://satijalab.org/seurat/ v.5.4.0 ]
+
+---
+## Overview of the Seurat Workflow
+
+**5. Clustering** → Graph-based community detection to identify cell populations
+
+**6. Visualization** → UMAP/tSNE for 2D representation
+
+**7. Differential Expression** → Find marker genes defining each cluster
+
+**8. Cell Type Annotation** → Assign biological identities using known markers
+
+**Tutorial Dataset**: 2,700 Peripheral Blood Mononuclear Cells (PBMCs) from 10x Genomics, containing diverse immune cell types ideal for demonstrating analysis workflow.
+
+.small[https://satijalab.org/seurat/articles/pbmc3k_tutorial]
+
+---
+## Seurat Data Import Functions
+
+Seurat provides multiple functions to import single-cell data from various platforms and file formats. The choice of function depends on:
+
+- **Platform**: 10x Genomics, Parse Biosciences, BD Rhapsody, etc.
+
+- **File format**: Directory with MTX files, HDF5 (.h5), CSV/TSV, or platform-specific
+
+- **Data type**: Gene expression only, multimodal (GEX + protein + ATAC), or spatial
+
+---
+## Read10X() - CellRanger Directory Output
+
+Standard 10x Genomics CellRanger output (directory containing barcodes, features/genes, and matrix files)
+
+```r
+# Directory structure:
+# filtered_feature_bc_matrix/
+# ├── barcodes.tsv.gz
+# ├── features.tsv.gz
+# └── matrix.mtx.gz
+
+data &lt;- Read10X(data.dir = "filtered_feature_bc_matrix/")
+```
+
+**Returns**: Sparse matrix (single modality) OR list of matrices (multimodal data)
+
+---
+## Read10X_h5() - CellRanger HDF5 Output
+
+More efficient storage format, faster to read, single file instead of three separate files
+
+```r
+# Single HDF5 file from CellRanger
+data &lt;- Read10X_h5(filename = "filtered_feature_bc_matrix.h5")
+seurat_obj &lt;- CreateSeuratObject(counts = data)
+```
+
+---
+## ReadMtx() - Generic Matrix Market Format
+
+Platform-agnostic function for reading MTX files from any source (10x, kallisto/bustools, STARsolo, Alevin, etc.)
+
+```r
+# Specify all three files individually
+expression_matrix &lt;- ReadMtx(
+  mtx = "matrix.mtx.gz",           # or "matrix.mtx"
+  features = "features.tsv.gz",     # or "genes.tsv.gz"
+  cells = "barcodes.tsv.gz",        # Cell barcode file
+  cell.column = 1,                  # Which column has cell barcodes
+  feature.column = 2,               # Which column has feature names
+  cell.sep = "\t",                  # Delimiter for cell file
+  feature.sep = "\t",               # Delimiter for feature file
+  skip.cell = 0,                    # Skip header rows in cell file
+  skip.feature = 0,                 # Skip header rows in feature file
+  mtx.transpose = FALSE,            # Transpose matrix if needed
+  unique.features = TRUE,
+  strip.suffix = FALSE
+)
+
+seurat_obj &lt;- CreateSeuratObject(counts = expression_matrix)
+```
+
+---
+## Manual Construction from Separate Files
+```r
+library(Matrix)
+
+# Read matrix in Matrix Market format
+counts &lt;- readMM("matrix.mtx.gz")
+
+# Read features and barcodes separately
+genes &lt;- read.table("features.tsv.gz", sep = "\t", header = FALSE)
+barcodes &lt;- read.table("barcodes.tsv.gz", sep = "\t", header = FALSE)
+
+# Add row and column names
+rownames(counts) &lt;- genes$V1  # or genes$V2 for gene names
+colnames(counts) &lt;- barcodes$V1
+
+# Create Seurat object
+seurat_obj &lt;- CreateSeuratObject(counts = counts)
+```
+
+&lt;!--
+### scuttle Package for Sparse Import
+```r
+# For memory-efficient import of large CSV/TSV files
+library(scuttle)
+counts_sparse &lt;- readSparseCounts("large_matrix.csv")
+```
+
+## 5. Platform-Specific Import Functions
+
+### Parse Biosciences
+```r
+# Parse uses similar MTX format to 10x
+data &lt;- Read10X(data.dir = "DGE_filtered/")
+# OR
+data &lt;- Read10X_h5("DGE_filtered.h5")
+```
+
+### BD Rhapsody
+```r
+# BD outputs CSV format
+counts &lt;- read.csv("Expression_Data.csv", row.names = 1)
+seurat_obj &lt;- CreateSeuratObject(counts = counts)
+```
+
+### STARsolo / kallisto|bustools
+```r
+# Use ReadMtx for standard output
+counts &lt;- ReadMtx(
+  mtx = "output/counts_unfiltered/cells_x_genes.mtx",
+  cells = "output/counts_unfiltered/cells_x_genes.barcodes.txt",
+  features = "output/counts_unfiltered/cells_x_genes.genes.txt"
+)
+```
+
+### CellBender (Ambient RNA Removal)
+```r
+# CellBender outputs HDF5 in CellRanger-like format
+# Seurat v4.x requires preprocessing; Seurat v5+ may work directly
+
+# Using scCustomize package (recommended)
+library(scCustomize)
+counts &lt;- Read_CellBender_h5_Mat(file_name = "sample_out_filtered.h5")
+seurat_obj &lt;- CreateSeuratObject(counts = counts)
+
+# OR strip metadata for compatibility
+# In terminal: ptrepack --complevel 5 input.h5:/matrix output_seurat.h5:/matrix
+# Then: data &lt;- Read10X_h5("output_seurat.h5")
+```
+
+## 6. Spatial Transcriptomics Data Import
+
+### 10x Visium
+```r
+# Load spatial data with tissue coordinates
+data &lt;- Load10X_Spatial(
+  data.dir = "outs/",
+  filename = "filtered_feature_bc_matrix.h5",
+  slice = "slice1"
+)
+# Automatically creates Seurat object with spatial coordinates
+```
+
+### 10x Xenium (In Situ)
+```r
+# High-resolution spatial data
+xenium_obj &lt;- LoadXenium("xenium_output/", fov = "fov")
+```
+
+### Visium HD
+```r
+# Ultra-high resolution Visium
+visium_hd &lt;- Load10X_Spatial(
+  data.dir = "square_008um/",  # Bin size
+  bin.size = 8
+)
+```
+
+## Quick Reference Table
+
+| **Data Source** | **Format** | **Function** | **Key Parameter** |
+|-----------------|------------|--------------|-------------------|
+| 10x CellRanger | Directory (MTX) | `Read10X()` | `data.dir` |
+| 10x CellRanger | HDF5 (.h5) | `Read10X_h5()` | `filename` |
+| Any platform | MTX files | `ReadMtx()` | `mtx`, `cells`, `features` |
+| Public repos | CSV/TSV | `read.csv()` | `file`, `row.names` |
+| 10x Visium | Spatial | `Load10X_Spatial()` | `data.dir`, `slice` |
+| kallisto/bustools | MTX | `ReadMtx()` | Custom paths |
+| CellBender | HDF5 | `Read_CellBender_h5_Mat()` | `file_name` |
+| Multiple samples | Various | `Read10X_Multi_Directory()` | `base_path` |
+--&gt;
+
+---
+## 1. Data Import and the Seurat Object
+
+**The Count Matrix**: scRNA-seq data starts as a sparse matrix where:
+
+- **Rows** = Genes (features)
+
+- **Columns** = Cells (barcodes)
+
+- **Values** = UMI counts (number of molecules detected)
+
+**Sparse Matrix Representation**: Most values in scRNA-seq data are zeros (genes not expressed in most cells). Seurat uses sparse matrices to save ~24x memory compared to dense matrices.
+
+**Key Parameters**:
+
+- `min.cells = 3`: Keep genes detected in ≥3 cells (removes noise)
+- `min.features = 200`: Keep cells with ≥200 detected genes (removes empty droplets)
+
+---
+## 1. Data Import and the Seurat Object
+
+**The Seurat Object**: A container storing:
+
+- **Counts**: Raw UMI count matrix (`pbmc[["RNA"]]$counts`)
+
+- **Metadata**: Cell-level information (QC metrics, cluster assignments)
+
+- **Dimensionality Reductions**: PCA, UMAP, tSNE coordinates
+
+- **Analysis Results**: Variable features, cluster markers, etc.
+
+---
+## 2. Quality Control and Cell Filtering
+
+**nFeature_RNA** (Gene Count per Cell):
+- **Too low** (&lt;200): Empty droplets, broken cells, insufficient capture
+- **Too high** (&gt;2,500): Doublets (two cells captured together)
+
+--
+
+**nCount_RNA** (Total UMI Count per Cell):
+- Correlates strongly with gene count
+- Reflects sequencing depth and RNA content
+
+--
+
+**percent.mt** (Mitochondrial Gene Percentage):
+- Cytoplasmic mRNA leaks out, but mitochondrial RNA remains trapped
+- **High %MT** (&gt;5-10%): Dying/stressed cells with compromised membranes
+- Calculated by identifying genes starting with "MT-" (human) or "mt-" (mouse)
+
+**Filtering Strategy**: Remove outliers using violin plots and scatter plots to identify appropriate thresholds. Typical filters: 200 &lt; nFeature &lt; 2,500, percent.mt &lt; 5%.
+
+---
+## 3. Normalization
+
+**The Problem**: Raw UMI counts are biased by:
+- Sequencing depth variation (some cells sequenced more deeply)
+- Cell size differences (larger cells have more RNA)
+- Capture efficiency variation
+
+**LogNormalize Method** (`\(log_{10}(UMI_{count} / total_{UMI} \times 10,000 + 1)\)`):
+1. Divide each gene's UMI count by the cell's total UMI count (normalize for sequencing depth)
+2. Multiply by scale factor (10,000 by default) to get "counts per 10,000"
+3. Log transform to stabilize variance
+
+**Result**: Normalized values stored in `pbmc[["RNA"]]$data`, enabling fair comparison of gene expression across cells.
+
+---
+## 4. Highly Variable Feature Selection
+
+Most genes show similar expression across all cells (housekeeping genes, constant expression). Only a subset (~2,000 genes) exhibit high cell-to-cell variability, representing:
+- Cell type-specific programs (e.g., T cell markers in T cells only)
+- Dynamic biological processes (cell cycle, differentiation)
+- Response to microenvironment
+
+**Variance-Stabilizing Transformation (VST) Method**:
+1. Model the mean-variance relationship across genes
+2. Standardize variance to identify genes with higher-than-expected variability
+3. Rank genes by standardized variance, select top 2,000
+
+---
+## 4. Highly Variable Feature Selection
+
+Using variable genes:
+- Reduces computational burden (analyze 2,000 instead of 20,000 genes)
+- Increases signal-to-noise ratio (removes uninformative genes)
+- Improves clustering and visualization quality
+
+Stored in: `VariableFeatures(pbmc)` accessor function retrieves the selected gene list.
+
+---
+## 5. Scaling and Regression
+
+`ScaleData()` function performs two key operations on the data:
+- **Mean Centering**: Shift each gene's expression so mean = 0 across cells
+  - Ensures no single gene dominates downstream analyses due to high baseline expression
+- **Variance Scaling**: Scale each gene so variance = 1 across cells
+  - Gives equal weight to all genes in PCA, preventing highly variable genes from overwhelming signal
+
+**Result**: Z-score normalized data stored in `pbmc[["RNA"]]$scale.data`
+
+**Optional: Regressing Out Unwanted Variation**:
+- `vars.to.regress = "percent.mt"`: Remove mitochondrial effect
+- `vars.to.regress = c("S.Score", "G2M.Score")`: Remove cell cycle effects
+- Uses linear regression to model and subtract the specified variation
+
+**Important**: Only variable features are scaled by default (computationally efficient). Use `features = all.genes` to scale everything if needed.
+
+---
+## SCTransform(): Normalization and Variance Stabilization
+
+* Replaces `NormalizeData()`, `FindVariableFeatures()`, `ScaleData()`
+
+* Uses **Regularized Negative Binomial Regression** to model the technical noise in UMI counts.
+
+* Outputs **Pearson Residuals** (stored in the `SCT` assay) which serve as the normalized values for downstream analysis.
+
+* Removes the confounding effect of sequencing depth (library size).
+
+* Accounts for the mean-variance relationship (overdispersion).
+
+.small[ https://www.youtube.com/watch?v=-oNPTjEWRMs 5m ]
+
+---
+## 6. Principal Component Analysis (PCA)
+
+Single-cell data is high-dimensional (~20,000 genes), noisy, and sparse. PCA compresses this into "metafeatures" (principal components) representing coordinated gene expression programs.
+
+- Each PC is a linear combination of genes (weighted by their "loadings")
+
+- PC1 captures the most variance, PC2 the second most, etc.
+
+- Genes with similar biological functions cluster together in PC space
+
+---
+## 6. Principal Component Analysis (PCA)
+
+- **PC1**: Often separates major cell lineages (myeloid vs. lymphoid)
+
+- **PC2**: May distinguish cell types within lineages (B cells vs. T cells)
+
+- **Higher PCs**: Capture subtler variation, rare cell types, or technical noise
+
+**Determining Dimensionality** (How Many PCs?):
+
+- **Elbow Plot**: Visualize variance explained by each PC; look for "elbow" where curve flattens
+
+- **Rule of Thumb**: Use 10-30 PCs for typical datasets
+
+- **Conservative Approach**: Including extra PCs rarely hurts; too few PCs loses biological signal
+
+---
+## 7. Graph-Based Clustering
+
+Group cells into discrete populations (clusters) based on transcriptional similarity (inspired by PhenoGraph, Louvain algorithm).
+
+**Step 1: K-Nearest Neighbor (KNN) Graph Construction**:
+- For each cell, identify K nearest neighbors in PCA space (Euclidean distance)
+- Draw edges between neighbors
+- Refine edge weights using Jaccard similarity (shared overlap in neighborhoods)
+
+Graph-based clustering is robust to noise, scales to millions of cells, and naturally captures non-linear relationships in the data.
+
+---
+## 7. Graph-Based Clustering
+
+**Step 2: Community Detection (Louvain Algorithm)**:
+- Partition the graph into "communities" (clusters) that maximize modularity
+- Modularity = measure of how well-connected nodes are within clusters vs. between clusters
+- Iteratively optimize to find best clustering structure
+
+**Resolution Parameter**: Controls clustering granularity:
+- **Low resolution** (0.4): Fewer, larger clusters (broad cell types)
+- **High resolution** (1.2): More, smaller clusters (subtle subtypes)
+- **Typical range**: 0.4-1.2 for ~3,000 cells; increase for larger datasets
+
+---
+## 7. Graph-Based Clustering
+
+**Leiden Clustering** 
+- Improved version of Louvain with stronger theoretical guarantees
+  - Fixes disconnected cluster issue
+  - Adds refinement step to improve partition quality
+  - Better optimization of modularity
+
+- Ensures well-connected, high-quality clusters
+  - More robust and stable clustering
+  - Produces biologically meaningful partitions
+  - Default in Python pipelines (e.g., Scanpy)
+
+---
+## 8. Visualization: UMAP and t-SNE
+
+Reduce high-dimensional data (10-50 PCs) to 2D for visualization and interpretation.
+
+**UMAP (Uniform Manifold Approximation and Projection)**:
+- Preserves both local and global structure better than t-SNE
+- Faster for large datasets
+- Now standard in single-cell field (preferred over t-SNE)
+
+**t-SNE (t-distributed Stochastic Neighbor Embedding)**:
+- Excellent at preserving local neighborhoods
+- Less reliable for global structure (distances between distant clusters not meaningful)
+
+---
+## 8. Visualization: UMAP and t-SNE
+
+- UMAP and t-SNE are **visualization tools**, not analysis tools
+
+- Clustering was done on PCA space, not UMAP/t-SNE coordinates
+
+- UMAP/t-SNE plots illustrate cluster relationships but shouldn't be used to make biological conclusions alone
+
+- Parameters (perplexity, n_neighbors) can dramatically change appearance
+
+**Best Practice**: Cells in the same cluster (from graph-based clustering) should co-localize on UMAP, validating the clustering results.
+
+---
+## 9. Differential Expression Analysis
+
+Identify marker genes that define each cluster—genes highly expressed in one cluster vs. others.
+
+**FindMarkers() Function**:
+- Tests one cluster (`ident.1`) against all others (or specific clusters with `ident.2`)
+- Returns genes ranked by significance and fold-change
+
+--
+
+**FindAllMarkers() Function**:
+- Automatically runs differential expression for all clusters
+- Identifies positive markers (upregulated genes) for each cluster
+- Uses Wilcoxon rank-sum test by default (fast, non-parametric)
+
+---
+## 9. Differential Expression Analysis
+
+**Output Columns**:
+- **p_val**: Statistical significance (adjust for multiple testing)
+- **avg_log2FC**: Log2 fold-change (magnitude of difference)
+- **pct.1**: Percentage of cells in cluster expressing the gene
+- **pct.2**: Percentage of cells outside cluster expressing the gene
+
+**Filtering Parameters**:
+- `min.pct = 0.25`: Gene must be detected in ≥25% of cells in either group
+- `logfc.threshold = 0.25`: Require ≥0.25 log fold-change
+- Adjusting these speeds up analysis for large datasets
+
+**Alternative Tests**: ROC, MAST, DESeq2, edgeR—see Seurat DE vignette for comparisons.
+
+---
+## 10. Marker Visualization
+
+**Violin Plots** (`VlnPlot()`):
+- Show distribution of gene expression across clusters
+- Useful for comparing marker expression levels
+- Can plot raw counts or normalized data
+
+**Feature Plots** (`FeaturePlot()`):
+- Overlay gene expression on UMAP/t-SNE
+- Color intensity = expression level
+- Visualize multiple genes simultaneously to see co-expression patterns
+
+---
+## 10. Marker Visualization
+
+**Heatmaps** (`DoHeatmap()`):
+- Display top markers for each cluster in a matrix
+- Rows = genes, columns = cells (ordered by cluster)
+- Color = scaled expression (z-score)
+- Reveals gene expression programs defining each cluster
+
+**Dot Plots** (`DotPlot()`):
+- Show marker expression across all clusters
+- Dot size = percentage of cells expressing
+- Dot color = average expression level
+- Compact view for multi-gene, multi-cluster comparisons
+
+---
+## 11. Cell Type Annotation
+
+**Manual Annotation Using Canonical Markers**:
+After identifying cluster-specific markers, compare to known cell type signatures:
+
+.small[
+**Example PBMC Markers**:
+- **Naive CD4+ T cells**: IL7R, CCR7 (high), CD8A (low)
+- **Memory CD4+ T cells**: IL7R, S100A4
+- **CD8+ T cells**: CD8A
+- **B cells**: MS4A1 (CD20), CD79A
+- **Monocytes (CD14+)**: CD14, LYZ
+- **Monocytes (FCGR3A+)**: FCGR3A (CD16), MS4A7
+- **NK cells**: GNLY, NKG7
+- **Dendritic cells**: FCER1A, CST3
+- **Platelets**: PPBP
+]
+**Automated Annotation Approaches** (not covered in basic tutorial):
+- Reference-based mapping (Seurat's `MapQuery()`, Azimuth)
+- Machine learning classifiers (SingleR, CellTypist)
+- Gene set enrichment analysis
+
+**Best Practice**: Always validate automated annotations with biological knowledge and marker gene inspection.
+
+---
+## Seurat v5 Improvements
+
+- **Sketch-based analysis**: Analyze millions of cells by subsampling
+
+- **BPCells package**: On-disk data storage for ultra-large datasets
+
+- **Presto package**: 10-100× faster differential expression analysis
+
+- **Multi-omics integration**: Cross-modality analysis (RNA + ATAC, RNA + protein)
+
+**Integration and Batch Correction**:
+- Harmonize multiple datasets, remove technical batch effects
+
+- Canonical Correlation Analysis (CCA), reciprocal PCA, Harmony
+
+&lt;!-- **Trajectory Analysis**:
+- Monocle 3, RNA velocity for developmental/differentiation trajectories
+
+**Multimodal Analysis**:
+- Simultaneous analysis of RNA + protein (CITE-seq)
+- RNA + chromatin (Multiome)
+- Weighted Nearest Neighbor (WNN) integration --&gt;
+
+---
+## Summary
+
+**Standard Workflow**:
+QC → Normalize → Find Variable Features → Scale → PCA → Cluster → Visualize → Find Markers → Annotate
+
+**Decision Points**:
+- QC thresholds (gene count, %MT)
+- Number of PCs to use (elbow plot)
+- Clustering resolution (granularity of clusters)
+
+**Biological Validation**:
+- Always inspect marker genes for biological coherence
+- Cross-reference with literature and databases (PanglaoDB, CellMarker)
+- Consider validating with orthogonal methods (flow cytometry, spatial transcriptomics)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

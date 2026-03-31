@@ -1,0 +1,289 @@
+---
+title: "Cell Ranger"
+subtitle: "Preprocessing 10x scRNA-seq"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", #firebrick4, "deepskyblue1"
+  text_font_size = "28px"
+)
+library(dplyr)
+library(ggplot2)
+```
+
+<!-- HTML style block -->
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+
+## 10x Genomics Cell Ranger
+
+* Preprocesses raw sequencing data from Chromium single-cell assays:
+  * demultiplex (BCL → FASTQ), align reads to reference;
+  * deduplicate UMIs;
+  * assign reads to cell barcodes;
+  * produce count matrices and per-sample QC metrics.
+
+* Produces downstream visualization artefacts including a `.cloupe` file for Loupe Browser.
+
+.small[https://www.10xgenomics.com/support/software/cell-ranger/latest]
+
+---
+## Typical Cell Ranger pipelines
+
+* `cellranger mkfastq` — demultiplex BCL → FASTQ (wrapper around Illumina bcl2fastq).
+
+* `cellranger count` — align reads (STAR/aligner), quantify UMIs, call cell barcodes, produce `outs/` with matrices and QC. 
+
+* `cellranger aggr` — aggregate multiple samples/runs into a combined matrix and unified QC/`.cloupe`.
+
+* `cellranger vdj` / `cellranger multi` / `cellranger reanalyze` — assay-specific flows (V(D)J, Feature Barcode, Multiome, secondary analyses).
+
+---
+## High-level command examples
+
+```bash
+# demux (if starting from BCL directory)
+cellranger mkfastq --run=/path/to/Illumina/run --csv=sample_sheet.csv --output-dir=fastq_dir
+
+# per-sample counting (3' gene expression example)
+cellranger count \
+  --id=sample1 \
+  --transcriptome=/path/to/refdata-gex-GRCh38-2020-A \
+  --fastqs=/path/to/fastq_dir \
+  --sample=SAMPLE_NAME \
+  --expect-cells=6000
+```
+
+---
+# Inputs — what you feed into Cell Ranger
+
+* **Sequencing data**: FASTQ files (paired-end; read1: cell+UMI or UMI read depending on chemistry, read2: cDNA), or raw BCL (use `mkfastq`).
+
+* **Reference**: prebuilt Cell Ranger transcriptome (HDF5 + FASTA/GTF) or custom reference via `cellranger mkref`.
+
+* **Sample sheet / CSV** (for `mkfastq` / `aggr`): describes sample IDs, lanes, libraries.
+
+* **Assay metadata**: chemistry version (v2/v3/v3.1 etc.), library type (GEX, FeatureBarcode, VDJ) — selected by flags or detected automatically in recent Cell Ranger versions.
+
+---
+# Key `cellranger count` arguments
+
+* `--fastqs` directory (or `--id` folder to write outputs)
+
+* `--sample` (prefix to select FASTQs)
+
+* `--transcriptome` path
+
+* `--expect-cells` (tuned to your loading concentration; affects cell-calling)
+
+* library flags for feature barcodes / multiome / VDJ when appropriate
+
+.small[https://www.10xgenomics.com/support/software/cell-ranger/latest/tutorials/cr-tutorial-ct]
+
+---
+# Outputs
+
+`cellranger` writes an `outs/` directory containing:
+
+* `outs/web_summary.html` — interactive summary.html with run metrics and charts
+
+* `outs/filtered_feature_bc_matrix/` (MEX format) — **filtered** feature × barcode matrix (cells only).
+
+* `outs/raw_feature_bc_matrix/` — **raw/unfiltered** matrix (all barcodes).
+
+* `outs/filtered_feature_bc_matrix.h5` — HDF5 version (concise) of filtered matrix.
+
+* `outs/possorted_genome_bam.bam` — coordinate-sorted alignments (GEX reads).
+
+* `outs/cloupe.cloupe` (or similar) — Loupe Browser file for visualization (when produced).
+
+.small[https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview]
+
+---
+## Output formats
+
+* **MEX / Market Exchange Format** (matrix.mtx + barcodes.tsv + features.tsv): plain text sparse matrix format widely used by scRNA tools (Seurat, Scanpy). `matrix.mtx` uses Matrix Market format for sparse matrices.
+
+* **HDF5 (`.h5`)**: compact single-file format with datasets (filtered/unfiltered matrices). Useful for direct import by Scanpy/Seurat or `Read10X_h5`.
+
+* **BAM**: alignment file (read-level), use for debugging alignment, UMI position, soft-clipping, or re-annotating.
+
+* **CSV / JSON**: quality metrics / summary files for automatic parsing and reports.
+
+---
+# Typical `outs/` folder tree
+
+```
+sample1/
+└─ outs/
+   ├─ web_summary.html
+   ├─ metrics_summary.csv
+   ├─ filtered_feature_bc_matrix/
+   │  ├─ barcodes.tsv.gz
+   │  ├─ features.tsv.gz
+   │  └─ matrix.mtx.gz
+   ├─ raw_feature_bc_matrix/
+   ├─ filtered_feature_bc_matrix.h5
+   ├─ possorted_genome_bam.bam
+   ├─ cloupe.cloupe
+   └─ analysis/ (secondary analysis: tSNE/UMAP, clusters)
+```
+
+---
+# Naming conventions & practical tips
+
+* `--id` becomes the top-level sample folder and appears in `outs/` → pick concise sample IDs (no spaces, avoid `/` or `:`).
+
+* Keep FASTQ file names consistent with Illumina/sample sheet: `SAMPLE_S1_L001_R1_001.fastq.gz`. `cellranger mkfastq` produces standard Illumina filenames.
+
+* For `aggr` provide a CSV with `sample_id` and `molecule_h5` (or path to filtered matrices) — `cellranger aggr` produces a combined `outs/` with an aggregated `.cloupe`.
+
+---
+# QC reports — what to inspect first
+
+From `outs/web_summary.html` and `metrics_summary.csv`:
+
+* **Estimated number of cells** (is it close to expectation?)
+
+* **Mean reads per cell** and **total reads** — low depth may limit sensitivity.
+
+* **Reads mapped confidently to transcriptome (%)** — low mapping suggests reference mismatch or contamination.
+
+* **Fraction of reads in cells** — high ambient RNA / empty droplets reduce this.
+
+* **Median genes / UMIs per cell** — compare across samples/expected biology.
+
+* **Sequencing saturation** — indicates if more reads will yield more UMIs.
+
+Quick rule: open `web_summary.html` first; it visualizes these metrics and highlights warnings.
+
+---
+# `.cloupe` and Loupe Browser
+
+* Cell Ranger produces a **`.cloupe`** file (Loupe Browser dataset) for visualization; `cellranger count`/`aggr`/`reanalyze` can generate `.cloupe` files for the dataset `outs/`. 
+
+* The `.cloupe` is a self-contained file that Loupe Browser opens for interactive exploration.
+
+* **Loupe Browser** is the desktop visualization tool from 10x for exploring `.cloupe` files (UMAP/tSNE, clusters, marker genes, per-cell metadata). You can also create `.cloupe` files from Seurat objects using the `LoupeR` package. ([10x Genomics][7])
+
+.small[ https://www.10xgenomics.com/support/software/loupe-browser/latest ]
+
+---
+## `.cloupe` file content
+
+* Cell × filtered feature expression matrix
+
+* 2-D projections (tSNE/UMAP) computed during Cell Ranger secondary analysis
+
+* Initial clustering assignments
+
+* Per-cell metadata (sample ID, cluster ID, barcode)
+
+* Visualization tiles/images (for Visium/Spatial) when applicable
+
+* `.cloupe` is portable — hand it to a colleague to open in Loupe Browser.
+
+.small[ https://www.10xgenomics.com/support/software/loupe-browser/latest/tutorials/assay-analysis/lb-sc-sharing ]
+
+---
+## Create a `.cloupe` file
+
+* From Cell Ranger outputs: run `cellranger reanalyze` or `cellranger aggr` (aggregation) to produce a `.cloupe`.
+
+* From Seurat: use the `LoupeR` package to export a `.cloupe` from a Seurat object (useful after custom clustering/UMAP).
+
+* Note: some versions of Loupe require `.cloupe` versions matching Loupe release (check compatibility).
+
+.small[ https://www.10xgenomics.com/support/software/loupe-browser/latest/tutorials/introduction/lb-louper ]
+
+---
+## Alternatives to cellranger count UMI output
+
+**Salmon** / Alevin https://salmon.readthedocs.io/en/latest/alevin.html
+
+- Pseudo-aligns to the transcriptome; runs ~30X faster
+
+**STARsolo** https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf
+
+- Output almost identical to `cellranger count` except no secondary analyses
+
+- 10X faster than `cellranger count --nosecondary`
+
+
+
+<!---
+
+## Loupe Browser — what to demo in class
+
+* Load `.cloupe` file: main views — projection (UMAP/tSNE), feature expression (per-cell), cluster tables, marker genes. ([10x Genomics][7])
+* Quick workflows:
+
+  * Inspect expression of marker genes across clusters.
+  * Select cells interactively and export barcodes / expression data.
+  * Compare clusters, run quick differential expression tests (Loupe’s UI).
+* Export options: save screenshots, export selected barcodes or gene lists, or save a modified `.cloupe`.
+
+
+
+# Troubleshooting & tips (practical)
+
+* **No `.cloupe` produced?** Check `cellranger` version, `outs/` contents, and whether `count`/`aggr` completed secondary analysis; you may run `cellranger reanalyze` to produce one. ([10x Genomics][9])
+* **Large datasets**: use `cellranger aggr` to combine with normalization or provide `--normalize` options to avoid library size bias. ([10x Genomics][2])
+* **If mapped % is low**: confirm reference transcriptome (GTF), run `fastqc` on FASTQs, check for PhiX/contaminant reads.
+* **If fraction reads in cells is low**: strong ambient RNA — consider EmptyDrops or filtering strategies in downstream analysis.
+* **Versioning**: Cell Ranger output names and features evolve; always check your installed Cell Ranger docs for exact file names.
+
+# Example slide: hands-on exercise (suggested)
+
+1. Run `cellranger count --id=demo --fastqs=./fastq --transcriptome=ref --sample=demo --expect-cells=3000`.
+2. Open `demo/outs/web_summary.html` — record: estimated cells, reads per cell, reads in cells %. ([10x Genomics][1])
+3. Open `demo/outs/cloupe.cloupe` in Loupe Browser — inspect UMAP, marker expression, export barcodes. ([10x Genomics][7])
+
+# References & further reading
+
+* Cell Ranger count tutorial & pipeline overview — official 10x docs. ([10x Genomics][1])
+* Gene Expression outputs & explanation (filtered/raw matrices, web summary). ([10x Genomics][4])
+* `cellranger aggr` / `reanalyze` outputs (aggregate `.cloupe` generation). ([10x Genomics][2])
+* Loupe Browser overview & LoupeR (Seurat → `.cloupe`) for converting Seurat objects. ([10x Genomics][7])
+
+## Final slide — quick cheat-sheet (copy into your notes)
+
+* `mkfastq` → FASTQs
+* `cellranger count --id=sample --transcriptome=ref --fastqs=/path --sample=NAME --expect-cells=N` → `outs/` (web_summary.html, matrix MEX/HDF5, BAM, .cloupe)
+* `cellranger aggr` → combined matrices + `.cloupe`
+* `.mtx` + `barcodes.tsv` + `features.tsv` = MEX matrix (raw & filtered)
+* Open `web_summary.html` → first QC; open `.cloupe` in Loupe Browser → interactive EDA. ([10x Genomics][5])
+
+[1]: https://www.10xgenomics.com/support/software/cell-ranger/latest/tutorials/cr-tutorial-ct?utm_source=chatgpt.com "Running Cell Ranger count | Official 10x Genomics Support"
+[2]: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-overview?utm_source=chatgpt.com "Cell Ranger Outputs | Official 10x Genomics Support"
+[3]: https://www.10xgenomics.com/support/software/cell-ranger-arc/latest/analysis/outputs/understanding-output?utm_source=chatgpt.com "Understanding Outputs | Official 10x Genomics Support"
+[4]: https://www.10xgenomics.com/support/software/cell-ranger/7.2/analysis/outputs/cr-outputs-gex-overview?utm_source=chatgpt.com "Cell Ranger Gene Expression Outputs"
+[5]: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-outputs-mex-matrices?utm_source=chatgpt.com "Cell Ranger Feature Barcode Matrices (MEX Format)"
+[6]: https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/outputs/cr-3p-outputs-cellplex?utm_source=chatgpt.com "3'/5' Multiplex Outputs (Cell Ranger multi)"
+[7]: https://www.10xgenomics.com/support/software/loupe-browser/latest?utm_source=chatgpt.com "Loupe Browser | Official 10x Genomics Support"
+[8]: https://www.10xgenomics.com/support/software/loupe-browser/latest/tutorials/assay-analysis/lb-sc-sharing?utm_source=chatgpt.com "Sharing Results in Loupe Browser for Single Cell Data"
+[9]: https://www.10xgenomics.com/support/software/cell-ranger/7.2/analysis/outputs/cr-outputs-overview?utm_source=chatgpt.com "Cell Ranger Outputs | Official 10x Genomics Support"
+[10]: https://www.10xgenomics.com/support/software/loupe-browser/latest/tutorials/introduction/lb-louper?utm_source=chatgpt.com "LoupeR to Generate CLOUPE files from Seurat Objects"
+-->
