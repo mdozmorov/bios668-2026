@@ -98,13 +98,12 @@ Search [PubMed](https://pubmed.ncbi.nlm.nih.gov/) for your condition of interest
    - **Clone** your peer’s repository and **knit** their final project document.
    - Evaluate each section (Introduction, Methods, Results, Discussion, etc.) and rate as:
      - **Pass**, **Fail**, or **Marginal**, with brief justification.
-3. Submit your assessment via **Canvas** on or before **[To be determined]**.
+3. Submit your assessment via **Canvas** on or before **May 8, 2026**.
 
 ## Grading and Deadlines
 
 - The instructor will formally grade all projects, considering peer assessments.  
-- **Project grades** will be released on or before **[To be determined]**.  
-- **Final course grades** will be entered in the system on or before **[To be determined]**.
+- **Final course grades** will be entered in the system on or before **May 12, 2026**.
 
 ## Summary of Deliverables
 
