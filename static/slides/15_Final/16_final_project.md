@@ -17,7 +17,7 @@ Use normal page margins, 11 pt Arial font. Your proposal is expected to be from 
 
 ## Key dates
 
-- **May 3, 2026** - The complete [Submission](#submission-instructions) is due.
+- **May 5, 2026** - The complete [Submission](#submission-instructions) is due.
 - **May 8, 2026** - The [Peer-review](#peer-review-process) assessment is due.
 - **May 12, 2026** - Final grades are due by noon, VCU requirement.
 
