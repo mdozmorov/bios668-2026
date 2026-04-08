@@ -1,0 +1,821 @@
+---
+title: "UMAP for Single-Cell RNA-seq"
+subtitle: "Modern Dimensionality Reduction via Manifold Learning"
+author: "Mikhail Dozmorov"
+institute: "Virginia Commonwealth University"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+mono_light(
+  base_color = "midnightblue",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "500", "500i"),
+  code_font_google   = google_font("Droid Mono"),
+  link_color = "#8B1A1A", #firebrick4, "deepskyblue1"
+  text_font_size = "28px"
+)
+library(dplyr)
+library(ggplot2)
+```
+
+<!-- HTML style block -->
+<style>
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+</style>
+
+
+# UMAP: What's Different?
+
+**UMAP** = Uniform Manifold Approximation and Projection (McInnes et al., 2018)
+
+.pull-left[
+**t-SNE recap**:
+- Probabilistic framework
+- Preserves local neighborhoods
+- Heavy-tailed distributions
+- Slow: $O(n^2)$ or $O(n \log n)$
+- Poor global structure
+]
+
+.pull-right[
+**UMAP**:
+- **Topological framework**
+- Preserves both local + global structure
+- Manifold learning theory
+- Fast: $O(n^{1.14})$ 
+- Better scalability
+]
+
+**Key innovation**: Assumes data lies on Riemannian manifold (a topological space where each tangent space is equipped with a smoothly varying inner product), uses algebraic topology
+
+???
+
+**Presenter's Notes:**
+
+UMAP takes a fundamentally different mathematical approach than t-SNE, though they solve similar problems.
+
+**Core difference**: 
+- t-SNE: "Make nearby points stay nearby using probabilities"
+- UMAP: "Preserve the topological structure of the manifold"
+
+**Why topology?**
+- Topology studies properties preserved under continuous deformations
+- Perfect for dimensionality reduction - we're "bending" high-D space into low-D
+- More principled mathematical foundation than t-SNE
+
+**Practical impact**: UMAP is now the default in many tools (Scanpy, Seurat v4+) because it's faster and preserves more structure.
+
+---
+# Mathematical Foundation
+
+**1. High-Dimensional Manifold**
+
+Assume data lies on Riemannian manifold $\mathcal{M}$ embedded in $\mathbb{R}^d$
+
+**Local metric**: Each point has local distance structure
+- Varies by density (like t-SNE's adaptive $\sigma_i$)
+- Fuzzy simplicial complex represents topology
+
+---
+# Mathematical Foundation
+
+**2. Fuzzy Set Representation**
+
+For each point $x_i$, compute fuzzy set membership:
+
+$$w_{ij} = \exp\left(-\frac{\max(0, d(x_i, x_j) - \rho_i)}{\sigma_i}\right)$$
+
+where:
+- $d(x_i, x_j)$ - the distance between data points in the high-dimensional space
+- $\rho_i$ = distance to nearest neighbor
+- $\sigma_i$ = bandwidth (from `n_neighbors`)
+
+**Union** of all fuzzy sets → high-dimensional topological structure
+
+???
+
+**Presenter's Notes:**
+
+Don't worry if the topology feels abstract - the practical intuition is more important.
+
+**Intuition**:
+- Each point defines a "neighborhood" of nearby points
+- These neighborhoods overlap to form a structure
+- UMAP tries to preserve this structure in low dimensions
+
+**Key difference from t-SNE**:
+- t-SNE: Gaussian similarity → probabilities
+- UMAP: Exponential membership → fuzzy topology
+
+**Fuzzy sets**: Instead of "point j is or isn't a neighbor," we have "point j is 0.7 in the neighborhood"
+
+**Parameters encoded**:
+- $\rho_i$: Distance to closest neighbor (ensures connectivity)
+- $\sigma_i$: Bandwidth (determined by `n_neighbors` parameter)
+- These adapt to local density, like t-SNE's perplexity
+
+---
+# Mathematical Foundation
+
+**3. Low-Dimensional Optimization**
+
+Similar fuzzy set in low-dimensional space $\mathbb{R}^k$:
+
+$$v_{ij} = \left(1 + a(||y_i - y_j||^2)^b\right)^{-1}$$
+
+Default: $a \approx 1.93$, $b = 0.79$ (learned from `min_dist`)
+
+**Objective**: Cross-entropy between fuzzy sets (symmetric)
+
+$$C = \sum_{ij} w_{ij} \log\frac{w_{ij}}{v_{ij}} + (1-w_{ij})\log\frac{1-w_{ij}}{1-v_{ij}}$$
+
+**Optimization**: Stochastic gradient descent with negative sampling
+
+???
+
+**Presenter's Notes:**
+
+The low-dimensional similarity function looks different from both t-SNE's t-distribution and the high-D exponential.
+
+**Why this form?**
+- Approximates actual manifold distance in low dimensions
+- $a$ and $b$ control spread (set by `min_dist` parameter)
+- More flexible than t-SNE's fixed $(1 + d^2)^{-1}$
+
+**Cross-entropy vs KL divergence**:
+- UMAP uses symmetric cross-entropy
+- t-SNE uses asymmetric KL divergence
+- Cross-entropy: balanced attention to attractions and repulsions
+- More stable optimization
+
+**Negative sampling**:
+- Can't compute all $n^2$ pairs
+- Sample random "non-neighbor" pairs for repulsion
+- Dramatically speeds up optimization
+- Key to UMAP's $O(n^{1.14})$ complexity
+
+**The math is complex, but implementation is straightforward** - most users never need to understand the topology!
+
+---
+# Key Hyperparameters
+
+**1. n_neighbors (like perplexity)**
+
+Controls local vs. global structure balance
+
+```{r, echo=FALSE, fig.width=12, fig.height=3.5}
+par(mfrow=c(1,3))
+set.seed(42)
+n <- 200
+theta <- seq(0, 4*pi, length.out=n)
+x <- theta/2 * cos(theta) + rnorm(n, 0, 0.3)
+y <- theta/2 * sin(theta) + rnorm(n, 0, 0.3)
+
+plot(x, y, col=rainbow(n), pch=16, main="n_neighbors = 5\n(Very Local)", 
+     xlab="", ylab="", cex=0.8)
+plot(x, y, col=rainbow(n), pch=16, main="n_neighbors = 15\n(Balanced, Default)", 
+     xlab="", ylab="", cex=0.8)
+plot(x, y, col=rainbow(n), pch=16, main="n_neighbors = 50\n(More Global)", 
+     xlab="", ylab="", cex=0.8)
+```
+
+- **Low (5-10)**: Emphasizes fine structure, more clusters
+- **Default (15)**: Good balance for most applications
+- **High (30-50)**: Emphasizes global structure, fewer clusters
+
+**Rule**: Larger than t-SNE perplexity typically works well
+
+???
+
+**Presenter's Notes:**
+
+`n_neighbors` is UMAP's most important parameter, analogous to t-SNE's perplexity.
+
+**Relationship to perplexity**:
+- Similar conceptual role
+- But UMAP typically uses smaller values (15 vs 30)
+- UMAP is less sensitive to this parameter than t-SNE is to perplexity
+
+**Effects**:
+- **n_neighbors = 5**: 
+  - Very local, picks up fine details
+  - May fragment coherent populations
+  - Good for detecting rare cell types
+  
+- **n_neighbors = 15** (default):
+  - Works well for most scRNA-seq
+  - Balances detail and structure
+  
+- **n_neighbors = 50**:
+  - More global view
+  - May merge related populations
+  - Good for hierarchical structure
+
+**Practical advice**:
+- Start with 15
+- Decrease if you suspect rare cell types are being missed
+- Increase if structure looks overly fragmented
+- Less critical than perplexity in t-SNE (UMAP is more robust)
+
+---
+# Key Hyperparameters
+
+**2. min_dist**
+
+Controls tightness of clusters in embedding
+
+```{r, echo=FALSE, fig.width=12, fig.height=3.5}
+par(mfrow=c(1,3))
+set.seed(123)
+clusters <- 3
+n_per <- 70
+centers <- matrix(c(-3,-3, 0,3, 4,-2), ncol=2, byrow=TRUE)
+
+plot_cluster <- function(spread, title) {
+  plot(NULL, xlim=c(-6,7), ylim=c(-6,6), xlab="", ylab="", main=title)
+  for(i in 1:clusters) {
+    points <- matrix(rnorm(n_per*2, 0, spread), ncol=2)
+    points[,1] <- points[,1] + centers[i,1]
+    points[,2] <- points[,2] + centers[i,2]
+    points(points, pch=16, col=i+1, cex=0.7)
+  }
+}
+
+plot_cluster(0.3, "min_dist = 0.0\n(Tight Clusters)")
+plot_cluster(0.5, "min_dist = 0.1\n(Default)")
+plot_cluster(0.8, "min_dist = 0.5\n(Loose Clusters)")
+```
+
+- **Low (0.0-0.05)**: Dense, compact clusters (discrete cell types)
+- **Default (0.1)**: Balanced for most cases
+- **High (0.3-0.5)**: More dispersed, continuous structure (trajectories)
+
+**Use low min_dist** for discrete cell types, **high for trajectories**
+
+???
+
+**Presenter's Notes:**
+
+`min_dist` controls the minimum distance between points in the embedding - essentially how tightly packed the embedding is.
+
+**Technical meaning**:
+- Minimum distance allowed between points in low-D
+- Controls the $a$ and $b$ parameters in the similarity function
+- Affects both cluster tightness and spacing
+
+**Effects**:
+- **min_dist = 0.0**: 
+  - Very tight clusters
+  - Clear separation between groups
+  - Good for discrete cell types (immune cell classification)
+  - May create artificial gaps
+  
+- **min_dist = 0.1** (default):
+  - Good balance
+  - Works for most scRNA-seq applications
+  
+- **min_dist = 0.5**:
+  - Loose, spread out
+  - Better reveals continuous structure
+  - Good for developmental trajectories
+  - Less dramatic cluster separation
+
+**Interaction with n_neighbors**:
+- High n_neighbors + high min_dist → very global, smooth
+- Low n_neighbors + low min_dist → very local, fragmented
+
+**Recommendation**:
+- Use default (0.1) initially
+- Adjust based on biology: discrete types → lower, trajectories → higher
+
+---
+# UMAP vs. t-SNE
+
+| Feature | t-SNE | UMAP |
+|---------|-------|------|
+| **Speed** | Slow ($O(n \log n)$) | Fast ($O(n^{1.14})$) |
+| **Scalability** | <50k cells practical | 100k+ cells routine |
+| **Global structure** | Poor | Better preserved |
+| **Local structure** | Excellent | Very good |
+| **Determinism** | Stochastic | More stable |
+| **Cluster separation** | Often clearer | Sometimes more realistic |
+| **Distances** | Not meaningful | More meaningful (but still limited) |
+| **Theory** | Probabilistic | Topological |
+| **Trajectories** | Can break | Better preserved |
+
+<!-- **When to use which?** -->
+<!-- - **Default choice**: UMAP (faster, scales better, good structure) -->
+<!-- - **t-SNE**: Need maximum cluster separation, smaller datasets, established in scRNA-seq -->
+
+???
+
+**Presenter's Notes:**
+
+This is the practical comparison your students need.
+
+**Speed and scalability** - UMAP wins decisively:
+- t-SNE: 10k cells = minutes, 50k cells = hours
+- UMAP: 10k cells = seconds, 100k cells = minutes
+- For modern large datasets, this is critical
+
+**Structure preservation**:
+- t-SNE: Excellent local, poor global
+- UMAP: Good local, decent global
+- UMAP's global structure still not perfect, but much better than t-SNE
+
+**Cluster separation**:
+- t-SNE often creates cleaner gaps between clusters
+- UMAP may show more continuous structure
+- Which is "better" depends on biology - are cell types discrete or continuous?
+
+**Practical experience**:
+- UMAP results are more consistent across runs
+- Less sensitive to parameter changes
+- Easier to get "good" results quickly
+
+**Cultural/field considerations**:
+- Immunology community: both widely accepted
+- Neuroscience: increasingly UMAP
+- Developmental biology: UMAP preferred for trajectories
+- Some reviewers still expect t-SNE - know your audience
+
+**My recommendation**: Start with UMAP, compare with t-SNE if needed. If results are similar, use UMAP (faster, better properties). If very different, investigate why.
+
+---
+# Implementation Example
+
+```{r, eval=FALSE}
+library(Seurat)
+
+# Standard preprocessing (same as t-SNE)
+seurat_obj <- NormalizeData(seurat_obj)
+seurat_obj <- FindVariableFeatures(seurat_obj, nfeatures = 2000)
+seurat_obj <- ScaleData(seurat_obj)
+seurat_obj <- RunPCA(seurat_obj, npcs = 50)
+
+# UMAP with default parameters
+seurat_obj <- RunUMAP(seurat_obj, 
+                      dims = 1:30,          # Use first 30 PCs
+                      n.neighbors = 15,     # Default
+                      min.dist = 0.1)       # Default
+
+# Compare with t-SNE
+seurat_obj <- RunTSNE(seurat_obj, dims = 1:30, perplexity = 30)
+
+# Visualize both
+p1 <- DimPlot(seurat_obj, reduction = "umap") + ggtitle("UMAP")
+p2 <- DimPlot(seurat_obj, reduction = "tsne") + ggtitle("t-SNE")
+p1 | p2
+```
+
+<!--
+**Python (Scanpy)**:
+```python
+sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
+sc.tl.umap(adata, min_dist=0.1)
+sc.pl.umap(adata)
+```
+-->
+
+???
+
+**Presenter's Notes:**
+
+Implementation is straightforward - very similar workflow to t-SNE.
+
+**Key points**:
+
+1. **Same preprocessing**: UMAP uses same QC, normalization, HVG selection, PCA
+2. **Runs on PCs**: Like t-SNE, almost always run on PC space, not raw data
+3. **Faster**: You'll notice UMAP completes much quicker than t-SNE
+
+**Parameter choices**:
+- `dims = 1:30`: Use same PC selection as you would for t-SNE
+- `n.neighbors = 15`: Good starting point, roughly equivalent to perplexity ~15-20
+- `min.dist = 0.1`: Standard default
+
+**Seurat vs Scanpy**:
+- Seurat: Uses uwot (R implementation)
+- Scanpy: Uses umap-learn (Python implementation)
+- Results should be similar but not identical
+- Both are well-maintained
+
+**Side-by-side comparison**:
+- Always good to generate both UMAP and t-SNE initially
+- Check if they show consistent structure
+- If very different, investigate parameters and data quality
+- Choose based on which better represents known biology
+
+**Modern trend**: Many papers now show only UMAP, especially for large datasets
+
+<!---
+# What UMAP Does Better
+
+**1. Preserves Global Structure**
+- Distances between clusters more meaningful
+- Can infer cluster relationships (with caution)
+- Better for hierarchical structure
+
+**2. Trajectories**
+- Maintains continuous transitions
+- Better for developmental processes
+- Doesn't artificially fragment temporal processes
+
+**3. Scalability**
+- 100,000+ cells routine
+- Modern datasets often this large
+- Essential for atlas-scale projects
+
+**4. Speed**
+- 10-100× faster than t-SNE
+- Enables interactive parameter exploration
+- Faster iterations during analysis
+
+**5. Reproducibility**
+- More stable across runs
+- Less sensitive to initialization
+- Easier to reproduce results
+
+???
+
+**Presenter's Notes:**
+
+These are UMAP's genuine advantages - situations where it performs objectively better than t-SNE.
+
+**1. Global structure**:
+Example: You have HSCs, progenitors, and mature cells. In UMAP, their relative positions are more meaningful - you can see HSCs → progenitors → mature as a progression. In t-SNE, this relationship is lost.
+
+**2. Trajectories**:
+Real case: Developmental time course
+- t-SNE might show: Day0 cluster | Day2 cluster | Day4 cluster (disconnected)
+- UMAP shows: Smooth progression Day0 → Day2 → Day4
+- UMAP doesn't break the trajectory into pieces
+
+**3. Scalability**:
+Human Cell Atlas projects have millions of cells. Only UMAP is practical.
+
+**4. Speed example**:
+10,000 cells, 30 PCs:
+- t-SNE: 5-10 minutes
+- UMAP: 10-30 seconds
+This matters when you're trying different parameters
+
+**5. Reproducibility**:
+- Run t-SNE 5 times with same seed → can get noticeably different results
+- Run UMAP 5 times → very consistent
+- Better for collaborative projects and publications
+
+**When these matter most**:
+- Atlas projects: need speed and scale
+- Developmental biology: need trajectory preservation
+- Comparative studies: need global structure
+- High-throughput screening: need speed for many samples
+
+# What t-SNE Still Does Better
+
+**1. Cluster Separation**
+- Often creates clearer visual gaps
+- Easier to identify distinct populations
+- Better for discrete cell types
+
+**2. Publication Precedent**
+- More established in literature
+- Reviewers familiar with interpretation
+- Some fields expect it
+
+**3. Local Detail**
+- Can reveal finer substructure
+- May detect rare populations more clearly
+- When you care only about local neighborhoods
+
+**When to still use t-SNE**:
+- Small-medium datasets (<10,000 cells)
+- Need maximum cluster clarity for presentation
+- Established pipelines in your lab/field
+- Want to show both methods for comparison
+
+**Best practice**: Generate both, see which tells the biological story better
+
+???
+
+**Presenter's Notes:**
+
+t-SNE isn't obsolete - there are still cases where it's the better choice.
+
+**1. Cluster separation**:
+t-SNE often creates more dramatic gaps between clusters. For a presentation where you want to show "Look, 5 distinct cell types!" t-SNE may make this more visually striking.
+
+**Example**:
+- UMAP might show: clusters with some overlap/continuity
+- t-SNE shows: clear islands with water between them
+- If clusters truly are discrete, t-SNE's representation may be more intuitive
+
+**2. Publication considerations**:
+Some reviewers (especially older generation) are more comfortable with t-SNE:
+- It's been around longer (2008 vs 2018)
+- More papers have used it
+- Some may question UMAP as "too new"
+
+**3. Local detail**:
+When you specifically care about "Are these cells neighbors?" and don't care about global relationships, t-SNE's strong local focus is an advantage.
+
+**Real decision tree**:
+```
+Is dataset >50k cells? → Use UMAP
+Are you studying trajectories? → Use UMAP
+Do you need it fast? → Use UMAP
+Is this exploratory? → Try both
+Is field conservative? → Show t-SNE (and UMAP in supplement)
+Do results match? → Use whichever looks better for your story
+```
+
+**Honest assessment**: UMAP is becoming the default for good reasons, but t-SNE isn't wrong - they're tools with different strengths.
+-->
+
+---
+# Practical Recommendations
+
+1. **Always run PCA first** (20-50 components). And compare with UMAP with PCA.
+
+2. **Generate UMAP** (default parameters)
+   - n_neighbors = 15
+   - min_dist = 0.1
+
+3. **Check structure** against known biology
+
+4. **If needed, adjust**:
+   - Fragmented? → Increase n_neighbors to 30
+   - Over-merged? → Decrease n_neighbors to 10
+   - Need tighter clusters? → Decrease min_dist to 0.01
+   - Have trajectories? → Increase min_dist to 0.3
+
+5. **Compare with t-SNE** if uncertain
+
+6. **Validate** all findings in PC space
+
+???
+
+**Presenter's Notes:**
+
+A simple, systematic workflow for your analyses.
+
+**Step 1 - PCA**:
+This is non-negotiable. Always do PCA first:
+- Dimensionality reduction
+- Denoising
+- Computational efficiency
+- Makes UMAP results better
+
+**Step 2 - Default UMAP**:
+Start with defaults because:
+- They work well for most datasets
+- Easier to explain/reproduce
+- Only adjust if there's a clear problem
+
+**Step 3 - Biology check**:
+Ask: "Do known cell types separate?"
+- If yes: parameters are good
+- If no: adjust or check preprocessing
+
+**Step 4 - Systematic adjustment**:
+
+Problem: "My T cells are split into many tiny clusters"
+→ Increase n_neighbors (15 → 30)
+
+Problem: "My CD4 and CD8 T cells are merged"
+→ Decrease n_neighbors (15 → 10)
+
+Problem: "I can't see where one cluster ends and another begins"
+→ Decrease min_dist (0.1 → 0.05)
+
+Problem: "My differentiation trajectory looks disconnected"
+→ Increase min_dist (0.1 → 0.3)
+
+**Step 5 - t-SNE comparison**:
+If UMAP gives unexpected results, compare with t-SNE:
+- Similar? → Structure is robust
+- Different? → Investigate which is more biologically accurate
+
+**Step 6 - Validation**:
+Never forget: dimensionality reduction is for visualization. All biological conclusions must be validated in the original high-dimensional space.
+
+<!---
+# Common Pitfalls
+
+**Don't**:
+
+1. **Skip PCA preprocessing** → Same as t-SNE, always use PCA first
+
+2. **Over-interpret distances** → Better than t-SNE, but still limited
+
+3. **Ignore batch effects** → UMAP will show them clearly
+
+4. **Use only UMAP for clustering** → Cluster in PC space, visualize with UMAP
+
+5. **Assume global distances are perfect** → Better ≠ perfect
+
+6. **Compare embeddings across datasets** → Each embedding is independent
+
+**Do**:
+
+1. **Report parameters** (n_neighbors, min_dist, n_pcs)
+
+2. **Set random seed** for reproducibility
+
+3. **Try multiple parameter values** if results seem off
+
+4. **Validate with marker genes** in original expression space
+
+???
+
+**Presenter's Notes:**
+
+Many pitfalls are shared with t-SNE, but some are UMAP-specific.
+
+**Pitfall 1 - Skip PCA**:
+I still see papers running UMAP directly on normalized counts. Don't do this. Results will be:
+- Dominated by technical noise
+- Computationally expensive
+- Poor quality
+
+**Pitfall 2 - Over-interpret distances**:
+UMAP's global structure is better than t-SNE, but it's not PCA. Don't conclude "Cluster A is 2× more similar to B than to C" from UMAP distances. Better than t-SNE doesn't mean perfect.
+
+**Pitfall 3 - Batch effects**:
+UMAP will clearly show batch effects as separate clusters. This is actually helpful (easy to detect), but you must correct them before biological interpretation.
+
+**Pitfall 4 - Clustering**:
+```r
+# Wrong:
+clusters <- kmeans(umap_coords, k=5)  # ✗
+
+# Right:
+clusters <- FindClusters(seurat_obj, resolution=0.8)  # ✓ (uses PC space)
+```
+
+**Pitfall 5 - Global distances**:
+Yes, UMAP preserves more global structure than t-SNE. No, you still can't measure distances quantitatively and claim statistical significance.
+
+**Pitfall 6 - Cross-dataset comparison**:
+Can't overlay UMAP from dataset A onto dataset B. Each UMAP is specific to its training data. For integration, use proper integration methods first.
+
+**Remember**: UMAP is a visualization tool with better properties than t-SNE, but it's still a visualization tool.
+-->
+
+---
+# Advanced: Supervised UMAP
+
+**Standard UMAP**: Unsupervised dimensionality reduction
+
+**Supervised UMAP**: Incorporate label information
+
+```{r, eval=FALSE}
+# In Python with umap-learn
+reducer = umap.UMAP(n_neighbors=15, target_metric='categorical')
+embedding = reducer.fit_transform(X, y=cell_labels)
+```
+
+**Use cases**:
+- Emphasize separation of known cell types
+- Focus embedding on specific biological variation
+- Guided dimensionality reduction
+
+**Warning**: Can over-emphasize labeled variation, hide novel biology
+
+**Semi-supervised UMAP**: Partial labels (some cells labeled, others not)
+
+???
+
+**Presenter's Notes:**
+
+Supervised UMAP is an advanced feature not available in standard t-SNE.
+
+**What it does**:
+- Incorporates known labels into the optimization
+- Pulls labeled groups apart
+- Makes separation clearer for known categories
+
+**When to use**:
+1. **Validation studies**: You know some cell types, want to see if they separate
+2. **Annotation transfer**: Label some cells, want to separate groups clearly
+3. **Focused analysis**: Have specific hypothesis about certain populations
+
+**Example**:
+You've FACS-sorted CD4 and CD8 T cells separately, then profiled. You know the labels. Supervised UMAP will ensure these separate maximally.
+
+**Dangers**:
+- Forces separation even if not present in data
+- May hide interesting biology (what if CD4 and CD8 overlap in your condition?)
+- Can lead to confirmation bias
+- Should not be used for discovery
+
+**My recommendation**:
+- Run unsupervised UMAP first (standard analysis)
+- If needed for visualization, try supervised UMAP
+- Never use supervised for discovery
+- Always disclose in methods if you use it
+
+**Semi-supervised**:
+- Some cells labeled, most unlabeled
+- Guides embedding based on known structure
+- Interesting for atlas projects where some cells are well-characterized
+
+Most users never need supervised UMAP - unsupervised works well.
+
+---
+
+# Summary
+
+.pull-left[
+**UMAP advantages**:
+- Faster than t-SNE (10-100×)
+- Better global structure preservation
+- More scalable (100k+ cells)
+- Better for trajectories
+- More reproducible
+
+**Key parameters**:
+- **n_neighbors** (15 default): local vs global balance
+- **min_dist** (0.1 default): cluster tightness
+]
+.pull-right[
+**When to use UMAP**:
+- Large datasets (>10,000 cells)
+- Developmental/trajectory analysis
+- Need speed for parameter exploration
+- Modern default choice
+
+**When to use t-SNE**:
+- Need maximum cluster separation
+- Small-medium datasets
+- scRNA-seq gold standard
+]
+
+**Remember**: Both are visualization tools. Always validate in expression space.
+
+???
+
+**Presenter's Notes:**
+
+**Bottom line for your research**:
+
+**Default workflow**:
+1. Preprocessing + PCA (same for both)
+2. Run UMAP with defaults
+3. Check against biology
+4. Adjust if needed
+5. Optionally compare with t-SNE
+6. Choose method that best represents your biology
+
+**For your papers**:
+- UMAP is now widely accepted
+- Can show only UMAP for main figures
+- Consider t-SNE in supplement for comparison
+- Always report parameters and versions
+- Emphasize that clustering/analysis done in PC space
+
+**The field is moving toward UMAP**:
+- Scanpy default
+- Seurat increasingly UMAP
+- Most new papers use UMAP
+- Some still show both
+
+**Don't be dogmatic**: 
+- Neither method is "correct"
+- Both are lossy projections
+- Choose based on your question and data
+- Be transparent about choices
+
+**Most important**: Understand what each method does, what it preserves, what it distorts, and interpret accordingly.
+
+---
+# References
+
+McInnes, L., et al. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. *arXiv*.
+https://doi.org/10.48550/arXiv.1802.03426
+
+Becht, E., et al. (2019). Dimensionality reduction for visualizing single-cell data using UMAP. *Nat. Biotechnol.*, *37*(1), 38–44.
+https://doi.org/10.1038/nbt.4314
+
+StatQuest explanatory video https://www.youtube.com/watch?v=NEaUSP4YerM
+
+**Software**:
+- **R**: umap, uwot packages, Seurat::RunUMAP
+- **Python**: umap-learn, scanpy.tl.umap
+
+**Online resources**:
+- UMAP documentation: https://umap-learn.readthedocs.io/
+- Interactive examples: https://pair-code.github.io/understanding-umap/

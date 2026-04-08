@@ -844,7 +844,7 @@ Where:
 * `\(A_{ij}\)` is the weight of the edge between nodes `\(i\)` and `\(j\)`.
 * `\(k_i, k_j\)` are the sums of the weights of the edges attached to nodes `\(i\)` and `\(j\)`.
 * `\(m\)` is the total edge weight in the graph.
-* `\(\delta(c_i, c_j)\)` is `\(1\)` if `\(i\)` and `\(j\)` are in the same community, and `\(0\)` otherwise.
+* `\(\delta(c_i, c_j)\)` is the Kronecker delta function, `\(1\)` if `\(i\)` and `\(j\)` are in the same community, and `\(0\)` otherwise.
 
 .small[Discovering Communities: Modularity &amp; Louvain, https://www.youtube.com/watch?v=Xt0vBtBY2BU, 41m]
 
@@ -853,9 +853,11 @@ Where:
 
 Most modern pipelines (including Seurat and Scanpy) have shifted from `\(k\)`-means to community detection on **Shared Nearest Neighbor (SNN)** graphs.
 
+`$$Q = \frac{1}{2m} \sum_{i,j} \left[ A_{ij} - \frac{k_i k_j}{2m} \right] \delta(c_i, c_j)$$`
+
 * **The SNN Graph**: Cells are nodes; edges are weighted by the number of shared neighbors between two cells (Jaccard similarity).
+
 * **Modularity Optimization**: Algorithms seek to maximize the density of edges within a cluster compared to edges between clusters:
-  `$$Q = \frac{1}{2m} \sum_{i,j} \left( A_{ij} - \gamma \frac{k_i k_j}{2m} \right) \delta(c_i, c_j)$$`
 
 ---
 ## Graph-Based Clustering: Beyond Louvain to Leiden
@@ -867,6 +869,20 @@ Most modern pipelines (including Seurat and Scanpy) have shifted from `\(k\)`-me
 * **The Solution**: Leiden guarantees well-connected communities and converges to a partition that is more biologically representative.
 
 .small[ Traag, V.A., Waltman, L. &amp; van Eck, N.J. From Louvain to Leiden: guaranteeing well-connected communities. Sci Rep 9, 5233 (2019). https://doi.org/10.1038/s41598-019-41695-z ]
+
+Here’s a clean, slide-ready way to present **Leiden** with its underlying objective and how it relates to modularity.
+
+---
+## Graph-Based Clustering: The Leiden Objective Function
+
+Leiden optimizes a **quality function** similar to modularity, but more general:
+
+`$$Q = \sum_{i,j} \left[ A_{ij} - \gamma , n_i n_j \right] \delta(c_i, c_j)$$`
+
+* `\(A_{ij}\)`: edge weight between nodes (i) and (j) (e.g., SNN Jaccard weight)
+* `\(n_i, n_j\)`: node weights (often degree-based; in modularity `\(n_i = \frac{k_i}{2m})\)`
+     * `\(\gamma\)`: **resolution parameter** (controls cluster granularity)
+* `\(\delta(c_i, c_j)\)`: 1 if nodes are in the same community, else 0
 
 ---
 ## PhenoGraph: High-Dimensional Community Detection
@@ -936,7 +952,15 @@ Originally developed for CyTOF data, **PhenoGraph** is widely used for scRNA-seq
 Many more at [https://github.com/agitter/single-cell-pseudotime](https://github.com/agitter/single-cell-pseudotime) ]
 
 ---
+## Monocle: Single-cell Trajectory Analysis
 
+**Monocle** is a comprehensive toolkit for analyzing single-cell RNA-seq data, most famous for introducing the concept of **pseudotime**. It allows researchers to transition from viewing cells as discrete clusters to viewing them as points along a continuous biological process.
+
+* **Pseudotime** is an abstract unit of measure that captures how far an individual cell has progressed through a biological program.
+
+* **Calculation**: Measured as the geodesic distance from a user-defined "root" (start) along the learned principal graph.
+
+---
 ## Monocle, An analysis toolkit for single-cell RNA-seq
 
 Single-cell trajectories, clustering, visualization, differential expression
@@ -945,15 +969,6 @@ Single-cell trajectories, clustering, visualization, differential expression
 
 .small[ [https://cole-trapnell-lab.github.io/monocle-release/](https://cole-trapnell-lab.github.io/monocle-release/)  
 Trapnell, Cole, Davide Cacchiarelli, Jonna Grimsby, Prapti Pokharel, Shuqiang Li, Michael Morse, Niall J. Lennon, Kenneth J. Livak, Tarjei S. Mikkelsen, and John L. Rinn. “The Dynamics and Regulators of Cell Fate Decisions Are Revealed by Pseudotemporal Ordering of Single Cells.” Nature Biotechnology 32, no. 4 (April 2014): 381–86. [https://doi.org/10.1038/nbt.2859](https://doi.org/10.1038/nbt.2859). ]
-
----
-## Monocle: Single-cell Trajectory Analysis
-
-**Monocle** is a comprehensive toolkit for analyzing single-cell RNA-seq data, most famous for introducing the concept of **pseudotime**. It allows researchers to transition from viewing cells as discrete clusters to viewing them as points along a continuous biological process.
-
-* **Pseudotime** is an abstract unit of measure that captures how far an individual cell has progressed through a biological program.
-
-* **Calculation**: Measured as the geodesic distance from a user-defined "root" (start) along the learned principal graph.
 
 ---
 ## Monocle 3 Workflow
@@ -989,8 +1004,9 @@ Monocle 3 provides two main ways to find genes of interest:
     `$$\log(E[y_i]) = \beta_0 + \beta_t \cdot \text{pseudotime}_i + \dots$$`
     *Used to test if expression depends on pseudotime, treatment, or cluster.*
 
-2.  **Graph-Autocorrelation (`graph_test`)**: Uses **Moran's I** statistic to find genes that vary "smoothly" across the trajectory graph.  
-    *Highly effective for finding spatial or trajectory-dependent patterns without assuming a specific functional form (like linear or cubic).*
+2.  **Graph-Autocorrelation (`graph_test`)**: Uses **Moran's I** statistic (spatial autocorrelation) to find genes that vary "smoothly" across the trajectory graph.  
+
+Highly effective for finding spatial or trajectory-dependent patterns without assuming a specific functional form (like linear or cubic).
 
 ---
 ## Branch Analysis (BEAM)
@@ -1148,8 +1164,8 @@ where `\(B(S)\)` is a bootstrap sample of `\(S\)`, and `\(P(x|c_i)\)` is the pos
 where `\(p(d_i)\)` is the probability of observing a dropout event, `\(NB\)` and `\(Poisson\)` are the probabilities of observing expression magnitude of `\(x_i\)` in case of a successful amplification (NB) or dropout (Poisson) for a gene expressed at an average level `\(x\)` in `\(S\)` in cell `\(i\)`, with the parameters of the distributions determined by the error model fit.
 ]
 
----
-## SCDE - a Bayesian approach to single-cell differential expression detection (added)
+&lt;!---
+SCDE - a Bayesian approach to single-cell differential expression detection
 
 * For the differential expression analysis, the posterior probability that the gene shows a fold expression difference of `\(f\)` between subpopulations `\(S_1\)` and `\(S_2\)` was evaluated as:
 
@@ -1159,9 +1175,10 @@ where `\(x\)` is the valid range of expression levels.
 
 * The model accounts for technical noise and varying sequencing depths by convolving the individual cell error models to produce a robust subpopulation-level estimate.
 * This Bayesian framework allows for the calculation of the probability that a gene is truly differentially expressed, rather than relying on a frequentist p-value.
+--&gt;
 
 ---
-## MAST: a flexible statistical framework for assessing transcriptional changes and characterizing heterogeneity in single-cell RNA sequencing data
+## MAST: assessing transcriptional changes and characterizing heterogeneity in scRNA-seq data
 
 * A two-part generalized linear model (hurdle model) explicitly parameterizing expressed and non-detectable gene distributions.
 
@@ -1181,7 +1198,7 @@ MAST decomposes gene expression into two distinct parts that are modeled simulta
 
 
 2. **Continuous Part**: A Gaussian linear model for the expression level, given that the gene is expressed.
-* *Usually modeled on  or similar normalized values.*
+* *Usually modeled on normalized values.*
 
 **The Combined Test**: The results from both parts are combined using a **Likelihood Ratio Test (LRT)** with 2 degrees of freedom to determine overall significance.
 

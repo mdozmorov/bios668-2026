@@ -46,3 +46,9 @@ knitr::include_url('../../slides/10_single_cell/Seurat_slides_xaringan.html#1')
 ```{r echo=FALSE}
 knitr::include_url('../../slides/10_single_cell/02_tSNE_xaringan.html#1')
 ```
+
+<a href="../../slides/10_single_cell/03_UMAP.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/10_single_cell/03_UMAP.html#1')
+```
