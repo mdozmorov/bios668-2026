@@ -4,8 +4,8 @@
     <title>Single-cell RNA-seq</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mikhail Dozmorov" />
-    <meta name="date" content="2026-03-25" />
-    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <meta name="date" content="2026-04-08" />
+    <script src="libs/header-attrs-2.31/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ### Virginia Commonwealth University
 ]
 .date[
-### 2026-03-25
+### 2026-04-08
 ]
 
 ---
@@ -730,7 +730,7 @@ Uses `modelGeneVar()` to model the per-gene variance. It decomposes total varian
 ---
 class: middle, center
 
-# Sub-population identification
+# Dimensionality reduction and clustering
 
 ---
 ## Dimensionality Reduction for Dropout-Prone Data
@@ -738,8 +738,22 @@ class: middle, center
 **ZIFA** is a dimensionality reduction framework specifically designed to handle the "zero-inflation" characteristic of single-cell RNA-seq data, where many genes show zero expression due to technical dropouts.
 
 * **The Dropout Model**: ZIFA assumes that the probability of a dropout event (`\(p_0\)`) is a decreasing function of the latent expression level (`\(\mu\)`). It uses a decaying exponential relationship:
-  `$$p(\text{dropout} | \mu) = \exp(-\lambda \mu^2)$$`
+  `$$p_{0}(\text{dropout} | \mu) = \exp(-\lambda \mu^2)$$`
   where `\(\lambda\)` is a fitted parameter representing the dropout rate.
+
+.small[ Pierson, E., Yau, C. ZIFA: Dimensionality reduction for zero-inflated single-cell gene expression analysis. Genome Biol 16, 241 (2015). https://doi.org/10.1186/s13059-015-0805-z ]
+
+---
+## ZIFA: Dimensionality reduction for zero-inflated single-cell gene expression analysis
+
+**Latent Variable Model**:
+
+1. `\(z_i \sim \text{Normal}(0, I)\)` (Latent space)
+2. `\(x_i | z_i \sim \text{Normal}(A z_i + \mu, W)\)` (Latent expression)
+3. `\(h_{ij} | x_{ij} \sim \text{Bernoulli}(p_0)\)` (Masking/Dropout indicator)
+4. `\(y_{ij} = x_{ij}\)` if `\(h_{ij} = 0\)`, and `\(y_{ij} = 0\)` if `\(h_{ij} = 1\)` (Observed expression)
+
+**Statistical Inference**: Employs an **Expectation-Maximization (EM) algorithm** that incorporates an imputation step for the expected gene expression level of drop-outs in the E-step, while `\(\lambda\)` is optimized numerically in the M-step.
 
 .small[ Pierson, E., Yau, C. ZIFA: Dimensionality reduction for zero-inflated single-cell gene expression analysis. Genome Biol 16, 241 (2015). https://doi.org/10.1186/s13059-015-0805-z ]
 
@@ -755,6 +769,29 @@ class: middle, center
 * **Inference via EM Algorithm**:
   - Employs an **Expectation-Maximization** approach to estimate the projection matrix `\(A\)` and the dropout parameter `\(\lambda\)`.
   - In the E-step, the model computes the conditional expectation of the latent expression for the observed zeros, effectively "imputing" the missing values based on the model.
+
+---
+## t-SNE: a useful visualization tool
+
+* t-SNE (t-distributed stochastic neighbor embedding): visualize high-dimensional data on a 2-/3-D map.
+
+* When projecting high-dimensional data into lower dimensional space, preserve the distances among data points.
+
+* This alleviates the problem that many clusters overlap on low dimensional space.
+
+* Try to make the pairwise distances of points similar in high and low dimensions.
+* This is used in almost all scRNA-seq data visualization.
+
+---
+## Cell clustering
+
+* Perhaps the most active topic in scRNA-seq.
+
+* The goals include:
+  * Cluster cells into subgroups.
+  * Model temporal transcriptomic dynamics: reconstruct “pseudo-time” for cells. This is useful for understanding development or disease progression.
+
+* Traditional methods like k-means or hierarchical clustering need to be used with caution due to dropout events.
 
 ---
 ## SC3: Single-Cell Consensus Clustering
@@ -881,134 +918,6 @@ Originally developed for CyTOF data, **PhenoGraph** is widely used for scRNA-seq
 * Scales linearly with the number of cells, making it ideal for atlas-scale projects.
 
 .small[ Lopez, R., et al. (2018). Deep generative modeling for single-cell transcriptomics. *Nature Methods*, 15(12), 1053-1058. [https://doi.org/10.1038/s41592-018-0229-2](https://doi.org/10.1038/s41592-018-0229-2) ]
-
----
-
-## Differentially expressed genes
-
-* Need to accommodate unobserved dropouts, bimodality in expression levels due to abundance of zero or low values (**MAST**, **SCDE**).
-
-* **scDD** - Distinguishes four types of differential expression changes to increase power:
-  * Shifts in unimodal distribution
-  * Differences in the number of modes
-  * Differences in the proportion of cells within modes
-  * Combination of the previous two
-
-.small[ [https://github.com/kdkorthauer/scDD](https://github.com/kdkorthauer/scDD) ]
-
----
-## SCDE - a Bayesian approach to single-cell differential expression detection
-
-* A two-component mixture model to capture drop-out events (modeled by low-magnitude Poisson) and events where a transcript is faithfully amplified (Negative Binomial).
-
-* Incorporates evidence from other cells to estimate both the likelihood of a gene being expressed in each subpopulation of cells and the likelihood of expression fold change between them.
-
-* The derivations are complicated.
-
-.small[ https://hms-dbmi.github.io/scde/index.html
-
-Kharchenko, Peter V., Lev Silberstein, and David T. Scadden. “Bayesian Approach to Single-Cell Differential Expression Analysis.” Nature Methods (July 2014) https://doi.org/10.1038/nmeth.2967 ]
-
----
-
-## SCDE - a Bayesian approach to single-cell differential expression detection
-
-.small[
-The posterior probability of a gene being expressed at an average level `\(x\)` in a subpopulation of cells `\(S\)` is determined as an expected value (`\(E\)`) as:
-
-`$$P(x|S) = E_{s \in B(S)} \left[ \prod_{i \in s} P(x|c_i) \right]$$`
-
-where `\(B(S)\)` is a bootstrap sample of `\(S\)`, and `\(P(x|c_i)\)` is the posterior probability for a given cell `\(c_i\)`, as:
-
-`$$P(x|c_i) = \frac{p(d_i) \cdot NB(x_i|x, \theta) + (1 - p(d_i)) \cdot Poisson(x_i| \lambda_0)}{P(x_i)}$$`
-
-where `\(p(d_i)\)` is the probability of observing a dropout event, `\(NB\)` and `\(Poisson\)` are the probabilities of observing expression magnitude of `\(x_i\)` in case of a successful amplification (NB) or dropout (Poisson) for a gene expressed at an average level `\(x\)` in `\(S\)` in cell `\(i\)`, with the parameters of the distributions determined by the error model fit.
-]
-
----
-## SCDE - a Bayesian approach to single-cell differential expression detection (added)
-
-* For the differential expression analysis, the posterior probability that the gene shows a fold expression difference of `\(f\)` between subpopulations `\(S_1\)` and `\(S_2\)` was evaluated as:
-
-`$$P(f) = \int_{x} P(x|S_1) \cdot P(x \cdot f | S_2) dx$$`
-
-where `\(x\)` is the valid range of expression levels.
-
-* The model accounts for technical noise and varying sequencing depths by convolving the individual cell error models to produce a robust subpopulation-level estimate.
-* This Bayesian framework allows for the calculation of the probability that a gene is truly differentially expressed, rather than relying on a frequentist p-value.
-
----
-## MAST: a flexible statistical framework for assessing transcriptional changes and characterizing heterogeneity in single-cell RNA sequencing data
-
-* A two-part generalized linear model (hurdle model) explicitly parameterizing expressed and non-detectable gene distributions.
-
-* Includes as a covariate the fraction of genes that are detectably expressed in each cell as a proxy for both technical and biological sources of variation (**Cellular Detection Rate**). For cell `\(i\)`, `\(CDR_i = \frac{1}{N} \sum_{g=1}^{N} z_{ig}\)`, where `\(z_{ig}\)` is an indicator if gene `\(g\)` in cell `\(i\)` is expressed above background.
-
-* The expression measure of a detected gene is modeled by linear regression and the probability of detection by logistic regression.
-
-.small[ [https://github.com/RGLab/MAST](https://github.com/RGLab/MAST) ]
-
----
-## MAST: The Mathematical Model
-
-The expression `\(y_{ig}\)` for gene `\(g\)` in cell `\(i\)` is defined by the two-part model:
-
-`$$logit(Pr(z_{ig} = 1)) = X_i \beta_g^D$$`
-`$$E(y_{ig} | z_{ig} = 1) = X_i \beta_g^C$$`
-
-Where:
-* `\(z_{ig}\)` is the indicator for expression (`\(y_{ig} &gt; 0\)`).
-* `\(X_i\)` is the design matrix containing the `\(CDR_i\)` and other covariates.
-* `\(\beta_g^D\)` and `\(\beta_g^C\)` are the regression coefficients for the discrete and continuous components, respectively.
-
-.small[ Finak, G., McDavid, A., Yajima, M. et al. MAST: a flexible statistical framework for assessing transcriptional changes and characterizing heterogeneity in single-cell RNA sequencing data. Genome Biol 16, 278 (2015). https://doi.org/10.1186/s13059-015-0844-5 ]
-
----
-## The Hurdle Model Approach
-
-MAST decomposes gene expression into two distinct parts that are modeled simultaneously:
-
-1. **Discrete Part**: A logistic regression model that predicts the probability of a gene being expressed (non-zero).
-* *Captures "dropout" events and bimodal expression.*
-
-
-2. **Continuous Part**: A Gaussian linear model for the expression level, given that the gene is expressed.
-* *Usually modeled on  or similar normalized values.*
-
-**The Combined Test**: The results from both parts are combined using a **Likelihood Ratio Test (LRT)** with 2 degrees of freedom to determine overall significance.
-
----
-## Why choose MAST over simple tests?
-
-| Feature | Student's t-test / Wilcoxon | MAST |
-| --- | --- | --- |
-| **Zeros** | Treated as values in a continuum | Modeled as a separate biological/technical state |
-| **Covariates** | Difficult to include | Easily handles batch, CDR, and donors |
-| **Sensitivity** | May lose signal in high-dropout data | Higher sensitivity for genes with altered detection rates |
-| **Distribution** | Assumes normality/rank-based | Specifically models bimodality |
-
----
-## Cell clustering
-
-* Perhaps the most active topic in scRNA-seq.
-
-* The goals include:
-  * Cluster cells into subgroups.
-  * Model temporal transcriptomic dynamics: reconstruct “pseudo-time” for cells. This is useful for understanding development or disease progression.
-
-* Traditional methods like k-means or hierarchical clustering need to be used with caution due to dropout events.
-
----
-## t-SNE: a useful visualization tool
-
-* t-SNE (t-distributed stochastic neighbor embedding): visualize high-dimensional data on a 2-/3-D map.
-
-* When projecting high-dimensional data into lower dimensional space, preserve the distances among data points.
-
-* This alleviates the problem that many clusters overlap on low dimensional space.
-
-* Try to make the pairwise distances of points similar in high and low dimensions.
-* This is used in almost all scRNA-seq data visualization.
 
 ---
 ## Pseudotemporal ordering
@@ -1198,27 +1107,108 @@ https://github.com/aertslab/GENIE3
 https://github.com/aertslab/AUCell ]
 
 ---
-## ZIFA: Dimensionality reduction for zero-inflated single-cell gene expression analysis
+## Differentially expressed genes
 
-* **Model Framework**: An extension of Probabilistic Principal Components Analysis (PPCA) or Factor Analysis (FA) that explicitly accounts for the prevalence of "dropout" events in scRNA-seq.
+* Need to accommodate unobserved dropouts, bimodality in expression levels due to abundance of zero or low values (**MAST**, **SCDE**).
 
-* **Dropout Modeling**: Given the latent expression level `\(x_{ij}\)`, the dropout probability `\(p_0\)` is modeled as a decaying exponential function:
-`$$p_0 = \exp(-\lambda x_{ij}^2)$$`
-  where `\(\lambda\)` is a fitted parameter shared across genes, reflecting the empirical observation that genes with lower expected expression are more likely to result in zero counts.
+* **scDD** - Distinguishes four types of differential expression changes to increase power:
+  * Shifts in unimodal distribution
+  * Differences in the number of modes
+  * Differences in the proportion of cells within modes
+  * Combination of the previous two
+
+.small[ [https://github.com/kdkorthauer/scDD](https://github.com/kdkorthauer/scDD) ]
 
 ---
-## ZIFA: Dimensionality reduction for zero-inflated single-cell gene expression analysis
+## SCDE - a Bayesian approach to single-cell differential expression detection
 
-**Latent Variable Model**:
+* A two-component mixture model to capture drop-out events (modeled by low-magnitude Poisson) and events where a transcript is faithfully amplified (Negative Binomial).
 
-1. `\(z_i \sim \text{Normal}(0, I)\)` (Latent space)
-2. `\(x_i | z_i \sim \text{Normal}(A z_i + \mu, W)\)` (Latent expression)
-3. `\(h_{ij} | x_{ij} \sim \text{Bernoulli}(p_0)\)` (Masking/Dropout indicator)
-4. `\(y_{ij} = x_{ij}\)` if `\(h_{ij} = 0\)`, and `\(y_{ij} = 0\)` if `\(h_{ij} = 1\)` (Observed expression)
+* Incorporates evidence from other cells to estimate both the likelihood of a gene being expressed in each subpopulation of cells and the likelihood of expression fold change between them.
 
-**Statistical Inference**: Employs an **Expectation-Maximization (EM) algorithm** that incorporates an imputation step for the expected gene expression level of drop-outs in the E-step, while `\(\lambda\)` is optimized numerically in the M-step.
+* The derivations are complicated.
 
-.small[ Pierson, E., Yau, C. ZIFA: Dimensionality reduction for zero-inflated single-cell gene expression analysis. Genome Biol 16, 241 (2015). https://doi.org/10.1186/s13059-015-0805-z ]
+.small[ https://hms-dbmi.github.io/scde/index.html
+
+Kharchenko, Peter V., Lev Silberstein, and David T. Scadden. “Bayesian Approach to Single-Cell Differential Expression Analysis.” Nature Methods (July 2014) https://doi.org/10.1038/nmeth.2967 ]
+
+---
+
+## SCDE - a Bayesian approach to single-cell differential expression detection
+
+.small[
+The posterior probability of a gene being expressed at an average level `\(x\)` in a subpopulation of cells `\(S\)` is determined as an expected value (`\(E\)`) as:
+
+`$$P(x|S) = E_{s \in B(S)} \left[ \prod_{i \in s} P(x|c_i) \right]$$`
+
+where `\(B(S)\)` is a bootstrap sample of `\(S\)`, and `\(P(x|c_i)\)` is the posterior probability for a given cell `\(c_i\)`, as:
+
+`$$P(x|c_i) = \frac{p(d_i) \cdot NB(x_i|x, \theta) + (1 - p(d_i)) \cdot Poisson(x_i| \lambda_0)}{P(x_i)}$$`
+
+where `\(p(d_i)\)` is the probability of observing a dropout event, `\(NB\)` and `\(Poisson\)` are the probabilities of observing expression magnitude of `\(x_i\)` in case of a successful amplification (NB) or dropout (Poisson) for a gene expressed at an average level `\(x\)` in `\(S\)` in cell `\(i\)`, with the parameters of the distributions determined by the error model fit.
+]
+
+---
+## SCDE - a Bayesian approach to single-cell differential expression detection (added)
+
+* For the differential expression analysis, the posterior probability that the gene shows a fold expression difference of `\(f\)` between subpopulations `\(S_1\)` and `\(S_2\)` was evaluated as:
+
+`$$P(f) = \int_{x} P(x|S_1) \cdot P(x \cdot f | S_2) dx$$`
+
+where `\(x\)` is the valid range of expression levels.
+
+* The model accounts for technical noise and varying sequencing depths by convolving the individual cell error models to produce a robust subpopulation-level estimate.
+* This Bayesian framework allows for the calculation of the probability that a gene is truly differentially expressed, rather than relying on a frequentist p-value.
+
+---
+## MAST: a flexible statistical framework for assessing transcriptional changes and characterizing heterogeneity in single-cell RNA sequencing data
+
+* A two-part generalized linear model (hurdle model) explicitly parameterizing expressed and non-detectable gene distributions.
+
+* Includes as a covariate the fraction of genes that are detectably expressed in each cell as a proxy for both technical and biological sources of variation (**Cellular Detection Rate**). For cell `\(i\)`, `\(CDR_i = \frac{1}{N} \sum_{g=1}^{N} z_{ig}\)`, where `\(z_{ig}\)` is an indicator if gene `\(g\)` in cell `\(i\)` is expressed above background.
+
+* The expression measure of a detected gene is modeled by linear regression and the probability of detection by logistic regression.
+
+.small[ [https://github.com/RGLab/MAST](https://github.com/RGLab/MAST) ]
+
+---
+## The Hurdle Model Approach
+
+MAST decomposes gene expression into two distinct parts that are modeled simultaneously:
+
+1. **Discrete Part**: A logistic regression model that predicts the probability of a gene being expressed (non-zero).
+* *Captures "dropout" events and bimodal expression.*
+
+
+2. **Continuous Part**: A Gaussian linear model for the expression level, given that the gene is expressed.
+* *Usually modeled on  or similar normalized values.*
+
+**The Combined Test**: The results from both parts are combined using a **Likelihood Ratio Test (LRT)** with 2 degrees of freedom to determine overall significance.
+
+---
+## MAST: The Mathematical Model
+
+The expression `\(y_{ig}\)` for gene `\(g\)` in cell `\(i\)` is defined by the two-part model:
+
+`$$logit(Pr(z_{ig} = 1)) = X_i \beta_g^D$$`
+`$$E(y_{ig} | z_{ig} = 1) = X_i \beta_g^C$$`
+
+Where:
+* `\(z_{ig}\)` is the indicator for expression (`\(y_{ig} &gt; 0\)`).
+* `\(X_i\)` is the design matrix containing the `\(CDR_i\)` and other covariates.
+* `\(\beta_g^D\)` and `\(\beta_g^C\)` are the regression coefficients for the discrete and continuous components, respectively.
+
+.small[ Finak, G., McDavid, A., Yajima, M. et al. MAST: a flexible statistical framework for assessing transcriptional changes and characterizing heterogeneity in single-cell RNA sequencing data. Genome Biol 16, 278 (2015). https://doi.org/10.1186/s13059-015-0844-5 ]
+
+---
+## Why choose MAST over simple tests?
+
+| Feature | Student's t-test / Wilcoxon | MAST |
+| --- | --- | --- |
+| **Zeros** | Treated as values in a continuum | Modeled as a separate biological/technical state |
+| **Covariates** | Difficult to include | Easily handles batch, CDR, and donors |
+| **Sensitivity** | May lose signal in high-dropout data | Higher sensitivity for genes with altered detection rates |
+| **Distribution** | Assumes normality/rank-based | Specifically models bimodality |
 
 &lt;!--
 ## All-in-one tools

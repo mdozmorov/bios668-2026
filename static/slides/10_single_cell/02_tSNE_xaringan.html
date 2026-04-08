@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>t-SNE: Nonlinear Dimensionality Reduction</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-04-08" />
+    <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# t-SNE: Nonlinear Dimensionality Reduction
+]
+.subtitle[
+## t-Distributed Stochastic Neighbor Embedding
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-04-08
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Outline
+
+1. Motivation: Why Dimensionality Reduction?
+
+2. What is t-SNE?
+
+3. The t-SNE Algorithm: Math &amp; Intuition
+
+4. The Perplexity Parameter
+
+5. t-SNE Properties and Characteristics
+
+6. Examples in R
+
+7. Hyperparameters &amp; Practical Considerations
+
+8. Limitations and Common Pitfalls
+
+9. t-SNE vs PCA vs MDS vs UMAP
+
+10. Practical Tips &amp; Best Practices
+
+---
+
+## Motivation: The Curse of Dimensionality
+
+**Key Problem**: In high dimensions, all points become equidistant!
+
+`$$\lim_{d \to \infty} \frac{\text{dist}_{\max} - \text{dist}_{\min}}{\text{dist}_{\min}} \to 0$$`
+
+**Implications:**
+
+1. Distance-based clustering becomes unreliable
+2. Nearest neighbors become less meaningful
+3. Volume of space grows exponentially — data becomes increasingly sparse
+
+**Solution**: Project to lower dimensions while preserving structure
+
+---
+
+## Motivation: Single-Cell RNA-seq Data
+
+**Typical scRNA-seq dataset:**
+- **Cells**: 10,000 – 100,000+
+- **Genes**: 3,000 – 5,000
+- **Challenges**: Sparse data (60–90% zeros), technical noise, batch effects
+
+**The key insight**: Data likely lies on a lower-dimensional manifold embedded in high-dimensional space. Most variation is explained by a smaller number of biological processes.
+
+**Goal**: Find a low-dimensional representation that preserves cell-cell similarities, cluster structure, and trajectory relationships.
+
+---
+
+## What is t-SNE?
+
+**t-SNE (t-Distributed Stochastic Neighbor Embedding):**
+
+- **Nonlinear** dimensionality reduction technique
+
+- Particularly effective for visualizing high-dimensional data in 2D or 3D
+
+- Excels at preserving **local structure** and revealing clusters
+
+- Widely used in genomics, especially single-cell RNA-seq analysis
+
+---
+
+## t-SNE Key Innovation
+
+- Uses different probability distributions in high vs. low dimensional space
+
+- Student's t-distribution in low dimensions prevents "crowding problem"
+
+- Maintains local neighborhoods while separating distinct clusters
+
+**Primary Goal:** Create a low-dimensional map where similar points stay close and dissimilar points stay far apart
+
+---
+## t-SNE: Core Idea
+
+**Principle**: Preserve **local** neighborhood structure
+
+1. **High-dimensional space**: Define probability distribution over pairs based on similarity
+   - Similar points → High probability of being neighbors
+   
+2. **Low-dimensional space**: Define similar probability distribution
+
+3. **Optimization**: Minimize divergence between these distributions
+
+**Key Innovation**: Use Student's t-distribution (heavy tails) in low-dimensional space
+
+---
+## Stochastic Neighbor Embedding (SNE)
+
+**SNE is the predecessor to t-SNE**
+
+SNE minimizes the **Kullback-Leibler (KL) divergence** between:
+- `\(p_{ij}\)`: scaled similarities of points `\(i\)` and `\(j\)` in **high-dimensional** space
+- `\(q_{ij}\)`: scaled similarities of points `\(i\)` and `\(j\)` in **low-dimensional** space
+
+`$$KL(P||Q) = \sum_{i \ne j}p_{ij}\log\frac{p_{ij}}{q_{ij}}$$`
+
+---
+
+## Stochastic Neighbor Embedding (SNE)
+
+**How SNE computes similarities:**
+
+- Uses a **Gaussian kernel** in both high and low dimensional space:
+`$$\exp\left(-\frac{||x_i - x_j||^2}{2\sigma^2}\right)$$`
+
+- `\(\sigma\)`: length scale parameter accounting for kernel width
+
+**Problem with SNE:** Crowding problem in low dimensions
+
+---
+
+## From SNE to t-SNE
+
+**The Crowding Problem:**
+- In high dimensions, many points can be equidistant from a central point
+- In 2D/3D, there's not enough space to accommodate all these distances
+- Result: Points are forced too close together, obscuring structure
+
+**t-SNE's Solution:**
+- Use a **t-distribution** (heavy-tailed) in low-dimensional space instead of Gaussian
+- Keep Gaussian kernel in high-dimensional space
+
+---
+
+## From SNE to t-SNE
+
+**Benefits of t-distribution:**
+
+- Allows moderate distances in high-D to become larger distances in low-D
+
+- Better separates dissimilar points
+
+- Maintains local neighborhoods more effectively
+
+- Penalizes wrong embeddings of dissimilar points
+
+- Especially suitable for representing **clustered data** and **complex structures**
+
+---
+## t-SNE Algorithm Overview
+
+**Step-by-step process:**
+
+**1. Compute pairwise distances** in high-dimensional space
+
+**2. Transform to similarity matrix** using varying Gaussian kernel
+
+- Similarity between `\(X_i\)` and `\(X_j\)` represents joint probability that `\(X_i\)` chooses `\(X_j\)` as neighbor (or vice versa).
+- Based on Euclidean distance and local density
+
+---
+## t-SNE Algorithm Overview
+
+**3. Create random low-dimensional mapping** (initial configuration)
+
+**4. Compute pairwise similarities** in low-dimensional space
+   - Uses **Student's t-distribution** (not Gaussian!)
+
+**5. Optimize using gradient descent**
+   - Minimize KL divergence between high-D and low-D distributions
+   - Iteratively adjust point positions
+
+---
+
+## Mathematical Details: High-Dimensional Similarities
+
+For points `\(\mathbf{x}_i\)` and `\(\mathbf{x}_j\)` in high-dimensional space, define conditional probability:
+
+`$$p_{j|i} = \frac{\exp(-||\mathbf{x}_i - \mathbf{x}_j||^2 / 2\sigma_i^2)}{\sum_{k \neq i} \exp(-||\mathbf{x}_i - \mathbf{x}_k||^2 / 2\sigma_i^2)}$$`
+
+**Symmetrized joint probability:**
+`$$p_{ij} = \frac{p_{j|i} + p_{i|j}}{2n}$$`
+
+**Interpretation**: `\(p_{ij}\)` = probability that `\(x_i\)` would pick `\(x_j\)` as its neighbor. The bandwidth `\(\sigma_i\)` is **adaptive** — smaller in dense regions, larger in sparse regions — controlled by the perplexity parameter.
+
+---
+
+## Mathematical Details: Low-Dimensional Similarities
+
+For low-dimensional points `\(\mathbf{y}_i\)` and `\(\mathbf{y}_j\)`, use a **Student's t-distribution with 1 degree of freedom**:
+
+`$$q_{ij} = \frac{(1 + ||\mathbf{y}_i - \mathbf{y}_j||^2)^{-1}}{\sum_{k \neq l} (1 + ||\mathbf{y}_k - \mathbf{y}_l||^2)^{-1}}$$`
+
+**Why t-distribution (df=1)?**
+- Heavy tails → moderate distances in high-D can become larger distances in low-D
+- Solves the crowding problem
+- `\((1 + d^2)^{-1}\)` decays slower than Gaussian `\(\exp(-d^2)\)`, giving more "breathing room"
+
+---
+
+## Mathematical Details: Optimization
+
+**Objective**: Minimize Kullback-Leibler divergence
+
+`$$C = KL(P||Q) = \sum_i \sum_j p_{ij} \log \frac{p_{ij}}{q_{ij}}$$`
+
+**Gradient** (used in gradient descent):
+`$$\frac{\delta C}{\delta \mathbf{y}_i} = 4\sum_j (p_{ij} - q_{ij})(\mathbf{y}_i - \mathbf{y}_j)(1 + ||\mathbf{y}_i - \mathbf{y}_j||^2)^{-1}$$`
+
+- If `\(p_{ij} &gt; q_{ij}\)`: points should be closer → **attractive force**
+- If `\(p_{ij} &lt; q_{ij}\)`: points should be farther → **repulsive force**
+
+**Optimization**: Gradient descent with momentum
+
+---
+
+## The Perplexity Parameter
+
+**Perplexity:** The main tuning parameter for t-SNE
+
+- Determines the **neighborhood size** of the kernels (the adaptive `\(\sigma_i\)`)
+- Balances attention between local and global structure
+- Roughly interpreted as number of "effective nearest neighbors"
+
+`$$\text{Perplexity}(P_i) = 2^{H(P_i)}$$`
+where `\(H(P_i) = -\sum_j p_{j|i} \log_2 p_{j|i}\)` is Shannon entropy
+
+**Typical values:**
+- Range: 5 to 50, Common default: 30
+- Small perplexity (5–10): Focus on very local structure
+- Large perplexity (30–50): Consider broader neighborhoods
+
+---
+
+## The Perplexity Parameter
+
+**Effect on `\(\sigma_i\)`:**
+- Binary search for each point finds `\(\sigma_i\)` that achieves target perplexity
+- Dense regions → smaller `\(\sigma_i\)`
+- Sparse regions → larger `\(\sigma_i\)`
+
+**Too Low (5–10):** May break apart coherent clusters; sensitive to local noise
+
+**Appropriate (20–50):** Balances local and global structure; smooth transitions
+
+**Too High (&gt;100):** May merge distinct populations; PCA-like behavior
+
+- Different perplexity values can give very different results
+- Recommended: Try multiple values (e.g., 5, 30, 50)
+- Should be smaller than the number of data points
+- Rule of thumb: perplexity &lt; 3% of n
+
+---
+
+## Spring Analogy: How t-SNE Works
+
+**Physical interpretation of the optimization:**
+
+Each pair of points `\(Y_i\)` and `\(Y_j\)` is connected by a **spring**:
+
+- **Attractive force:** When similarity in projection &lt; similarity in high-D space
+  - Spring pulls points closer together
+
+- **Repulsive force:** When similarity in projection &gt; similarity in high-D space
+  - Spring pushes points farther apart
+
+---
+
+## Spring Analogy: How t-SNE Works
+
+**Gradient descent:**
+- Reduces each point's springs into a single force vector
+- Moves points to minimize total KL divergence
+
+**Heavy-tailed t-distribution advantage:**
+- Exerts **stronger force** when pushing distant points further apart
+- Alleviates the crowding problem
+- Creates clearer separation between clusters
+
+---
+
+## t-SNE Properties and Characteristics
+
+**Strengths:**
+- Excellent at revealing **local structure** and clusters
+- Handles nonlinear relationships
+- Creates visually interpretable 2D/3D maps
+- Robust to noise in high-dimensional data
+
+**Important Properties:**
+- **Axes have no inherent meaning** (arbitrary units)
+- **Distances between clusters** are not meaningful
+- **Cluster sizes** do not necessarily reflect true sizes
+- **Stochastic:** Different runs produce different results (set seed!)
+
+**Key Insight:**
+t-SNE is primarily a **visualization tool**, not for quantitative distance analysis
+
+---
+
+## Example 1: Iris Dataset
+
+Basic t-SNE example with the iris dataset
+
+
+``` r
+library(Rtsne)
+library(ggplot2)
+
+# Load iris data
+data(iris)
+iris_data &lt;- as.matrix(iris[, 1:4])
+# Add small amount of noise to break ties
+iris_data &lt;- iris_data + matrix(rnorm(nrow(iris_data) * ncol(iris_data), 
+                                       mean = 0, sd = 0.0001), 
+                                 nrow = nrow(iris_data))
+
+# Run t-SNE
+set.seed(42)  # For reproducibility
+tsne_result &lt;- Rtsne(iris_data, dims = 2, perplexity = 30, 
+                     verbose = FALSE, max_iter = 500)
+
+# Create data frame for plotting
+tsne_df &lt;- data.frame(
+  tSNE1 = tsne_result$Y[, 1],
+  tSNE2 = tsne_result$Y[, 2],
+  Species = iris$Species
+)
+```
+
+---
+
+## Example 1: Visualization
+
+.pull-left[
+
+``` r
+# Plot t-SNE result
+ggplot(tsne_df, aes(x = tSNE1, y = tSNE2, color = Species)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "t-SNE of Iris Dataset",
+       x = "t-SNE Dimension 1",
+       y = "t-SNE Dimension 2") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+&lt;img src="02_tSNE_xaringan_files/figure-html/unnamed-chunk-2-1.png" alt="" style="display: block; margin: auto auto auto 0;" /&gt;
+]
+.pull-right[**Observation:**
+- Clear separation of species
+
+- Setosa well separated from others
+
+- Some overlap between Versicolor and Virginica (biological reality!)]
+
+---
+
+## Example 2: Effect of Perplexity
+
+Comparing different perplexity values
+
+
+``` r
+set.seed(42)
+
+# Try different perplexity values
+perplexities &lt;- c(5, 15, 20, 40)
+tsne_list &lt;- lapply(perplexities, function(perp) {
+  result &lt;- Rtsne(iris_data, dims = 2, perplexity = perp, 
+                  verbose = FALSE, max_iter = 500)
+  data.frame(
+    tSNE1 = result$Y[, 1],
+    tSNE2 = result$Y[, 2],
+    Species = iris$Species,
+    Perplexity = paste("Perplexity =", perp)
+  )
+})
+
+# Combine all results
+tsne_combined &lt;- do.call(rbind, tsne_list)
+```
+
+---
+
+## Example 2: Perplexity Comparison
+
+.pull-left[
+
+``` r
+# Plot all perplexity values
+ggplot(tsne_combined, aes(x = tSNE1, y = tSNE2, color = Species)) +
+  geom_point(size = 2, alpha = 0.7) +
+  facet_wrap(~ Perplexity, scales = "free", ncol = 2) +
+  labs(title = "Effect of Perplexity on t-SNE Results") +
+  theme_minimal()
+```
+
+&lt;img src="02_tSNE_xaringan_files/figure-html/unnamed-chunk-4-1.png" alt="" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+**Key Observations:**
+
+- Low perplexity: Focuses on very local structure, may fragment clusters
+
+- High perplexity: Broader view, smoother boundaries
+
+- Optimal perplexity depends on data structure and goals
+]
+
+---
+
+## Example 3: Simulated Gene Expression
+
+More complex example with simulated gene expression data
+
+
+``` r
+# Simulate gene expression data with 4 cell types
+set.seed(123)
+n_cells &lt;- 200
+n_genes &lt;- 500
+
+# Create 4 distinct cell types
+expr_data &lt;- matrix(rnorm(n_cells * n_genes), 
+                    nrow = n_cells, ncol = n_genes)
+
+# Add cell type-specific expression patterns
+expr_data[1:50, 1:100] &lt;- expr_data[1:50, 1:100] + 3
+expr_data[51:100, 101:200] &lt;- expr_data[51:100, 101:200] + 3
+expr_data[101:150, 201:300] &lt;- expr_data[101:150, 201:300] + 3
+expr_data[151:200, 301:400] &lt;- expr_data[151:200, 301:400] + 3
+
+cell_types &lt;- rep(c("Type1", "Type2", "Type3", "Type4"), each = 50)
+```
+
+---
+
+## Example 3: t-SNE on Gene Expression
+
+.pull-left[
+
+``` r
+# Run t-SNE
+set.seed(42)
+tsne_expr &lt;- Rtsne(expr_data, dims = 2, perplexity = 30,
+                   verbose = FALSE, max_iter = 1000)
+
+# Create plot data
+tsne_expr_df &lt;- data.frame(
+  tSNE1 = tsne_expr$Y[, 1],
+  tSNE2 = tsne_expr$Y[, 2],
+  CellType = cell_types
+)
+```
+**Result:** Clear separation of 4 cell type clusters
+]
+.pull-right[
+
+``` r
+# Plot
+ggplot(tsne_expr_df, aes(x = tSNE1, y = tSNE2, color = CellType)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  labs(title = "t-SNE of Simulated Gene Expression Data",
+       subtitle = "4 distinct cell types") +
+  theme_minimal()
+```
+
+&lt;img src="02_tSNE_xaringan_files/figure-html/unnamed-chunk-7-1.png" alt="" style="display: block; margin: auto;" /&gt;
+]
+
+
+
+---
+
+## scRNA-seq Pipeline: Where Does t-SNE Fit?
+
+```
+Raw Counts
+    ↓
+Quality Control (filter low-quality cells/genes)
+    ↓
+Normalization (e.g., log(CPM+1), scran, etc.)
+    ↓
+Feature Selection (highly variable genes)
+    ↓
+Scaling/Centering
+    ↓
+PCA (typically 20–50 PCs)
+    ↓
+*** t-SNE ***
+    ↓
+Visualization + Clustering
+```
+
+**Key Point**: t-SNE typically operates on **PCA-reduced data**, NOT raw gene expression!
+
+Running t-SNE on 20,000 genes directly is computationally expensive and dominated by noise.
+
+---
+
+## t-SNE Parameters in R
+
+**Key parameters in `Rtsne()`:**
+
+
+``` r
+Rtsne(X, 
+      dims = 2,              # Number of output dimensions
+      perplexity = 30,       # Neighborhood size (5-50)
+      theta = 0.5,           # Speed/accuracy tradeoff (0-1)
+      max_iter = 1000,       # Number of iterations
+      pca = TRUE,            # Whether an initial PCA step should be performed 
+      pca_center = TRUE,     # Center data before PCA
+      pca_scale = FALSE,     # Scale data before PCA
+      normalize = TRUE,      # Normalize input
+      Y_init = NULL,         # Matrix, initial locations of the objects
+      verbose = TRUE)        # Print progress
+```
+
+**theta parameter:**
+- 0: Exact t-SNE (slow, accurate)
+- 0.5: Barnes-Hut approximation (default, fast)
+- Higher values: Faster but less accurate
+
+---
+
+## Hyperparameters: Number of Iterations &amp; Early Exaggeration
+
+**Typical**: 1000 iterations; check convergence by monitoring KL divergence
+
+**Early exaggeration phase** (first ~250 iterations):
+- `\(p_{ij}\)` values are multiplied by a factor (default ×12)
+- Helps form tight clusters and prevents poor local minima
+- Exaggeration is then removed for fine-tuning
+
+
+``` r
+# Monitor convergence
+tsne_result &lt;- Rtsne(pca_data, 
+                     perplexity = 30,
+                     max_iter = 1000,
+                     verbose = TRUE)  # Prints KL divergence
+```
+
+**Warning**: Different runs give different results (non-convex optimization!) — always set a seed.
+
+---
+
+## Hyperparameters: Initialization
+
+**Options:**
+- **Random** (default): Points start at random positions in low-dimensional space
+- **PCA**: Initialize with first 2–3 PCs
+  - Often faster convergence, more stable results
+  - Can bias toward linear (PCA) structure
+
+**Recommendation:**
+- Use PCA initialization for large datasets (&gt;10,000 cells)
+- Use random for smaller datasets
+- Compare both if concerned about bias
+
+---
+
+## Hyperparameters: Learning Rate &amp; Momentum
+
+**Learning rate** (`\(\eta\)`):
+- Default: `\(\eta = 200\)` (or `\(n/12\)` for large datasets)
+- Too low → slow convergence; too high → unstable results
+
+**Momentum:**
+- Standard optimization technique; helps escape poor local minima
+- Default settings usually work well
+
+**Practical advice**: Usually don't need to adjust these unless working with very large datasets (&gt;100,000 cells) or using specialized implementations (FIt-SNE, openTSNE).
+
+---
+
+## Advanced: PCA + t-SNE Pipeline
+
+For very high-dimensional data (e.g., 20,000 genes):
+
+
+``` r
+# Step 1: PCA for initial dimensionality reduction
+pca_result &lt;- prcomp(expr_data, center = TRUE, scale. = FALSE)
+
+# Use first 50 PCs (capturing most variance)
+pca_data &lt;- pca_result$x[, 1:50]
+
+# Step 2: t-SNE on PCA-reduced data
+set.seed(42)
+tsne_result &lt;- Rtsne(pca_data, dims = 2, perplexity = 30,
+                     pca = FALSE,  # Already did PCA
+                     max_iter = 1000)
+
+# This is much faster and often gives better results!
+```
+
+**Benefits:**
+- Removes noise from minor components
+- Speeds up computation dramatically (`\(O(n^2 d)\)` where `\(d\)` is now 50, not 2000 — a 40× speedup)
+- Often improves cluster separation
+
+---
+
+## Critical Limitations: Distances Not Meaningful
+
+**IMPORTANT**: t-SNE preserves local neighborhoods, NOT global distances!
+
+❌ **Don't conclude**: "Cluster A is closer to B than C, indicating more similarity"
+
+✅ **Do conclude**: "Red and blue are distinct clusters"
+
+**Why this happens**: The heavy-tailed t-distribution allows moderate distances in high-D to expand greatly in low-D. Two clusters separated by similar distances in high-D may end up at very different distances in t-SNE space.
+
+**Practical implication**: Don't use t-SNE to infer relationships *between* clusters. For that, use original high-dimensional distances, PCA, or other methods that preserve global structure.
+
+---
+
+## Critical Limitations: Cluster Sizes &amp; Non-Determinism
+
+**Cluster sizes are not meaningful!**
+- Dense clusters may get "expanded" to preserve internal structure
+- Sparse clusters may get "compacted"
+- Cannot use t-SNE coordinates to compare cluster sizes or proportions
+- Always count cells in original data
+
+**Non-deterministic results:**
+- Different seeds → different embeddings
+- What *should* be consistent: number of distinct clusters, which cells cluster together, overall topology
+- What varies: exact positions, orientation, spacing between clusters
+- **Never do statistical tests on t-SNE coordinates** — always go back to the original space
+
+&lt;!---
+## Critical Limitations: The Crowding Problem
+
+**Cannot perfectly represent high-D geometry in 2D/3D**
+
+- In n-dimensional space, you can have n+1 equidistant points
+- In 2D, you can only have 3 equidistant points (equilateral triangle)
+- If a cell has 50 equally similar neighbors in 20,000-D space, they simply cannot all be equidistant in 2D
+
+**t-SNE's choice**: Prioritize local structure, allow global distortion
+
+- Within-cluster structure is preserved well
+- Between-cluster relationships are not reliable
+- Use PCA or UMAP if global distances matter
+
+## Common Pitfalls and Solutions
+
+**Problem 1: "Crowded" or unclear clusters**
+- **Solution:** Decrease perplexity or increase iterations
+
+**Problem 2: Overly fragmented clusters**
+- **Solution:** Increase perplexity
+
+**Problem 3: Different results each run**
+- **Solution:** Set random seed, or run multiple times and check consistency
+
+## Common Pitfalls and Solutions
+
+**Problem 4: Very slow for large datasets**
+- **Solution:** Use Barnes-Hut approximation (theta = 0.5), reduce dimensions with PCA first, or use FIt-SNE for &gt;50,000 cells
+
+**Problem 5: Interpreting cluster distances**
+- **Solution:** Don't! Focus on local structure and cluster membership only
+
+**Problem 6: Small dataset (&lt; 100 points)**
+- **Solution:** Consider using PCA or MDS instead
+--&gt;
+
+
+---
+## Acceleration Methods
+
+**Problem**: Standard t-SNE is `\(O(n^2)\)` — very slow for large `\(n\)`
+
+**Solutions:**
+
+1. **Barnes-Hut t-SNE** (default in Rtsne):
+   - Approximates far-field interactions using quadtree/octree
+   - Complexity: `\(O(n \log n)\)`
+   - Handles 10,000–50,000 cells comfortably
+
+2. **FIt-SNE** (Fast Interpolation-based t-SNE):
+   - Interpolates gradients on a grid
+   - Complexity: `\(O(n)\)` for fixed perplexity
+   - Can handle 1M+ cells
+
+---
+
+## Acceleration Methods
+
+**Problem**: Standard t-SNE is `\(O(n^2)\)` — very slow for large `\(n\)`
+
+**Solutions:**
+
+3. **Subsampling**: Run t-SNE on a subset, project remaining cells
+
+**Practical recommendation**: &lt;10k cells → standard; 10k–50k → Barnes-Hut; 50k–500k → FIt-SNE or UMAP; &gt;500k → UMAP.
+
+---
+
+## t-SNE for Single-Cell Analysis
+
+**ViSNE Application (2013):**
+- Enabled visualization of high-dimensional single-cell data
+- Revealed phenotypic heterogeneity in leukemia
+&lt;!-- - Revolutionized flow cytometry and mass cytometry analysis --&gt;
+
+&lt;!-- **Modern Single-Cell RNA-seq:** --&gt;
+&lt;!-- - t-SNE became standard for visualizing cell types --&gt;
+&lt;!-- - Helps identify novel cell populations --&gt;
+&lt;!-- - Reveals developmental trajectories --&gt;
+&lt;!-- - Now often complemented by UMAP --&gt;
+
+**Key Use Cases:**
+- Cell type identification
+- Quality control visualization
+- Batch effect assessment
+- Trajectory inference (with caution)
+
+.small[Amir, Ea., Davis, K., Tadmor, M. et al. viSNE enables visualization of high dimensional single-cell data and reveals phenotypic heterogeneity of leukemia. Nat Biotechnol 31, 545–552 (2013). https://doi.org/10.1038/nbt.2594]
+
+---
+
+## t-SNE vs PCA vs MDS
+
+**Comparison:**
+
+| Method | Type | Preserves | Best For |
+|:-------|:-----|:----------|:---------|
+| **PCA** | Linear | Global variance | Overall data structure, feature importance |
+| **MDS** | Can be linear/nonlinear | Pairwise distances | Distance relationships, custom metrics |
+| **t-SNE** | Nonlinear | Local neighborhoods | Clusters, complex structures, visualization |
+
+&lt;!---
+## t-SNE vs PCA vs MDS
+
+**When to use t-SNE:**
+- Discovering clusters in high-dimensional data
+- Visualizing complex, nonlinear structures
+- Single-cell genomics data
+- When local structure is more important than global distances
+
+**When NOT to use t-SNE:**
+- Need to interpret axes
+- Need precise distance measurements
+- Small datasets (&lt; 100 points)
+- Need deterministic results
+
+## t-SNE vs UMAP
+
+**UMAP (Uniform Manifold Approximation and Projection):**
+- Newer method, increasingly popular in single-cell analysis
+- Often faster than t-SNE
+- Better preserves global structure
+- More consistent across runs
+
+.small[
+| Feature | t-SNE | UMAP |
+|:--------|:------|:-----|
+| Speed | Slower (`\(O(n \log n)\)`) | Faster |
+| Global structure | Poor | Better |
+| Local structure | Excellent | Excellent |
+| Determinism | Low (stochastic) | Higher |
+| Parameters | Perplexity | n_neighbors, min_dist |
+| Scalability | &lt;50k cells | 100k+ cells |
+]
+**Current trend:** Many researchers use both and compare results
+--&gt;
+
+---
+## Practical Tips for t-SNE
+
+1. **Always set a seed** for reproducibility (`set.seed()`)
+
+2. **Try multiple perplexity values** (e.g., 5, 30, 50)
+
+3. **Run sufficient iterations** (at least 1000 for complex data; check KL convergence)
+
+4. **Don't over-interpret:**
+   - Cluster distances are not meaningful
+   - Cluster sizes may be distorted
+   - Axes have no inherent meaning
+
+---
+
+## Practical Tips for t-SNE
+
+5) **Preprocessing matters:**
+   - Scale/normalize data appropriately
+   - Consider feature selection for very high-dimensional data
+   - Correct batch effects before running t-SNE
+
+6) **Combine with other methods:**
+   - Use PCA for initial dimensionality reduction (e.g., to 50 dims)
+   - Validate clusters with other methods (graph-based clustering in PC space)
+   - Use t-SNE for visualization; do statistical analysis in original space
+
+7) **Sanity checks:** Compare with PCA; overlay known biology (e.g., marker genes); check if batches mix; confirm clustering done in PC space matches visual clusters
+
+&lt;!---
+## Best Practices: Reporting
+
+**Essential information for reproducibility:**
+
+1. **Preprocessing**: Normalization method, number of HVGs selected, number of PCs used, batch correction method (if any)
+
+2. **t-SNE parameters**: Perplexity, number of iterations, random seed, software/package version
+
+3. **Interpretation caveats**: Note that distances are not meaningful; report clustering done in PC space; describe marker gene validation
+
+**Example good methods statement:**
+&gt; "We visualized cells using t-SNE (perplexity=30, seed=42, Rtsne v0.16) on the first 30 principal components. Clusters were identified using Louvain clustering (resolution=0.8) on PC-space distances. Cell types were annotated based on marker gene expression."
+--&gt;
+
+---
+## Summary
+
+**1. t-SNE is nonlinear** dimensionality reduction for visualization
+
+**2. Heavy-tailed t-distribution** in low-D space prevents crowding
+
+**3. Perplexity** is the key parameter (try multiple values!)
+
+**4. Local structure** is preserved, but global distances are not meaningful
+
+**5. Always set random seed** for reproducibility
+
+---
+## Summary
+
+**6. Excellent for discovering clusters** in high-dimensional data
+
+**7. Standard tool** for single-cell genomics
+
+**8. Combine with other methods** (PCA, clustering, UMAP) for robust analysis
+
+**9. Don't over-interpret** distances between clusters or cluster sizes
+
+**10. Computationally intensive** - consider PCA pre-processing for large datasets, and FIt-SNE or UMAP for very large datasets
+
+---
+## Resources
+
+**R Packages:**
+
+- `Rtsne`: Main R implementation
+
+- `tsne`: Alternative implementation
+
+- `umap`: For UMAP as comparison
+
+**Online Resources:**
+
+- https://distill.pub/2016/misread-tsne/: "How to Use t-SNE Effectively" (interactive!)
+
+- Seurat tutorials: https://satijalab.org/seurat/
+
+- OSCA: http://bioconductor.org/books/OSCA/
+
+---
+## References
+
+.small[
+van der Maaten, L., et al. (2008). Visualizing data using t-SNE. *JMLR*, *9*, 2579–2605.
+https://www.jmlr.org/papers/v9/vandermaaten08a.html
+
+Visualizing Data Using t-SNE - GoogleTechTalk by Laurens van der Maaten presenting t-SNE https://www.youtube.com/watch?v=RJVL80Gg3lA
+
+Amir, E. D., et al. (2013). viSNE enables visualization of high dimensional single-cell data and reveals phenotypic heterogeneity of leukemia. *Nat. Biotechnol.*, *31*(6), 545–552.
+https://doi.org/10.1038/nbt.2594
+
+Kobak, D., et al. (2019). The art of using t-SNE for single-cell transcriptomics. *Nat. Commun.*, *10*, 5416.
+https://doi.org/10.1038/s41467-019-13056-x``
+
+Wattenberg, M., et al. (2016). How to use t-SNE effectively. *Distill*, *1*(10).
+https://doi.org/10.23915/distill.00002
+
+Luecken, M. D., et al. (2019). Current best practices in single-cell RNA-seq analysis: A tutorial. *Mol. Syst. Biol.*, *15*(6), e8746.
+https://doi.org/10.15252/msb.20188746
+
+Linderman, G. C., et al. (2019). Fast interpolation-based t-SNE for improved visualization of single-cell RNA-seq data. *Nat. Methods*, *16*(3), 243–245.
+https://doi.org/10.1038/s41592-018-0308-4
+
+&lt;!-- Chari, T., et al. (2023). The specious art of single-cell genomics. *PLOS Comput. Biol.*, *19*(8), e1011288. --&gt;
+&lt;!-- https://doi.org/10.1371/journal.pcbi.1011288 --&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
