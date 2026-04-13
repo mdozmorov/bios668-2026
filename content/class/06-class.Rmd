@@ -52,3 +52,15 @@ knitr::include_url('../../slides/10_single_cell/02_tSNE_xaringan.html#1')
 ```{r echo=FALSE}
 knitr::include_url('../../slides/10_single_cell/03_UMAP.html#1')
 ```
+
+<a href="../../slides/10_single_cell/Integration_batch.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/10_single_cell/Integration_batch.html#1')
+```
+
+
+[How PCA projection and cell label transfer work in Seurat](https://crazyhottommy.github.io/single-cell-RNAseq-PCA-CCA-cell-annotation/how-seurat-pca-label-transfer.html)
+
+[How CCA alignment and cell label transfer work in Seurat](https://crazyhottommy.github.io/single-cell-RNAseq-PCA-CCA-cell-annotation/how-seurat-cca-label-transfer.html)
+

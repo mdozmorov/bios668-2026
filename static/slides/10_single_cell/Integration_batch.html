@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Single-Cell RNA-seq Data Integration</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="High-Throughput Genomics Course" />
+    <meta name="date" content="2026-04-13" />
+    <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Single-Cell RNA-seq Data Integration
+]
+.subtitle[
+## Overcoming Batch Effects &amp; Building Cell Atlases
+]
+.author[
+### High-Throughput Genomics Course
+]
+.date[
+### 2026-04-13
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+
+# The Problem: Batch Effects
+
+When combining single-cell datasets from different experiments, individuals, technologies, or sequencing runs, **technical variation** often overwhelms **biological variation**.
+
+* **Batch Effect:** Systematic error introduced by non-biological factors.
+
+* **The Consequence:** Cells cluster by *batch* or *technology* rather than by true biological cell state. 
+
+* **The Goal:** Project cells from different batches into a shared lower-dimensional space where identical cell types perfectly overlap, without erasing true biological differences.
+
+Over-correction destroys true biological signal (e.g., removing a cell state unique to a disease cohort). Under-correction leaves artifactual clusters.
+
+---
+# Why is scRNA-seq Integration Hard?
+
+Standard batch correction methods for bulk RNA-seq (like traditional `ComBat` or linear regression) often fail for single-cell data due to:
+
+1.  **High Sparsity &amp; Dropout:** scRNA-seq matrices are highly sparse, making linear assumptions difficult.
+
+2.  **Non-overlapping Populations:** Different batches might contain completely different cell types (e.g., integrating a tumor sample with a healthy PBMC sample).
+
+3.  **Complex Non-linear Manifolds:** Cell states exist on continuous developmental trajectories that linear shifts cannot perfectly align.
+
+---
+# Why is scRNA-seq Integration Hard?
+
+Extensive benchmarking reveals:
+
+* **No single method wins everywhere.**
+
+* **Top Performers:** `Harmony`, `scVI`, and `Seurat` consistently perform well across diverse tasks.
+
+* **Scalability:** Graph-based methods (`BBKNN`) and fast statistical models (`Harmony`) handle millions of cells best.
+
+.small[ Luecken, Md, M Büttner, K Chaichoompu, A Danese, M Interlandi, Mf Mueller, Dc Strobl, et al. “Benchmarking Atlas-Level Data Integration in Single-Cell Genomics.” Nature Methods, 23 December 2021 https://doi.org/10.1038/s41592-021-01336-8
+
+Tran, Hoa Thi Nhu, Kok Siong Ang, Marion Chevrier, Xiaomeng Zhang, Nicole Yee Shin Lee, Michelle Goh, and Jinmiao Chen. "A Benchmark of Batch-Effect Correction Methods for Single-Cell RNA Sequencing Data" https://doi.org/10.1186/s13059-019-1850-9  Genome Biology 21, no. 1 (December 2020) ]
+
+---
+# Taxonomy of Integration Methods
+
+We can broadly categorize the dozen+ available tools by their underlying mathematical approach:
+
+**1. Mutual Nearest Neighbors (MNN) &amp; Graph Methods**
+
+* `batchelor` (MNN/fastMNN), `Scanorama`, `BBKNN`, `conos`
+* *Mechanism:* Matches similar cells across batches to calculate correction vectors.
+
+**2. Matrix Factorization &amp; Alignment**
+
+* `Seurat` (CCA/RPCA), `LIGER` (iNMF)
+* *Mechanism:* Identifies shared latent spaces or meta-genes.
+
+&lt;!-- .small[ https://github.com/mdozmorov/scRNA-seq_notes?tab=readme-ov-file#integration-batch-correction ] --&gt;
+
+---
+# Taxonomy of Integration Methods
+
+We can broadly categorize the dozen+ available tools by their underlying mathematical approach:
+
+**3. Iterative Statistical Models**
+
+* `Harmony`, `CellANOVA`
+* *Mechanism:* Alternates between clustering and correcting batch-driven linear shifts.
+
+**4. Deep Learning / Generative Models**
+
+* `scVI`, `scETM`, `scAlign`, `BERMUDA`, `CarDEC`
+* *Mechanism:* Variational Autoencoders (VAEs) that learn batch-invariant latent embeddings.
+
+---
+# 1. Mutual Nearest Neighbors (MNN)
+
+Introduced by Haghverdi et al., MNN is the foundational concept for many modern tools. 
+
+**The Assumption:** At least one cell type is shared between batches, and batch effects are orthogonal to biological differences in the local neighborhood.
+
+.small[ Haghverdi, Laleh, Aaron T L Lun, Michael D Morgan, and John C Marioni. "Batch Effects in Single-Cell RNA-Sequencing Data Are Corrected by Matching Mutual Nearest Neighbors" https://doi.org/10.1038/nbt.4091  Nature Biotechnology, April 2, 2018. ]
+
+---
+# 1. Mutual Nearest Neighbors (MNN)
+
+**How it works (`batchelor` / `fastMNN`):**
+1.  Compute pairwise distances between cells in Batch 1 and Batch 2.
+2.  Identify **MNN pairs**: Cell `\(x\)` in Batch 1 is the nearest neighbor of Cell `\(y\)` in Batch 2, *and* Cell `\(y\)` is the nearest neighbor of Cell `\(x\)`.
+3.  Compute a batch-correction vector for each pair.
+4.  Apply a weighted average of these vectors to smooth out the batch effect across the expression matrix.
+
+**Derivatives:** `Scanorama` uses an efficient randomized SVD and MNN to scale to millions of cells. `BBKNN` alters the graph-building step to force equal neighbor representation from all batches.
+
+---
+# 2. Matrix Factorization: Seurat (CCA)
+
+Seurat relies on **Canonical Correlation Analysis (CCA)** to identify shared sources of variation across datasets.
+
+**1. Find Shared Space:** Run CCA to find `\(L_2\)`-normalized CC vectors.
+  - Normalization in the CCA space ensures that neighbor searches are determined by correlation (the shape of the expression profile) rather than absolute magnitude (total UMI counts), which prevents "sequencing depth" from driving the integration.
+  
+**2. Identify Anchors:** Find MNN pairs across datasets within this CCA space.
+  - A pair is only an anchor if Cell A (Batch 1) is a top neighbor of Cell B (Batch 2) AND vice-versa. This ensures that the cell types are truly mutually similar, avoiding "mapping" a rare cell type onto a common one just because it’s the "closest thing available."
+
+---
+# 2. Matrix Factorization: Seurat (CCA)
+
+**3. Filter Anchors:** Score anchors based on the overlapping neighborhoods of the cells in their original datasets (removing spurious matches).
+  - Neighborhood Overlap: Seurat checks if the neighbors of Cell A and Cell B also find each other. If they don't, the anchor score is penalized.
+
+**4. Integrate:** Construct a weight matrix based on cell-to-anchor distances to compute integrated expression values.
+  - Anchor Weights: Every cell `\(i\)` is assigned a weight for each anchor `\(a\)` based on its proximity in the original space.
+  - The Correction: The integrated expression value is calculated as:
+`$$\hat{X}_i = X_i - \sum_{a \in A} w_{i,a} \cdot B_a$$`
+Where `\(B_a\)` is the batch effect vector defined by the anchor pair.
+
+*Note: For massive datasets, Seurat also offers RPCA (Reciprocal PCA), which projects one dataset onto the PCA space of another before finding anchors, significantly speeding up computation.*
+
+---
+# 2. Matrix Factorization: LIGER (iNMF)
+
+`LIGER` uses **integrative Non-negative Matrix Factorization (iNMF)**. It is particularly powerful for multi-modal integration (e.g., matching scRNA-seq with scATAC-seq or methylation data).
+
+iNMF decomposes multiple dataset matrices into three components:
+1.  `\(W\)`: Shared metagenes (biological signals consistent across datasets).
+2.  `\(V_i\)`: Dataset-specific metagenes (signals unique to a specific batch or modality).
+3.  `\(H_i\)`: Cell-specific factor loadings.
+
+By strictly non-negative factorization, LIGER learns highly interpretable metagene signatures. Once `\(H_i\)` matrices are derived, a shared nearest neighbor graph is built to define integrated clusters.
+
+---
+# 3. Iterative Statistical Models: Harmony
+
+`Harmony` is one of the fastest and highest-performing tools. It operates on PCA embeddings rather than the full gene matrix. 
+
+1.  **Soft Clustering:** Uses a variant of soft K-means to assign cells to clusters, with a penalty that forces clusters to contain diverse batches (Maximum Diversity Clustering).
+2.  **Correction:** Within each cluster, Harmony calculates the centroid for each batch and the global centroid. It then computes a linear shift to move the batch centroids toward the global centroid.
+3.  **Iteration:** Cells are shifted in PCA space. The algorithm repeats clustering and shifting until convergence.
+
+*Key Benefit:* By operating in PCA space and using matrix math, Harmony scales effortlessly to millions of cells.
+
+---
+# 4. Deep Learning: Generative Models
+
+As dataset sizes explode, Neural Networks (particularly Autoencoders) are becoming the standard for atlas-level intergration.
+
+**scVI (Single-cell Variational Inference)**
+
+* Treats raw counts as draws from a Zero-Inflated Negative Binomial (ZINB) or Negative Binomial (NB) distribution.
+
+* Learns a non-linear latent space (encoder) while explicitly providing batch as a covariate to the decoder.
+
+* The resulting latent space is inherently batch-corrected and can be used directly for UMAP and clustering.
+
+* *Advantage:* Outstanding performance on massive, complex datasets.
+
+---
+# 4. Deep Learning: Generative Models
+
+Other Notable Deep Learning Tools:
+
+* **scETM:** Uses an Embedded Topic Model (generative) to learn interpretable gene/topic embeddings alongside batch intercepts.
+
+* **CarDEC:** Deep Embedded Clustering that simultaneously denoises, clusters, and corrects multiple batch effects.
+
+* **scAlign:** Uses an unsupervised bidirectional mapping via a low-dimensional space.
+
+---
+# Multi-modal Integration 
+
+Integration is no longer just about RNA-to-RNA across batches. Modern genomics requires Multi-Omics integration and rigorous statistical testing.
+
+* **MOFA2 (MOFA+):** A Bayesian factor analysis framework. It infers latent factors from non-overlapping modalities (e.g., RNA + ATAC + Protein from the same cells), decomposing variance by source.
+
+* **MIRA:** Joint regulatory modeling (Variational autoencoders + Topic modeling) for multi-omics.
+
+* **MOJITOO:** Uses canonical correlation and metric learning for fast multimodal integration.
+
+---
+# Multi-modal Integration 
+
+Evaluating Alignability (Do we *want* to integrate?)
+
+- Tools like **SMAI** and **CellANOVA** are addressing a critical flaw: *blindly integrating datasets that shouldn't be integrated.* 
+
+- **SMAI** introduces a statistical test (high-dimensional Procrustes analysis) against a null hypothesis to check if two datasets are actually alignable before forcing them together, reducing false-positive overlaps.
+
+---
+# Summary &amp; Best Practices
+
+1. **Understand your goal:** Are you looking to find shared cell types (use Seurat/Harmony), or preserve unique biological states unique to a condition (evaluate carefully with CellANOVA/SMAI)?
+
+2. **Start Simple &amp; Fast:** For straightforward distinct batch structures, **Harmony** on PCA space is computationally cheap and highly effective.
+
+3. **Use Raw Counts for DL:** If scaling to atlas-level (&gt;1M cells), generative models like **scVI** are state-of-the-art but require raw counts and GPU acceleration.
+
+4. **Evaluate Metrics:** Do not rely on visual UMAP mixing alone. Use metrics like *LISI* (Local Inverse Simpson's Index), *kBET*, or *Silhouette scores* to quantify integration quality quantitatively.
+
+.small[Luecken, Malte D., and Fabian J. Theis. "Current Best Practices in Single-Cell RNA-Seq Analysis: A Tutorial" https://doi.org/10.15252/msb.20188746  Molecular Systems Biology 15, no. 6 (June 19, 2019)]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
