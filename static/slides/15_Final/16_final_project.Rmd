@@ -37,6 +37,12 @@ You must select an **scRNA-seq dataset** for analysis. Dataset Requirements:
 
 Search [PubMed](https://pubmed.ncbi.nlm.nih.gov/) for your condition of interest ([Example search](https://pubmed.ncbi.nlm.nih.gov/?term=%28%22single-cell+RNA+sequencing%22%5BTitle%2FAbstract%5D+OR+%22scRNA-seq%22%5BTitle%2FAbstract%5D+OR+%22single+cell+transcriptome%22%5BTitle%2FAbstract%5D%29+AND+%28%22disease%22%5BTitle%2FAbstract%5D+OR+%22cancer%22%5BTitle%2FAbstract%5D+OR+%22tumor%22%5BTitle%2FAbstract%5D+OR+%22infection%22%5BTitle%2FAbstract%5D+OR+%22treated%22%5BTitle%2FAbstract%5D+OR+%22control%22%5BTitle%2FAbstract%5D+OR+%22healthy%22%5BTitle%2FAbstract%5D%29+AND+%28%22RNA-seq%22%5BTitle%2FAbstract%5D+OR+%22sequencing%22%5BTitle%2FAbstract%5D%29+AND+%28%22GEO%22%5BTitle%2FAbstract%5D+OR+%22SRA%22%5BTitle%2FAbstract%5D+OR+%22Sequence+Read+Archive%22%5BTitle%2FAbstract%5D+OR+%22FASTQ%22%5BTitle%2FAbstract%5D%29&sort=date)) . See [Single-Cell RNA-seq Resources](https://bios668-2026.netlify.app/slides/03_genomic_resources/02_genomic_resources_xaringan#38) for potential data sources. Note it is almost always advisable to look at the original paper for Gene Expression Omnibus ([GEO](https://www.ncbi.nlm.nih.gov/geo/)) accession numbers. Read the publication associated with your chosen dataset to understand its biological and experimental context.
 
+```{r, out.width = "800px", fig.align='center', echo=FALSE}
+knitr::include_graphics("img/1776142839642.jpeg")
+```
+
+Source: https://www.linkedin.com/posts/ehsan-saghapour_rnaseq-scrnaseq-bioinformatics-activity-7449683022028697600-dPlj
+
 ## Project Organization
 
 1. On your local computer, create a dedicated **project folder** to store all scripts, data, and results.
