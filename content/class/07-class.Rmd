@@ -26,3 +26,11 @@ editor_options:
 ```{r echo=FALSE}
 knitr::include_url('../../slides/08_Epigenomics/01_Epigenomics_intro_xaringan.html#1')
 ```
+
+# ChIP-seq
+
+<a href="../../slides/09_ChIP-seq/01_ChIP-seq_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/09_ChIP-seq/01_ChIP-seq_xaringan.html#1')
+```
