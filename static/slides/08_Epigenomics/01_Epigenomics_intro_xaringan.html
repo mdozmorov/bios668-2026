@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Epigenetics introduction</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-04-20" />
+    <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Epigenetics introduction
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-04-20
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+## Genome is more than genes
+
+One way to expand the capacity of mammalian genomes has been the addition of regulatory elements located at a distance from their target genes. Functionally, these elements can be subdivided into three categories:
+
+1. **Enhancer sequences**, an activating influence on transcription
+
+2. **Silencers**, providing a repressive influence
+
+3. **Insulators**, prevent the transmission of regulatory influence between genomic regions.
+
+---
+## Genome is more than genes
+
+The regulatory elements greatly outnumber promoters and have, therefore, been proposed as a driving force behind transcriptional regulation.
+
+These elements may have overlapping functions, they may play different roles in different cell types or developmental stages, and they may overlap with promoters and genes. 
+
+---
+## Epigenetics
+
+- **Epigenetics** (*epi* - "over, on top of" + genetic) is the study of (heritable) changes in gene function that occur without a change in the sequence of the DNA.
+
+- Critical for development and differentiation.
+
+- Epigenetic dysregulation is involved in developmental diseases, cancers, certain infectious diseases, and more.
+
+&lt;img src="img/waddington_epigenomics.jpg" alt="" width="40%" style="display: block; margin: auto;" /&gt;
+
+.small[ Waddington, C. H. 1942. Canalization of development and the inheritance of acquired characters. Nature 150(3811):563–565. ]
+
+---
+## Functional Genomics
+
+**Functional genomics** is a field of molecular biology that attempts to make use of the vast wealth of data produced by genomic projects (such as genome sequencing projects) to describe gene (and protein) functions and *interactions*.
+
+- **ChIP-seq**: Analyzes protein binding with DNA, identifying binding sites of DNA-associated proteins (e.g., modified histones, transcription factors).
+
+- **ATAC-seq**: Assesses genome-wide chromatin accessibility to find open regulatory regions.
+
+- **WGBS (Whole Genome Bisulfite Sequencing)**: Determines the DNA methylation status of cytosines across the genome at single-base resolution.
+
+&lt;!-- - These high-throughput sequencing methods provide the foundational data for consortia like ENCODE and IHEC to map functional genomic elements. --&gt;
+
+---
+## Active and inactive chromatin
+
+&lt;img src="img/chromatin.png" alt="" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+## Histone modifications
+
+.pull-left[
+- Methylation of lysine residues
+
+- Methylation of arginine residues
+
+- Acetylation
+
+- Ubiquitination
+
+- ADP-ribosylation
+
+- Phosphorylation
+
+- Mono/di/tri methylation
+]
+.pull-right[
+&lt;img src="img/histone_modifications.png" alt="" width="100%" style="display: block; margin: auto;" /&gt;
+
+.small[ Witte S, O'Shea J, Vahedi G
+Super-enhancers: Asset management in immune cell genomes
+Trends in Immunology, 2015; 36, 519-52 https://doi.org/10.1016/j.it.2015.07.005 ]
+]
+
+---
+## Histone code
+
+- Histone modifications demarcate functional elements in mammalian genomes.
+- Can be broadly divided into activating and repressive histone marks.
+
+&lt;img src="img/histone_code.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
+
+.small[ Zhou, V., Goren, A. &amp; Bernstein, B. Charting histone modifications and the functional organization of mammalian genomes. Nat Rev Genet 12, 7–18 (2011). https://doi.org/10.1038/nrg2905 ]
+
+---
+## Histone code summary
+
+&lt;img src="img/histone_code_summary.png" alt="" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[ Zhou, V., Goren, A. &amp; Bernstein, B. Charting histone modifications and the functional organization of mammalian genomes. Nat Rev Genet 12, 7–18 (2011). https://doi.org/10.1038/nrg2905 ]
+
+---
+## Methylation and histone code interplay
+
+&lt;img src="img/histone_code_methylation.png" alt="" width="70%" style="display: block; margin: auto;" /&gt;
+
+.small[ https://www.ncbi.nlm.nih.gov/pubmed/21116306 ]
+
+&lt;!--
+Summary of histone modifications
+
+&lt;img src="img/histone_distribution.png" alt="" width="70%" style="display: block; margin: auto;" /&gt;
+
+Schematic showing the characteristics (broad or narrow peaks) of different histone modification marks and their regulatory role (activation or repression) in gene regulation. The first row in the figure shows an exemplary gene region and the arrow represents the Transcription Start Site (TSS) and the direction of transcription. The signal of H3K4me1/2/3 is characterized by a narrow peak, whereas H3K27me3 is associated with broad and diffused peaks.
+
+.small[ Wang, Zhibin, Dustin E. Schones, and Keji Zhao. “Characterization of Human Epigenomes.” Current Opinion in Genetics &amp; Development 19, no. 2 (April 2009): 127–34. https://doi.org/10.1016/j.gde.2009.02.001. ]
+--&gt;
+
+---
+## Histone Marks by Genomic Element
+
+| ELEMENT | HISTONES MODIFICATIONS |
+|-------|----------------|
+| Transcriptional start site | H3K27ac, H3K4me3, open euchromatin |
+| Active promoter | H3K27ac, H3K4me3, open euchromatin |
+| Enhancer | H3K27ac, H3K4me1, H2A.Z, euchromatin |
+| Gene body, towards 3’ end | H3K79me2/3, H3K36me3 |
+| Large introns | H3K9ac, H3K18ac, H3K36me1 |
+| Translation | H3K4me1, H3K79me1 |
+| Strong polycomb repression | H3K9me2/3, H3K27me2/me3 |
+
+&lt;!---
+## Histone Marks by Genomic Element
+
+&lt;img src="img/epigenomic_marks_infografics.png" alt="" width="160%" style="display: block; margin: auto;" /&gt;
+
+Selected histone modifications used in current applications for prediction and classification of non-coding variants that detect gene regulatory elements. Distribution of histone modifications and other characteristics of epigenomic regulatory elements; EP300: E1A Binding Protein P300; YY1: POLR2A: DNA-dependent RNA polymerase II; Ying Yang 1.
+--&gt;
+
+---
+## Chromatin structure
+
+- Chromatin organization has multiple structural layers and organizes chromatin into "domains".
+
+- Both DNA methylation and chromatin marks contain important functional information.  
+&lt;img src="img/chromatin_histones.png" alt="" width="500px" style="display: block; margin: auto;" /&gt;
+.small[ Zhou, V., Goren, A. &amp; Bernstein, B. Charting histone modifications and the functional organization of mammalian genomes. Nat Rev Genet 12, 7–18 (2011). https://doi.org/10.1038/nrg2905 ]
+
+---
+## Chromatin structure
+
+- Open chromatin - actively transcribed genes
+- Heterochromatin - silent, transcriptionally inactive DNA
+&lt;img src="img/chromatin_homoheterochromatin.png" alt="" width="60%" style="display: block; margin: auto;" /&gt;
+
+.small[ Zhou, V., Goren, A. &amp; Bernstein, B. Charting histone modifications and the functional organization of mammalian genomes. Nat Rev Genet 12, 7–18 (2011). https://doi.org/10.1038/nrg2905 ]
+
+---
+## Chromatin structure affects cellular identity and state transitions
+
+&lt;img src="img/epigenetic_hallmarks2.png" alt="" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[ William A. Flavahan et al. ,Epigenetic plasticity and the hallmarks of cancer. Science 357, eaal2380 (2017). https://doi.org/10.1126/science.aal2380 ]
+
+---
+## Role of chromatin structure in cancer
+
+&lt;img src="img/epigenetic_hallmarks1.png" alt="" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+## Insulators/boundaries of open/closed chromatin
+
+&lt;img src="img/ctcf.jpg" alt="" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+## Super-enhancers
+
+&lt;img src="img/superenhancers.jpg" alt="" width="90%" style="display: block; margin: auto;" /&gt;
+
+.small[ Witte S, O'Shea J, Vahedi G
+Super-enhancers: Asset management in immune cell genomes
+Trends in Immunology, 2015; 36, 519-526 https://doi.org/10.1016/j.it.2015.07.005 ]
+
+---
+## ENCODE: Encyclopedia Of DNA Elements
+
+- Grand question: Where are the promoter, enhancer, and other regulatory regions of the human genome?
+
+- 14 manually chosen and 30 randomly selected human genomic regions, in total \~30Mb (1%) of the human genome sequence.
+
+- Dozens of labs did ChIP-seq, under rigorous quality guidelines, for over 100 transcription factors and histone modifications, plus related assays for DNA methylation, chromatin accessibility, etc.
+
+.small[ The ENCODE Project Consortium. An integrated encyclopedia of DNA elements in the human genome. Nature 489, 57–74 (2012). https://doi.org/10.1038/nature11247, over 100 authors]
+
+---
+## The Encyclopedia of DNA Elements Project
+
+&lt;img src="img/encode.png" alt="" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[ https://www.encodeproject.org/ ]
+
+&lt;!--
+Roadmap Epigenomics: chromatin regulation in normal cells
+
+&lt;img src="img/cell_and_tissue_types_with_epigenome_maps.jpg" alt="" width="180px" style="display: block; margin: auto;" /&gt;
+
+.small[ http://www.roadmapepigenomics.org/ ]
+--&gt;
+
+---
+## IHEC - the International Human Epigenome Consortium
+
+&lt;!-- - Nowadays, the most recent and complete resource is IHEC, the International Human Epigenome Consortium. --&gt;
+- International effort with several funding agencies.
+- Goal: Providing standardized reference epigenomes for a variety of normal and disease tissues.
+- Member groups take part in committees working on standards (assays, data/metadata distribution, ethics...).
+
+&lt;img src="img/ihec.png" alt="" width="45%" style="display: block; margin: auto;" /&gt;
+
+.small[ http://ihec-epigenomes.org/ ]
+
+---
+## IHEC Data Portal
+
+- Goal: Integrate epigenomic public datasets produced within the International Human Epigenome Consortium.
+- Raw data is in controlled access repositories.
+- Over 7,500 human datasets, from 5 consortia.
+- Offers tools for dataset discovery, visualization, and pre-analysis.
+
+&lt;img src="img/ihec.png" alt="" width="45%" style="display: block; margin: auto;" /&gt;
+
+.small[ http://epigenomesportal.ca/ihec/ ]
+
+---
+## IHEC Data Portal
+
+- Publicly accessible datasets
+    - Datasets made available in the IHEC Data Portal are publicly accessible for everyone’s own research.
+
+- Human data offered by such consortia usually falls in one of two categories:
+    - Controlled access data
+        - Raw data from sequencers
+        - Clinical/sensitive information such as phenotypes
+        - Archived at repositories such as EGA and dbGaP
+    - Public data
+        - Annotation tracks, to use in tools such as UCSC Genome Browser, Ensembl, and IGV.
+        - Some donor, sample, and library metadata.
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
