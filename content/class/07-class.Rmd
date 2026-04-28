@@ -34,3 +34,11 @@ knitr::include_url('../../slides/08_Epigenomics/01_Epigenomics_intro_xaringan.ht
 ```{r echo=FALSE}
 knitr::include_url('../../slides/09_ChIP-seq/01_ChIP-seq_xaringan.html#1')
 ```
+
+# single-cell ATAC-seq
+
+<a href="../../slides/09_ChIP-seq/scATAC-seq.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/09_ChIP-seq/scATAC-seq.html#1')
+```

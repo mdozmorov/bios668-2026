@@ -4,7 +4,7 @@
     <title>ChIP-seq</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mikhail Dozmorov" />
-    <meta name="date" content="2026-04-22" />
+    <meta name="date" content="2026-04-27" />
     <script src="libs/header-attrs-2.31/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ### Virginia Commonwealth University
 ]
 .date[
-### 2026-04-22
+### 2026-04-27
 ]
 
 ---
@@ -37,6 +37,7 @@ class: center, middle, inverse, title-slide
 .tiny { font-size: 40%; }
 &lt;/style&gt;
 
+&lt;!-- https://gemini.google.com/u/2/app/86afb74ac501b077 --&gt;
 
 ## Outline
 
@@ -1393,6 +1394,15 @@ where `\(D_i\)` - information content in position `\(i\)`; `\(p(b,i)\)` - correc
 .small[ Jaime A Castro-Mondragon et al. JASPAR 2022: the 9th release of the open-access database of transcription factor binding profiles, Nucleic Acids Research, January 2022, https://doi.org/10.1093/nar/gkab1113 ]
 
 ---
+## The Challenge of Motif Discovery
+
+- **Hidden Patterns**: Regulatory motifs are often short (6-20 bp) and buried within thousands of base pairs of non-functional "background" sequence.
+
+- **Sequence Variation**: Biological binding sites are degenerate; they rarely match a single consensus sequence perfectly across all occurrences.
+
+- **Unknown Location**: Unlike sequence alignment, we don't know where the sites are or how many exist in each sequence.
+
+---
 ## Motif finding
 
 - Sequence `\(K\)` reads. Goal, to find the locations of motif sites
@@ -1409,14 +1419,14 @@ where `\(D_i\)` - information content in position `\(i\)`; `\(p(b,i)\)` - correc
 ## Motif finding
 
 - The Gibbs motif sampling (a Monte-Carlo algorithm)
-- Every position `\(i\)` in the motif sequence follows probability distribution with `\(q_{ij}=\{q_{i,1}, ..., q_{i,4}\}\)`
+- Every position `\(i\)` in the motif sequence follows probability distribution with `\(q_{ij}=\{q_{i,1}, ..., q_{i,4}\}\)` (pattern probabilities)
     - `\(i\)` ranges from 1 to motif length `\(w\)`
-    - `\(j\)` ranges across the nucleotides (paper describes amino acids)
+    - `\(j\)` ranges across four nucleotides (paper describes 21 amino acids)
 
-- Background - each non-motif position follows a common probability distribution `\(p_j=\{p_1, ..., p_4\}\)`
+- Background - each non-motif position follows a common probability distribution `\(p_j=\{p_1, ..., p_4\}\)` (background probabilities)
 
 
-.small[Lawrence, C. E., S. F. Altschul, M. S. Boguski, J. S. Liu, A. F. Neuwald, and J. C. Wootton. "Detecting Subtle Sequence Signals: A Gibbs Sampling Strategy for Multiple Alignment." Science (New York, N.Y.) 262, no. 5131 (October 8, 1993): 208–14.]
+.small[Lawrence, C. E., S. F. Altschul, M. S. Boguski, J. S. Liu, A. F. Neuwald, and J. C. Wootton. "Detecting Subtle Sequence Signals: A Gibbs Sampling Strategy for Multiple Alignment." Science (New York, N.Y.) 262, no. 5131 (October 8, 1993): 208–14. https://doi.org/10.1126/science.8211139]
 
 ---
 ## Motif finding
@@ -1440,13 +1450,14 @@ where `\(D_i\)` - information content in position `\(i\)`; `\(p(b,i)\)` - correc
 ## Motif finding
 
 - Don't just choose the maximum
+
 - Instead, select a new `\(A_k\)` position proportional to this odds ratio
+
 - Then, choose a new sequence to withhold, and repeat everything
+
 - Stop the iteration if there is no change in maximizing the likelihood function `\(F=\sum_{i=1}^W\sum_{j=1}^4 c_{i,j} log\frac{q_{i,j}}{p_{j}}\)`
 
 &lt;img src="img/gibbs3.png" alt="" width="400px" style="display: block; margin: auto;" /&gt;
-
-.small[Lawrence, C. E., S. F. Altschul, M. S. Boguski, J. S. Liu, A. F. Neuwald, and J. C. Wootton. "Detecting Subtle Sequence Signals: a Gibbs Sampling Strategy for Multiple Alignment." Science (New York, N.Y.) 262, no. 5131 (October 8, 1993): 208–14.]
 
 ---
 ## HOMER
@@ -1501,39 +1512,37 @@ where:
 **Correction**: Bonferroni or Benjamini-Hochberg FDR for multiple testing
 
 ---
-## HOMER: Statistical Methods for Motif Analysis
-
-**De novo motif discovery**
+## HOMER: De novo motif discovery
 
 - **Method**: Optimization algorithm
 
-- Starts with all possible k-mers (usually 8-20 bp)
+- **Input**: Target sequences (peaks) and background sequences (HOMER automatically matches GC content)
 
-- Iteratively refines PWM using sequences with motif
+- Tests all possible k-mers (usually 8-20 bp) for enrichment in the target sequences compared to the background sequences. Significantly overrepresented k-mers are chosen as the "seeds".
 
-- **Scoring**: log odds ratio vs. background
-
-- **Selection**: enrichment p-value and information content
+- Iteratively refines rigid k-mers into flexible probability models (Position Weight Matrices, PWMs).
 
 ---
-## HOMER: Statistical Methods for Motif Analysis
+## HOMER: De novo motif discovery
 
-**Motif matching**
+- **Scoring**: Log Odds and the Hypergeometric Test
+  * **Log odds ratio:** The probability of the sequence occurring under the motif model versus by random chance (the background).
+  * **Enrichment `\(p\)`-value:** A hypergeometric distribution test of the statistical significance of finding this motif in the target sequences vs. the background. 
+
+- **Selection**: Information Content and Masking
+  * **Information Content:** Motif complexity estimation. If a motif is too degenerate (e.g., a repeating string of A's and T's), it is discarded. 
+  * **Masking:** HOMER "masks" all instances of the most significant motif and repeats the entire process to find the second most enriched motif.
+
+---
+## HOMER: Motif matching
+
 - Compare de novo motifs to known databases (JASPAR, TRANSFAC)
+
 - **Similarity metric**: Pearson correlation of PWM columns
+
 - Reports best matches with similarity scores
 
-
-**Background selection**
-- **Default**: random genomic regions matched for GC content
-- **Custom**: user-provided sequences (e.g., unchanged peaks)
-- **Auto-normalization**: corrects for GC/CpG bias
-
 .small[Heinz, Sven, et al. "Simple combinations of lineage-determining transcription factors prime cis-regulatory elements required for macrophage and B cell identities." Molecular cell (2010) https://doi.org/10.1016/j.molcel.2010.05.004 ]
-
-
-
-
 
 &lt;!--
 ## HOMER
@@ -1568,6 +1577,108 @@ where:
     - `knownResults.html` - known motif finding
 --&gt;
 
+---
+## MEME: Multiple EM for Motif Elicitation
+
+**A Gold Standard in Bioinformatics**
+
+Deciphering the regulatory grammar of genomes using probabilistic modeling.
+
+- Identifies recurring subsequences without gaps.
+
+- Operates in an unsupervised manner.
+
+- Utilizes statistical modeling to find optimal width and occurrences.
+
+.small[ https://meme-suite.org/meme/ ]
+
+---
+## Position-Specific Probability Matrix
+
+MEME models a motif as a matrix of probabilities where each cell `\(P_{c,k}\)` is the probability of character `\(c\)` appearing at position `\(k\)`.
+
+- **Information Content:** Measures how much the motif differs from background noise.
+
+- **No Gaps:** Classical MEME models fixed-length, contiguous patterns.
+
+- **Sequence Logos:** Visual representation where height reflects conservation.
+
+---
+## The EM Algorithm
+
+**Step 1: The E-Step (Expectation)**
+
+**Estimating Probable Sites**
+
+The algorithm calculates the expected values of the "hidden variables"—the starting positions of the motifs.
+
+- Given the current motif model, what is the probability that a motif starts at index `\(j\)` in sequence `\(i\)`?
+
+- Generates a weight matrix `\(Z_{i,j}\)` for all possible starting positions.
+
+- Accounts for both motif and background likelihoods.
+
+---
+## The EM Algorithm
+
+**Step 2: The M-Step (Maximization)**
+
+**Updating the Motif Model**
+
+The algorithm updates the motif parameters to maximize the likelihood of the data given the expected positions found in the E-step.
+
+- Update the character probabilities `\(P_{c,k}\)` in each column of the PWM.
+
+- Update the background frequencies.
+
+- Calculates a new "consensus" that better fits the weighted occurrences.
+
+&lt;!--
+## Distribution Models
+
+- **OOPS (One Occurrence Per Sequence)**: Assumes exactly one site per sequence. Simplest model, high sensitivity but assumes perfect coverage.
+
+- **ZOOPS (Zero or One Per Sequence)**: Allows some sequences to contain no motif at all. More robust for noisy biological datasets.
+
+- **TCM (Two-Component Mixture)**: Allows any number of non-overlapping occurrences per sequence. Ideal for repetitive elements.
+--&gt;
+
+---
+## Algorithm Convergence
+
+The E and M steps iterate until the model parameters stabilize and likelihood increases are negligible.
+
+- **Seeding:** Since EM is sensitive to initial points, MEME tries several "starting seeds" derived from subsequences.
+
+- **Log-Likelihood:** MEME maximizes the joint log-likelihood of the data.
+
+---
+## The MEME Ecosystem
+
+.pull-left[
+MEME is the foundation of a comprehensive suite of motif analysis tools used by thousands of researchers worldwide.
+]
+.pull-right[
+&lt;img src="img/meme_logo.png" alt="" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+- **MAST/FIMO:** Searching sequences for motif matches.
+
+- **Tomtom:** Comparing motifs to databases (e.g., JASPAR).
+
+- **STREME:** Fast discovery for large datasets (ChIP-seq).
+
+- **GOMO:** Assigning Gene Ontology terms to motifs.
+
+---
+## EM vs. Gibbs Sampling
+
+| Feature | EM (MEME) | Gibbs Sampling |
+| :--- | :--- | :--- |
+| **Approach** | Deterministic (Probabilistic) | Stochastic (Sampling) |
+| **Optimization** | Iterative refinement of PWM | Iterative sampling of sites |
+| **Local Optima** | Susceptible; needs good starts | Better at escaping local optima |
+| **Execution** | Generally faster | Can be slower due to sampling |
 
 ---
 ## Summary
