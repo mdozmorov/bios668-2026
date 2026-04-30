@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Methylation introduction</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mikhail Dozmorov" />
+    <meta name="date" content="2026-04-28" />
+    <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Methylation introduction
+]
+.author[
+### Mikhail Dozmorov
+]
+.institute[
+### Virginia Commonwealth University
+]
+.date[
+### 2026-04-28
+]
+
+---
+
+
+
+
+&lt;!-- HTML style block --&gt;
+&lt;style&gt;
+.large { font-size: 130%; }
+.small { font-size: 70%; }
+.tiny { font-size: 40%; }
+&lt;/style&gt;
+
+&lt;!-- https://gemini.google.com/u/2/app/27600da0f5d8f386 --&gt;
+
+## Epigenomics
+
+.pull-left[
+- **Epigenomics** can be defined as the genome-wide investigation of stably heritable phenotypes resulting from changes in a chromosome without alterations in the DNA sequence.
+- Term coined by Conrad Hal Waddington in 1942.
+]
+
+.pull-right[
+&lt;img src="img/waddington_epigenetics.jpg" alt="" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+.small[ Berger, S. L., Kouzarides, T., Shiekhattar, R., and Shilatifard, A. (2009). An operational definition of epigenetics. Genes Dev. 23, 781–783. doi: 10.1101/gad.1787609 ]
+
+---
+## DNA methylation
+
+- DNA methylation is a type of chemical modification of DNA which involves the addition of a methyl group to the number 5 carbon of the cytosine (5C), to convert cytosine to 5-methylcytosine (5mC).
+- The most well-characterized epigenetic mechanism.
+- In humans, DNA methylation occurs in cytosines that precede guanines (hence, CpG).
+- Invertebrates (Drosophila, yeast) do not exhibit cytosine methylation.
+
+&lt;img src="img/methylation.png" alt="" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+## DNA modifications
+
+- Other nucleotides (Adenine, Guanine, Thymine) can also be modified.
+- Mainly in bacteria, but genomes of eukaryotes may contain base modifications on bases other than cytosine, such as methylated adenine or guanine.
+
+&lt;img src="img/methylation.png" alt="" width="50%" style="display: block; margin: auto;" /&gt;
+
+.small[ Sood AJ, Viner C, Hoffman MM. 2016. "**DNAmod: the DNA modification database.**" bioRxiv 071712. https://www.pmgenomics.ca/hoffmanlab/proj/dnamod/ ]
+
+---
+## CpG Sites and CpG islands
+
+- CpG sites are not randomly distributed in the genome—the frequency of CpG sites in human genomes is 1% (~28 million CpGs), which is less than the expected (~4-6%).
+
+- Around 60-90% of CpGs are methylated in mammals.
+
+- DNA methylation frequently occurs in repeated sequences and may help to suppress transcription from these sequences and aid chromosomal stability.
+
+---
+## CpG Sites and CpG islands
+
+- There are regions of the DNA that have a higher concentration of CpG sites (&gt; 60%), named CpG islands, which tend to be located in the promoter regions of many genes.
+
+- Between 200-1000 bp in length.
+
+- Usually not methylated.
+
+- Less than 10% of CpGs occur in CG-dense regions.
+
+---
+## non-CG methylation
+
+- Embryonic stem cells (ESCs) have ~25% non-CG methylation (mCHG and mCHH, where H=A, C, T).
+
+- non-CG methylation correlates with gene expression in ESCs.
+
+- non-CG methylation is on the anti-sense strand of gene bodies and correlates with increased _intronic_ transcription in ESCs.
+
+- non-CG methylation is depleted in enhancers in ESCs.
+
+.small[ Lister, Ryan, Mattia Pelizzola, Robert H. Dowen, R. David Hawkins, Gary Hon, Julian Tonti-Filippini, Joseph R. Nery, et al. “Human DNA Methylomes at Base Resolution Show Widespread Epigenomic Differences.” Nature 462, no. 7271 (November 19, 2009): 315–22. https://doi.org/10.1038/nature08514. ]
+
+---
+## Creation and maintenance of DNA methylation
+
+- In humans, DNA is methylated by three enzymes: DNA methyltransferase DNMT1, DNMT3a, and DNMT3b.
+
+- **DNMT1** is the maintenance methyltransferase responsible for copying DNA methylation patterns to the daughter strands during DNA replication.
+
+- **DNMT3a and 3b** are the _de novo_ methyltransferases that, in combination with DNMT3L, set up DNA methylation patterns early in development.
+
+---
+## Removal of DNA methylation
+
+- Loss of 5mC can be achieved **passively** by dilution during replication or exclusion of DNMT1 from the nucleus.
+
+- **Ten-eleven translocation (TET)** family of proteins can **actively** convert 5-methylcytosine (5mC) into 5-hydroxymethylcytosine (5hmC) in vertebrates—demethylation.
+
+- Iterative oxidations of 5hmC catalyzed by TET result in 5-formylcytosine (5fC) and 5-carboxylcytosine (5caC). The 5caC mark is excised from DNA by G/T mismatch-specific thymine-DNA glycosylase (TDG), which returns the cytosine residue back to its unmodified state.
+
+.small[ Guo, Junjie U., Yijing Su, Chun Zhong, Guo-li Ming, and Hongjun Song. “Hydroxylation of 5-Methylcytosine by TET1 Promotes Active DNA Demethylation in the Adult Brain.” Cell 145, no. 3 (April 29, 2011): 423–34. https://doi.org/10.1016/j.cell.2011.03.022. ]
+
+---
+## Roles of DNA methylation
+
+.pull-left[
+- Transcriptional gene silencing
+
+- Maintain genome stability
+
+- Embryonic development
+
+- Genomic imprinting
+
+- X chromosome inactivation (females)
+]
+.pull-right[
+&lt;img src="img/methylation1.png" alt="" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.small[ http://learn.genetics.utah.edu/content/epigenetics/imprinting/ ]
+
+---
+## Factors associated with changes in DNA methylation
+
+- Aging (developmental stage)
+
+- Diet
+
+- Inflammatory patterns
+
+- Environmental exposures
+
+- Smoking
+
+- Alcohol
+
+---
+## DNA methylation and cancer
+
+**Hypomethylation** – decrease methylation levels
+
+- A lower level of DNA methylation in tumors was one of the first epigenetic alterations to be found in human cancer (Feinberg AP, et al., 1983).
+
+- Demethylation of the promoter region of proto-oncogenes will activate normally repressed gene expression.
+
+- Global hypomethylation of DNA sequences that are normally heavily methylated may result in:
+  - Chromosomal instability
+  - Increased transcription from transposable elements
+  - An elevated mutation rate due to mitotic recombination
+
+---
+## DNA hypermethylation
+
+**Hypermethylation** – increase methylation levels
+
+- Hypermethylation of CpG islands in the promoter regions of tumor-suppressor genes is a major event in the origin of many cancers.
+
+- Hypermethylation of promoters can inactivate tumor-suppressor genes, affecting genes involved in the cell cycle, DNA repair, and the metabolism of carcinogens.
+
+- The profiles of hypermethylation of CpG islands in tumor-suppressor genes are specific to the cancer type.
+
+---
+
+&lt;img src="img/laird.png" alt="" width="80%" style="display: block; margin: auto;" /&gt;
+
+.small[ Laird PW "**Oncogenic mechanisms mediated by DNA methylation.**" Mol Med Today. 1997 http://www.cell.com/moltod/pdf/S1357-4310(97)01019-8.pdf ]
+
+---
+## Technologies for Measuring DNA Methylation
+
+- **Bisulfite Sequencing (BS-Seq):** The "Gold Standard." Bisulfite treatment converts unmethylated cytosines to uracil, while 5mC remains intact.
+
+- **MeDIP-seq:** Methylated DNA Immunoprecipitation followed by sequencing; uses antibodies to isolate methylated fragments.
+
+- **BeadChip Arrays (e.g., Illumina EPIC):** High-throughput hybridization-based method targeting specific known CpG sites across the genome.
+
+- **Nanopore Sequencing:** Direct detection of modified bases by measuring electrical current changes as DNA passes through a pore.
+
+---
+## Application of DNA methylation assays
+
+**Early diagnosis** - Detection of CpG-island hypermethylation in biological fluids and serum.
+
+**Prognosis** - Hypermethylation of specific genes. Whole DNA methylation profiles.
+
+**Prediction** - CpG island hypermethylation as a marker of response to chemotherapy.
+
+**Prevention** - Developing DNMT inhibitors as chemopreventive drugs to reactivate silenced genes.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

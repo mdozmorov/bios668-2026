@@ -1,0 +1,38 @@
+---
+title: "Methylation"
+# linktitle: "1. Introduction to RStudio and Images"
+date: "2026-04-29"
+class_date: "2026-04-29"
+draft: false
+output:
+  blogdown::html_page:
+    toc: false
+menu:
+  class:
+    parent: Class sessions
+    weight: 8
+type: docs
+weight: 8
+# pdf: 
+# thumb: 
+editor_options: 
+  chunk_output_type: console
+---
+
+## Methylation
+
+<a href="../../slides/07_Methylation/01_Methylation_intro_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/07_Methylation/01_Methylation_intro_xaringan.html#1')
+```
+
+## Hidden Markov Models
+
+<a href="../../slides/08_Epigenomics/03_HMM_Xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/08_Epigenomics/03_HMM_Xaringan.html#1')
+```
+
+**Code:** HMM examples, [segmentation.R](../../slides/08_Epigenomics/lab/segmentation.R), [segmentation.Rmd](../../slides/08_Epigenomics/lab/segmentation.Rmd), [segmentation.html](../../slides/08_Epigenomics/lab/segmentation.html)
