@@ -10,9 +10,9 @@ output:
 menu:
   class:
     parent: Class sessions
-    weight: 8
+    weight: 9
 type: docs
-weight: 8
+weight: 9
 # pdf: 
 # thumb: 
 editor_options: 
