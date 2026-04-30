@@ -1,0 +1,178 @@
+---
+title: "Chromatin Segmentation with Hidden Markov Models"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(depmixS4)
+library(ggplot2)
+library(reshape2)
+```
+
+## Introduction
+
+Chromatin segmentation tools like **ChromHMM** or **Segway** use HMMs to integrate multiple "tracks" of genomic data (like ChIP-seq for histone marks) and assign a hidden state (e.g., Promoter, Enhancer, or Repressed) to every position in the genome.
+
+An HMM consists of:
+
+1.  **Hidden States ($S$):** The functional labels we want to discover.
+2.  **Transition Probabilities ($A$):** The probability of moving from one state to another (e.g., how likely is a Promoter to be followed by another Promoter?).
+3.  **Emission Probabilities ($B$):** The probability of seeing specific data values given a state (e.g., high H3K4me3 signal is very likely in a Promoter state).
+
+---
+
+## Step 1: Simulating Genomic Data
+
+We will simulate 1,000 genomic "bins" and two tracks: **H3K4me3** (typically found at promoters) and **H3K27ac** (typically found at enhancers).
+
+We define three hidden states:
+1.  **Background (State 1):** Low signal in both tracks.
+2.  **Promoter (State 2):** High H3K4me3, low H3K27ac.
+3.  **Enhancer (State 3):** Low H3K4me3, high H3K27ac.
+
+```{r simulation}
+set.seed(123)
+n_bins <- 1000
+
+# 1. Define Transition Matrix (High probability of staying in the same state)
+# Rows = From, Cols = To
+trans_mat <- matrix(c(0.95, 0.03, 0.02,
+                      0.05, 0.90, 0.05,
+                      0.05, 0.05, 0.90), 
+                    nrow = 3, byrow = TRUE)
+
+# 2. Simulate Hidden State sequence
+states <- numeric(n_bins)
+states[1] <- 1 # Start in Background
+for(i in 2:n_bins) {
+  states[i] <- sample(1:3, size = 1, prob = trans_mat[states[i-1], ])
+}
+
+# 3. Simulate Emissions (Signal intensity)
+# We add random Gaussian noise to the expected intensities
+h3k4me3 <- ifelse(states == 2, rnorm(n_bins, 5, 1), rnorm(n_bins, 1, 1))
+h3k27ac <- ifelse(states == 3, rnorm(n_bins, 5, 1), rnorm(n_bins, 1, 1))
+
+# Combine into a dataframe
+genomic_data <- data.frame(
+  bin = 1:n_bins,
+  H3K4me3 = h3k4me3,
+  H3K27ac = h3k27ac,
+  TrueState = as.factor(states)
+)
+```
+
+---
+
+## Step 2: Visualizing the "Raw" Signal
+
+Before running the model, let's look at the data. Notice how the signals fluctuate; the HMM's job is to look past this noise and find the underlying states.
+
+```{r plot_raw}
+df_melt <- melt(genomic_data, id.vars = c("bin", "TrueState"))
+
+ggplot(df_melt, aes(x = bin, y = value, color = variable)) +
+  geom_line(alpha = 0.6) +
+  facet_wrap(~variable, ncol = 1) +
+  theme_minimal() +
+  labs(title = "Simulated Genomic Tracks", y = "Signal Intensity")
+```
+
+---
+
+## Step 3: Fitting the Hidden Markov Model
+
+We use the `depmix` function to define a model with 3 states. We model the emissions as a multi-variate Gaussian (Normal) distribution.
+
+```{r fit_hmm}
+# Define the model: 
+# We observe H3K4me3 and H3K27ac simultaneously
+mod <- depmix(list(H3K4me3 ~ 1, H3K27ac ~ 1), 
+              data = genomic_data, 
+              nstates = 3, 
+              family = list(gaussian(), gaussian()))
+
+# Fit the model using Expectation-Maximization (EM)
+fit_mod <- fit(mod)
+
+# Summary of the model parameters (Transition and Emission)
+summary(fit_mod)
+```
+
+---
+
+## Step 4: Decoding the Genome
+
+Now that the model is trained, we use the **Viterbi algorithm** to find the most likely sequence of hidden states that produced our observed signals.
+
+```{r decode}
+# Predict the states
+est_states <- posterior(fit_mod)
+
+# Add predictions back to our dataframe
+genomic_data$PredictedState <- as.factor(est_states$state)
+
+# Visualize True vs Predicted
+# ggplot(genomic_data, aes(x = bin)) +
+#   geom_tile(aes(y = 2, fill = TrueState)) +
+#   geom_tile(aes(y = 1, fill = PredictedState)) +
+#   scale_y_continuous(breaks = c(1, 2), labels = c("Predicted", "True")) +
+#   theme_minimal() +
+#   labs(title = "HMM Segmentation Results", x = "Genomic Position", y = "") +
+#   scale_fill_brewer(palette = "Set1")
+```
+
+### Aligned Genomic Tracks Visualization
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(patchwork) # For combining multiple plots
+library(dplyr)
+library(tidyr)
+
+# 1. Create the Signal Tracks (Line plots)
+# We plot the continuous intensity for each histone mark
+p1 <- ggplot(genomic_data, aes(x = bin, y = H3K4me3)) +
+  geom_line(color = "#e41a1c", size = 0.5) +
+  labs(title = "Genomic Signal Tracks", y = "H3K4me3") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+
+p2 <- ggplot(genomic_data, aes(x = bin, y = H3K27ac)) +
+  geom_line(color = "#377eb8", size = 0.5) +
+  labs(y = "H3K27ac") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank())
+
+# 2. Create the State Tracks (Heatmap/Ribbon style)
+# This shows the True vs Predicted functional categories
+p3 <- ggplot(genomic_data, aes(x = bin, y = 1, fill = TrueState)) +
+  geom_tile() +
+  scale_fill_manual(values = c("1" = "grey80", "2" = "#4daf4a", "3" = "#984ea3"),
+                    labels = c("Background", "Promoter", "Enhancer")) +
+  labs(y = "True", fill = "States") +
+  theme_minimal() +
+  theme(axis.text = element_blank(), axis.title.x = element_blank(), 
+        panel.grid = element_blank())
+
+p4 <- ggplot(genomic_data, aes(x = bin, y = 1, fill = PredictedState)) +
+  geom_tile() +
+  scale_fill_manual(values = c("1" = "grey80", "2" = "#4daf4a", "3" = "#984ea3")) +
+  labs(y = "Predicted", x = "Genomic Coordinate (Bins)") +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(), panel.grid = element_blank(),
+        legend.position = "none")
+
+# 3. Combine the plots using patchwork
+# We specify the heights to give more room to the signals
+combined_plot <- (p1 / p2 / p3 / p4) + 
+  plot_layout(heights = c(3, 3, 1, 1), guides = "collect")
+
+print(combined_plot)
+```
+
+## Conclusion
+
+The HMM successfully "smoothed" the noisy signal into discrete blocks. While the predicted state numbers (1, 2, 3) might be swapped compared to our simulation (label switching), the **segment boundaries** should align closely with the truth. In a real biological context, you would look at the emission means to determine which state corresponds to a "Promoter" vs an "Enhancer."
