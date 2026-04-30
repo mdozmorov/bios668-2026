@@ -42,3 +42,11 @@ knitr::include_url('../../slides/09_ChIP-seq/01_ChIP-seq_xaringan.html#1')
 ```{r echo=FALSE}
 knitr::include_url('../../slides/09_ChIP-seq/scATAC-seq.html#1')
 ```
+
+# Other chromatin profiling technologies
+
+<a href="../../slides/09_ChIP-seq/02_Other-seq_xaringan.html#1" target="_blank">Lecture slides in HTML format</a>
+
+```{r echo=FALSE}
+knitr::include_url('../../slides/09_ChIP-seq/02_Other-seq_xaringan.html#1')
+```
